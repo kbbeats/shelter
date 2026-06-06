@@ -1,5 +1,6 @@
 import type {
   GamePhase,
+  ScenarioMode,
   PlayerCards,
   PublicPlayer,
   MaskedCard,
@@ -57,6 +58,8 @@ export class GameRoom {
   doubleVoters = new Set<string>()
   lastAbilityAnnouncement: AbilityAnnouncement | null = null
   activeInterrupt: AbilityInterrupt | null = null
+  scenarioMode: ScenarioMode = 'host'
+  scenarioVotes: Map<string, Set<string>> = new Map()
 
   constructor(code: string, hostId: string, hostName: string) {
     this.code = code
@@ -128,6 +131,50 @@ export class GameRoom {
   selectScenario(scenarioId: string): boolean {
     if (!scenarioMap.has(scenarioId)) return false
     this.selectedScenarioId = scenarioId
+    this.touch()
+    return true
+  }
+
+  setScenarioMode(mode: ScenarioMode): void {
+    this.scenarioMode = mode
+    this.scenarioVotes.clear()
+    this.selectedScenarioId = null
+    if (mode === 'random') {
+      const ids = [...scenarioMap.keys()]
+      this.selectedScenarioId = ids[Math.floor(Math.random() * ids.length)]
+    }
+    this.touch()
+  }
+
+  castScenarioVote(socketId: string, scenarioId: string): boolean {
+    if (this.scenarioMode !== 'vote') return false
+    const player = this.players.get(socketId)
+    if (!player || !player.isAlive) return false
+    if (!scenarioMap.has(scenarioId)) return false
+
+    // Remove player's previous vote from any scenario
+    for (const voters of this.scenarioVotes.values()) {
+      voters.delete(player.name)
+    }
+
+    // Record new vote
+    if (!this.scenarioVotes.has(scenarioId)) {
+      this.scenarioVotes.set(scenarioId, new Set())
+    }
+    this.scenarioVotes.get(scenarioId)!.add(player.name)
+
+    // Auto-select when all alive players have voted
+    const totalVotes = [...this.scenarioVotes.values()].reduce((sum, s) => sum + s.size, 0)
+    if (totalVotes >= this.getAlivePlayers().length) {
+      let maxVotes = 0
+      let winners: string[] = []
+      for (const [id, voters] of this.scenarioVotes) {
+        if (voters.size > maxVotes) { maxVotes = voters.size; winners = [id] }
+        else if (voters.size === maxVotes) winners.push(id)
+      }
+      this.selectedScenarioId = winners[Math.floor(Math.random() * winners.length)]
+    }
+
     this.touch()
     return true
   }
@@ -341,6 +388,10 @@ export class GameRoom {
 
   getPublicState(viewerSocketId?: string): RoomState {
     const players = [...this.players.values()].map(p => this.toPublicPlayer(p, viewerSocketId))
+    const scenarioVotes: Record<string, string[]> = {}
+    for (const [id, voters] of this.scenarioVotes) {
+      scenarioVotes[id] = [...voters]
+    }
     return {
       code: this.code,
       phase: this.phase,
@@ -356,6 +407,8 @@ export class GameRoom {
       selectedScenarioId: this.selectedScenarioId,
       lastAbilityAnnouncement: this.lastAbilityAnnouncement,
       activeInterrupt: this.activeInterrupt,
+      scenarioMode: this.scenarioMode,
+      scenarioVotes,
     }
   }
 

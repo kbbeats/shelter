@@ -33,7 +33,10 @@ export default function Lobby() {
   if (!roomState || !code) return null
 
   const isHost = roomState.players.find(p => p.id === mySocketId)?.isHost
-  const canStart = roomState.players.filter(p => p.isConnected).length >= 1
+  const myPlayerName = roomState.players.find(p => p.id === mySocketId)?.name ?? null
+  const hostName = roomState.players.find(p => p.isHost)?.name ?? ''
+  const hasEnoughPlayers = roomState.players.filter(p => p.isConnected).length >= 1
+  const canStart = hasEnoughPlayers && !!roomState.selectedScenarioId
 
   return (
     <div className="page">
@@ -54,11 +57,20 @@ export default function Lobby() {
         <ScenarioPicker
           selectedId={roomState.selectedScenarioId}
           isHost={!!isHost}
+          scenarioMode={roomState.scenarioMode}
+          scenarioVotes={roomState.scenarioVotes}
+          hostName={hostName}
+          myPlayerName={myPlayerName}
         />
 
         {isHost ? (
           <div>
-            {!canStart && (
+            {!roomState.selectedScenarioId && (
+              <p className="dim mono mb-2" style={{ fontSize: '0.8rem' }}>
+                Select a scenario to start
+              </p>
+            )}
+            {roomState.selectedScenarioId && !hasEnoughPlayers && (
               <p className="dim mono mb-2" style={{ fontSize: '0.8rem' }}>
                 {t('lobby.need_more')}
               </p>

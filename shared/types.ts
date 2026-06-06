@@ -117,6 +117,8 @@ export interface VoteSummary {
   totalVoters: number
 }
 
+export type ScenarioMode = 'host' | 'vote' | 'random'
+
 export interface RoomState {
   code: string
   phase: GamePhase
@@ -132,4 +134,6 @@ export interface RoomState {
   selectedScenarioId: string | null
   lastAbilityAnnouncement: AbilityAnnouncement | null
   activeInterrupt: AbilityInterrupt | null
+  scenarioMode: ScenarioMode
+  scenarioVotes: Record<string, string[]>
 }

@@ -11,6 +11,8 @@ export const EVENTS = {
   ARGUMENT_DONE: 'argument:done',
   GET_SCENARIOS: 'scenarios:get',
   ABILITY_USE: 'ability:use',
+  SET_SCENARIO_MODE: 'scenario:setMode',
+  SCENARIO_VOTE: 'scenario:vote',
 
   // Server → Client
   ROOM_STATE: 'room:state',

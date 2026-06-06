@@ -177,6 +177,23 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
     },
   )
 
+  socket.on(EVENTS.SET_SCENARIO_MODE, ({ mode }: { mode: 'host' | 'vote' | 'random' }) => {
+    const room = findRoomBySocket(socket.id)
+    if (!room || !room.isHost(socket.id)) return
+    if (room.phase !== 'LOBBY') return
+    room.setScenarioMode(mode)
+    io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+  })
+
+  socket.on(EVENTS.SCENARIO_VOTE, ({ scenarioId }: { scenarioId: string }) => {
+    const room = findRoomBySocket(socket.id)
+    if (!room || room.phase !== 'LOBBY') return
+    const voted = room.castScenarioVote(socket.id, scenarioId)
+    if (voted) {
+      io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+    }
+  })
+
   socket.on(EVENTS.ABILITY_INTERRUPT_SKIP, () => {
     const room = findRoomBySocket(socket.id)
     if (!room) return
