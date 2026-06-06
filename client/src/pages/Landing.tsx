@@ -12,13 +12,24 @@ export default function Landing() {
   const [view, setView] = useState<View>('home')
   const [name, setName] = useState('')
   const [code, setCode] = useState('')
-  const { createRoom, joinRoom, roomState, error, clearError } = useGameStore()
+  const { createRoom, joinRoom, roomState, error, clearError, connected } = useGameStore()
+  const [disconnectedMs, setDisconnectedMs] = useState(0)
 
   useEffect(() => {
     if (roomState?.phase === 'LOBBY' && roomState.code) {
       navigate(`/lobby/${roomState.code}`)
     }
   }, [roomState, navigate])
+
+  useEffect(() => {
+    if (connected) {
+      setDisconnectedMs(0)
+      return
+    }
+    const start = Date.now()
+    const interval = setInterval(() => setDisconnectedMs(Date.now() - start), 500)
+    return () => clearInterval(interval)
+  }, [connected])
 
   const handleCreate = () => {
     if (!name.trim()) return
@@ -29,6 +40,12 @@ export default function Landing() {
     if (!name.trim() || !code.trim()) return
     joinRoom(code.trim().toUpperCase(), name.trim())
   }
+
+  const connectionStatus = !connected
+    ? disconnectedMs >= 10_000
+      ? 'Server is waking up, this may take ~30 seconds'
+      : 'Connecting to server...'
+    : null
 
   return (
     <div className="landing">
@@ -48,12 +65,18 @@ export default function Landing() {
         <p className="app-subtitle">{t('app.subtitle')}</p>
       </div>
 
+      {connectionStatus && (
+        <p style={{ textAlign: 'center', opacity: 0.6, fontSize: '0.85rem', marginBottom: '0.5rem' }}>
+          {connectionStatus}
+        </p>
+      )}
+
       {view === 'home' && (
         <div className="landing__actions">
-          <button className="btn btn--primary btn--full btn--lg" onClick={() => setView('create')}>
+          <button className="btn btn--primary btn--full btn--lg" onClick={() => setView('create')} disabled={!connected}>
             {t('landing.create')}
           </button>
-          <button className="btn btn--outline btn--full btn--lg" onClick={() => setView('join')}>
+          <button className="btn btn--outline btn--full btn--lg" onClick={() => setView('join')} disabled={!connected}>
             {t('landing.join')}
           </button>
         </div>
@@ -70,7 +93,7 @@ export default function Landing() {
             maxLength={24}
             autoFocus
           />
-          <button className="btn btn--primary btn--full" onClick={handleCreate} disabled={!name.trim()}>
+          <button className="btn btn--primary btn--full" onClick={handleCreate} disabled={!connected || !name.trim()}>
             {t('landing.create')}
           </button>
           <button className="btn btn--ghost btn--full" onClick={() => setView('home')}>
@@ -104,7 +127,7 @@ export default function Landing() {
             <button
               className="btn btn--primary btn--full"
               onClick={handleJoin}
-              disabled={!name.trim() || code.length < 4}
+              disabled={!connected || !name.trim() || code.length < 4}
             >
               {t('landing.join.submit')}
             </button>
