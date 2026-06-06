@@ -733,8 +733,144 @@ h1, h2, h3, .display {
 .vote-count { font-family: var(--font-mono); font-size: 0.8rem; color: var(--c-primary); min-width: 20px; text-align: right; }
 
 /* ── Player Card (opponent view) ─────────────────────────────────────────── */
-.player-cards-grid { display: grid; gap: 6px; }
+.player-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
 .players-list { display: flex; flex-direction: column; gap: 12px; }
+
+/* ── ID Card ─────────────────────────────────────────────────────────────── */
+.id-card {
+  background: var(--c-surface2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  transition: all 0.3s ease;
+}
+.id-card--highlighted {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 20px var(--c-glow);
+}
+.id-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--c-border);
+}
+.id-card__name {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.id-card__attrs { display: flex; flex-direction: column; gap: 4px; }
+.id-card__attr { display: flex; align-items: baseline; gap: 6px; }
+.id-card__attr-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-text-dim);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+.id-card__attr-val {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--c-text);
+  font-weight: 500;
+}
+.id-card__attr-val--hidden {
+  color: var(--c-text-dim);
+  opacity: 0.45;
+  letter-spacing: 0.12em;
+}
+
+/* ── Own Card (my card panel) ────────────────────────────────────────────── */
+.own-card {
+  padding: 12px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-top: 2px solid var(--c-primary);
+  border-radius: var(--radius);
+}
+.own-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--c-border);
+}
+.own-card__name {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--c-primary);
+}
+.own-card__attrs { display: flex; flex-direction: column; gap: 0; }
+.own-card__attr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--c-border);
+}
+.own-card__attr:last-child { border-bottom: none; }
+.own-card__attr-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-text-dim);
+  min-width: 90px;
+  flex-shrink: 0;
+}
+.own-card__attr-val {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--c-text);
+  font-weight: 500;
+  flex: 1;
+}
+.own-card__reveal-btn {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--c-border);
+  background: transparent;
+  color: var(--c-text-dim);
+  cursor: not-allowed;
+  opacity: 0.4;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+.own-card__reveal-btn--active {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  cursor: pointer;
+  opacity: 1;
+}
+.own-card__reveal-btn--active:hover {
+  background: var(--c-primary);
+  color: var(--c-bg);
+  box-shadow: 0 0 8px var(--c-glow);
+}
+.own-card__public-badge {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-primary);
+  opacity: 0.65;
+  flex-shrink: 0;
+}
 
 /* ── Card Slot ───────────────────────────────────────────────────────────── */
 .card-slot {

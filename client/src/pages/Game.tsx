@@ -61,7 +61,7 @@ export default function Game() {
         {(phase === 'ROUND_VOTING') && <VotingPanel />}
 
         {/* Other players' cards */}
-        <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="player-cards-grid" style={{ marginTop: 16 }}>
           {otherPlayers.map(player => (
             <PlayerCard
               key={player.id}

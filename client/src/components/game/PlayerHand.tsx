@@ -1,15 +1,11 @@
-import { useState } from 'react'
 import { useGameStore } from '../../store/gameStore'
-import { CardSlot } from './CardSlot'
-import { CardRevealModal } from './CardRevealModal'
-import type { CardCategory } from '@shelter/shared'
 
 export function PlayerHand() {
   const roomState = useGameStore(s => s.roomState)
   const myCards = useGameStore(s => s.myCards)
   const mySocketId = useGameStore(s => s.mySocketId)
   const lang = useGameStore(s => s.language)
-  const [confirming, setConfirming] = useState<CardCategory | null>(null)
+  const revealCard = useGameStore(s => s.revealCard)
 
   if (!roomState?.scenario || !myCards || !mySocketId) return null
 
@@ -21,35 +17,35 @@ export function PlayerHand() {
     roomState.currentArgumentPlayerId === mySocketId
 
   return (
-    <>
-      <div className="player-hand">
-        <div className="player-hand__label">Your cards</div>
-        <div className="player-hand__cards">
-          {roomState.scenario.cardCategories.map(cat => {
-            const card = myCards[cat.id] ?? null
-            const isRevealed = me.revealedCategoryIds.includes(cat.id)
-            return (
-              <div key={cat.id} className="player-hand__card-wrap">
-                <CardSlot
-                  category={cat}
-                  card={card}
-                  isRevealed={isRevealed}
-                  isClickable={isMyTurn && !isRevealed}
-                  lang={lang}
-                  onClick={() => setConfirming(cat)}
-                />
-              </div>
-            )
-          })}
-        </div>
+    <div className="own-card">
+      <div className="own-card__header">
+        <span className="own-card__name">{me.name}</span>
+        <span className="section-label" style={{ marginBottom: 0 }}>Your cards</span>
       </div>
-
-      {confirming && (
-        <CardRevealModal
-          category={confirming}
-          onClose={() => setConfirming(null)}
-        />
-      )}
-    </>
+      <div className="own-card__attrs">
+        {roomState.scenario.cardCategories.map(cat => {
+          const card = myCards[cat.id] ?? null
+          const isRevealed = me.revealedCategoryIds.includes(cat.id)
+          return (
+            <div key={cat.id} className="own-card__attr">
+              <span className="own-card__attr-label">{cat.icon} {cat.name[lang]}</span>
+              <span className="own-card__attr-val">{card ? card.label[lang] : '—'}</span>
+              {!isRevealed ? (
+                <button
+                  className={`own-card__reveal-btn${isMyTurn ? ' own-card__reveal-btn--active' : ''}`}
+                  onClick={() => isMyTurn && revealCard(cat.id)}
+                  disabled={!isMyTurn}
+                  title={isMyTurn ? '' : 'Not your turn'}
+                >
+                  Reveal
+                </button>
+              ) : (
+                <span className="own-card__public-badge">Public</span>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }

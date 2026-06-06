@@ -66,9 +66,7 @@ export function dealAbilities(playerIds: string[]): Map<string, SpecialAbilityCa
   const result = new Map<string, SpecialAbilityCard[]>()
   playerIds.forEach(id => {
     const shuffled = shuffle(abilityPool)
-    const a1 = shuffled[0]
-    const a2 = shuffled.find(a => a.id !== a1.id) ?? shuffled[1]
-    result.set(id, [a1, a2])
+    result.set(id, [shuffled[0]])
   })
   return result
 }
