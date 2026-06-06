@@ -647,13 +647,23 @@ h1, h2, h3, .display {
   gap: 12px;
   min-height: 100vh;
   padding: 12px;
+  padding-bottom: 260px; /* reserve space so sticky hand never covers content */
 }
 @media (max-width: 700px) {
-  .game-layout { grid-template-columns: 1fr; }
+  .game-layout { grid-template-columns: 1fr; padding-bottom: 300px; }
 }
 .game-layout__main { grid-column: 1; grid-row: 1 / 3; }
 .game-layout__sidebar { grid-column: 2; grid-row: 1 / 3; overflow-y: auto; }
-.game-layout__hand { grid-column: 1 / 3; grid-row: 3; }
+.game-layout__hand {
+  grid-column: 1 / 3;
+  grid-row: 3;
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  background: var(--c-bg);
+  padding-top: 6px;
+  border-top: 1px solid var(--c-border);
+}
 @media (max-width: 700px) {
   .game-layout__sidebar { grid-column: 1; grid-row: 3; }
   .game-layout__hand { grid-column: 1; grid-row: 4; }
@@ -735,8 +745,8 @@ h1, h2, h3, .display {
 /* ── Player Card (opponent view) ─────────────────────────────────────────── */
 .player-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
 }
 .players-list { display: flex; flex-direction: column; gap: 12px; }
 
@@ -766,22 +776,31 @@ h1, h2, h3, .display {
   font-weight: 600;
   color: var(--c-text);
 }
-.id-card__attrs { display: flex; flex-direction: column; gap: 4px; }
-.id-card__attr { display: flex; align-items: baseline; gap: 6px; }
+.id-card__attrs {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 3px 8px;
+  align-items: baseline;
+}
+/* display:contents makes each attr's two children sit directly in the grid */
+.id-card__attr { display: contents; }
 .id-card__attr-label {
   font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--c-text-dim);
-  min-width: 80px;
-  flex-shrink: 0;
+  white-space: nowrap;
 }
 .id-card__attr-val {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--c-text);
   font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .id-card__attr-val--hidden {
   color: var(--c-text-dim);
@@ -835,6 +854,10 @@ h1, h2, h3, .display {
   color: var(--c-text);
   font-weight: 500;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .own-card__reveal-btn {
   font-family: var(--font-mono);
@@ -843,11 +866,11 @@ h1, h2, h3, .display {
   text-transform: uppercase;
   padding: 3px 8px;
   border-radius: 4px;
-  border: 1px solid var(--c-border);
+  border: 1px dashed rgba(255,255,255,0.2);
   background: transparent;
   color: var(--c-text-dim);
   cursor: not-allowed;
-  opacity: 0.4;
+  opacity: 0.6;
   transition: all var(--transition);
   flex-shrink: 0;
 }
