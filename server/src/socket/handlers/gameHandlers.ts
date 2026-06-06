@@ -1,0 +1,195 @@
+import type { Server, Socket } from 'socket.io'
+import { EVENTS } from '@shelter/shared'
+import { roomRegistry } from '../../rooms/RoomRegistry'
+
+const interruptTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+function findRoomBySocket(socketId: string) {
+  return roomRegistry.all().find(r => r.players.has(socketId)) ?? null
+}
+
+function scheduleInterruptResolve(io: Server, roomCode: string) {
+  const existing = interruptTimers.get(roomCode)
+  if (existing) clearTimeout(existing)
+
+  const timer = setTimeout(() => {
+    interruptTimers.delete(roomCode)
+    const room = roomRegistry.all().find(r => r.code === roomCode)
+    if (!room) return
+    room.resolveInterrupt()
+    io.to(roomCode).emit(EVENTS.ROOM_STATE, room.getPublicState())
+  }, 4000)
+
+  interruptTimers.set(roomCode, timer)
+}
+
+export function registerGameHandlers(io: Server, socket: Socket): void {
+  socket.on(EVENTS.HOST_START_GAME, () => {
+    const room = findRoomBySocket(socket.id)
+    if (!room || !room.isHost(socket.id)) return
+    if (room.phase !== 'LOBBY') return
+    if (room.players.size < 1) {
+      socket.emit(EVENTS.ROOM_ERROR, { message: 'Need at least 1 player to start' })
+      return
+    }
+
+    const { scenario, bunker, dealtCards, dealtAbilities } = room.startGame()
+
+    // Broadcast scenario and bunker to all
+    io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, { phase: 'CATASTROPHE_REVEAL' })
+    io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+
+    // Send private cards + abilities to each player
+    for (const [playerId, cards] of dealtCards.entries()) {
+      const playerSocket = io.sockets.sockets.get(playerId)
+      if (playerSocket) {
+        playerSocket.emit(EVENTS.GAME_DEALT_CARDS, {
+          cards,
+          abilities: dealtAbilities.get(playerId) ?? [],
+        })
+      }
+    }
+
+    void scenario
+    void bunker
+  })
+
+  socket.on(EVENTS.HOST_NEXT_PHASE, () => {
+    const room = findRoomBySocket(socket.id)
+    if (!room || !room.isHost(socket.id)) return
+
+    if (room.phase === 'CATASTROPHE_REVEAL') {
+      room.phase = 'BUNKER_REVEAL'
+      io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, { phase: 'BUNKER_REVEAL' })
+      io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+    } else if (room.phase === 'BUNKER_REVEAL') {
+      room.advanceToDealing()
+      io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, { phase: 'DEALING' })
+      io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+
+      // Auto-start first round after brief delay
+      setTimeout(() => {
+        room.startRound()
+        io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, {
+          phase: 'ROUND_ARGUMENT',
+          round: room.currentRound,
+          currentArgumentPlayerId: room.getCurrentArgumentPlayerId(),
+        })
+        io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+      }, 2000)
+    } else if (room.phase === 'EXILE_REVEAL') {
+      if (room.checkWin()) {
+        room.endGame()
+        io.to(room.code).emit(EVENTS.GAME_ENDED, { survivors: room.survivors })
+        io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+      } else {
+        room.startRound()
+        io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, {
+          phase: 'ROUND_ARGUMENT',
+          round: room.currentRound,
+          currentArgumentPlayerId: room.getCurrentArgumentPlayerId(),
+        })
+        io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+      }
+    }
+  })
+
+  socket.on(EVENTS.CARD_REVEAL, ({ categoryId }: { categoryId: string }) => {
+    const room = findRoomBySocket(socket.id)
+    if (!room) return
+    if (room.phase !== 'ROUND_ARGUMENT') return
+    if (room.getCurrentArgumentPlayerId() !== socket.id) return
+
+    const card = room.revealCard(socket.id, categoryId)
+    if (!card) return
+
+    io.to(room.code).emit(EVENTS.CARD_REVEALED, {
+      playerId: socket.id,
+      categoryId,
+      card,
+    })
+    io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+  })
+
+  socket.on(EVENTS.ARGUMENT_DONE, () => {
+    const room = findRoomBySocket(socket.id)
+    if (!room) return
+    if (room.phase !== 'ROUND_ARGUMENT') return
+    if (room.getCurrentArgumentPlayerId() !== socket.id) return
+
+    const allDone = room.advanceArgument()
+
+    if (allDone) {
+      // If alive count already fits in bunker (e.g. solo test), skip voting and end
+      if (room.checkWin()) {
+        room.endGame()
+        io.to(room.code).emit(EVENTS.GAME_ENDED, { survivors: room.survivors })
+        io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+        return
+      }
+
+      const { summary, eligibleVoterIds } = room.openVoting()
+      io.to(room.code).emit(EVENTS.VOTE_OPENED, { eligibleVoterIds })
+      io.to(room.code).emit(EVENTS.VOTE_UPDATED, summary)
+      io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+    } else {
+      io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, {
+        phase: 'ROUND_ARGUMENT',
+        round: room.currentRound,
+        currentArgumentPlayerId: room.getCurrentArgumentPlayerId(),
+      })
+      io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+    }
+  })
+
+  socket.on(
+    EVENTS.ABILITY_USE,
+    ({ abilityId, targetPlayerId }: { abilityId: string; targetPlayerId?: string }) => {
+      const room = findRoomBySocket(socket.id)
+      if (!room) return
+      if (room.phase !== 'ROUND_ARGUMENT') {
+        socket.emit(EVENTS.ROOM_ERROR, { message: 'Abilities can only be used during argument phase' })
+        return
+      }
+
+      const result = room.useAbility(socket.id, abilityId, targetPlayerId)
+      if (!result.success) return
+
+      io.to(room.code).emit(EVENTS.ABILITY_USED, { announcement: result.announcement })
+
+      if (result.effect === 'inspect' && result.inspectedCards) {
+        socket.emit(EVENTS.ABILITY_INSPECT_RESULT, {
+          targetPlayerId,
+          cards: result.inspectedCards,
+        })
+      }
+
+      if (result.effect === 'reveal_card' && result.revealedCard) {
+        io.to(room.code).emit(EVENTS.CARD_REVEALED, {
+          playerId: targetPlayerId,
+          categoryId: result.revealedCard.categoryId,
+          card: result.revealedCard.card,
+        })
+      }
+
+      io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+      scheduleInterruptResolve(io, room.code)
+    },
+  )
+
+  socket.on(EVENTS.ABILITY_INTERRUPT_SKIP, () => {
+    const room = findRoomBySocket(socket.id)
+    if (!room) return
+    if (room.phase !== 'ABILITY_INTERRUPT') return
+    if (room.activeInterrupt?.usedBySocketId !== socket.id && !room.isHost(socket.id)) return
+
+    const timer = interruptTimers.get(room.code)
+    if (timer) {
+      clearTimeout(timer)
+      interruptTimers.delete(room.code)
+    }
+
+    room.resolveInterrupt()
+    io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+  })
+}

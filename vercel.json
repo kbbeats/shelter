@@ -1,0 +1,6 @@
+{
+  "installCommand": "npm install",
+  "buildCommand": "VITE_SERVER_URL=https://shelter-server-production.up.railway.app npm run build -w client",
+  "outputDirectory": "client/dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
