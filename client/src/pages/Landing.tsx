@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../store/gameStore'
 import { LanguageToggle } from '../components/layout/LanguageToggle'
+import { HowToPlayModal } from '../components/layout/HowToPlayModal'
 import { useT } from '../i18n'
 
 type View = 'home' | 'create' | 'join'
@@ -12,6 +13,7 @@ export default function Landing() {
   const [view, setView] = useState<View>('home')
   const [name, setName] = useState('')
   const [code, setCode] = useState('')
+  const [tutorialOpen, setTutorialOpen] = useState(false)
   const { createRoom, joinRoom, roomState, error, clearError, connected } = useGameStore()
   const [disconnectedMs, setDisconnectedMs] = useState(0)
 
@@ -49,9 +51,16 @@ export default function Landing() {
 
   return (
     <div className="landing">
+      <div style={{ position: 'absolute', top: 20, left: 20 }}>
+        <button className="btn btn--ghost btn--sm" onClick={() => setTutorialOpen(true)}>
+          {t('landing.tutorial')}
+        </button>
+      </div>
       <div style={{ position: 'absolute', top: 20, right: 20 }}>
         <LanguageToggle />
       </div>
+
+      <HowToPlayModal isOpen={tutorialOpen} onClose={() => setTutorialOpen(false)} />
 
       {error && (
         <div className="error-toast">

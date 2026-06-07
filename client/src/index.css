@@ -2,17 +2,17 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ── Root Variables — Field Command (default, no scenario) ────────────────
-   Amber/military ops aesthetic. Replaces the previous purple-glow default.
+   Green ops aesthetic. Replaces the previous amber/gold default.
 ── */
 :root {
-  --c-primary:    #c9a22a;
-  --c-accent:     #e8c050;
-  --c-bg:         #080807;
-  --c-surface:    #100f0c;
-  --c-surface2:   #1a1915;
-  --c-text:       #e6ddc8;
-  --c-text-dim:   #8a8072;
-  --c-glow:       rgba(201, 162, 42, 0.35);
+  --c-primary:    #2bb35a;
+  --c-accent:     #4fe084;
+  --c-bg:         #060a07;
+  --c-surface:    #0d130e;
+  --c-surface2:   #161f17;
+  --c-text:       #d8e6dc;
+  --c-text-dim:   #7a9082;
+  --c-glow:       rgba(43, 179, 90, 0.35);
   --c-border:     rgba(255, 255, 255, 0.07);
   --font-display: 'Bebas Neue', sans-serif;
   --font-mono:    'IBM Plex Mono', monospace;
@@ -361,6 +361,11 @@ body::before {
   from { transform: rotateY(90deg); }
   to   { transform: rotateY(0deg); }
 }
+@keyframes icon-pop-in {
+  0%   { opacity: 0; transform: scale(0.5) rotate(-12deg); }
+  60%  { transform: scale(1.08) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
 
 /* ── Layout ───────────────────────────────────────────────────────────────── */
 
@@ -584,6 +589,115 @@ h1, h2, h3, .display {
 .landing__actions { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
 .landing__form    { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; animation: fade-in 0.3s ease; }
 .landing__form-row { display: flex; gap: 8px; }
+
+/* ── How To Play Modal ────────────────────────────────────────────────────── */
+
+.how-to-play-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fade-in 0.15s ease;
+}
+.how-to-play-modal__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 48px 28px 32px;
+  max-width: 640px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  animation: fade-in-up 0.25s ease;
+}
+.how-to-play-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+.how-to-play__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  animation: fade-in-up 0.7s ease forwards;
+}
+.how-to-play__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 9vw, 5rem);
+  color: var(--c-primary);
+  text-shadow: 0 0 40px var(--c-glow);
+  letter-spacing: 0.1em;
+}
+.how-to-play__subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--c-text-dim);
+  letter-spacing: 0.15em;
+  max-width: 480px;
+  animation: fade-in 0.6s ease 0.2s both;
+}
+.how-to-play__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 620px;
+}
+.how-to-play__step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  text-align: left;
+  padding: 22px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  opacity: 0;
+}
+.how-to-play__step--visible {
+  animation: fade-in-up 0.6s ease forwards;
+}
+.how-to-play__step-icon {
+  font-size: 2.2rem;
+  flex-shrink: 0;
+  opacity: 0;
+}
+.how-to-play__step--visible .how-to-play__step-icon {
+  animation: icon-pop-in 0.6s cubic-bezier(0.2, 0.8, 0.3, 1.2) 0.15s forwards;
+}
+.how-to-play__step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.how-to-play__step-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  letter-spacing: 0.05em;
+  color: var(--c-text);
+}
+.how-to-play__step-body {
+  font-size: 0.9rem;
+  color: var(--c-text-dim);
+  line-height: 1.5;
+}
+.how-to-play__start {
+  animation: fade-in-up 0.5s ease 0.4s both;
+}
 
 /* ── Lobby Page ───────────────────────────────────────────────────────────── */
 
