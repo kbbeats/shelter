@@ -121,19 +121,29 @@
   --font-display: 'IBM Plex Mono', monospace;
 }
 
-/* VOLCANIC WINTER → Geological Emergency
-   Ember orange on ash-black. 3px radius — field gear, not office. */
+/* VOLCANIC WINTER → Tactile Tabletop
+   Carved-wood survivor pieces on a felt tabletop. Beveled wood tiles, a rotated
+   plaque turn banner and a wooden ability dock replace the old ember-orange,
+   3px-radius "Geological Emergency" look. Fredoka brings a chunky, hand-carved
+   body type; the palette runs warm wood browns against deep felt green. */
 [data-theme="volcanic-winter"] {
   --c-primary:  #e85810;
-  --c-accent:   #ff7830;
-  --c-bg:       #080604;
-  --c-surface:  #120c08;
-  --c-surface2: #1c140c;
-  --c-text:     #f0d8c0;
-  --c-text-dim: #907060;
+  --c-accent:   #ff8c42;
+  --c-bg:       #2b1d12;
+  --c-surface:  #3a2817;
+  --c-surface2: #4a3420;
+  --c-text:     #f3e0c8;
+  --c-text-dim: #b89878;
   --c-glow:     rgba(232, 88, 16, 0.4);
-  --c-border:   rgba(232, 88, 16, 0.12);
-  --radius:     3px;
+  --c-border:   rgba(32, 21, 11, 0.5);
+  --radius:     16px;
+  --font-sans:  'Fredoka', sans-serif;
+  --vw-wood-1:  #2b1d12;
+  --vw-wood-2:  #3a2817;
+  --vw-wood-3:  #4a3420;
+  --vw-felt:    #1d2e22;
+  --vw-felt-2:  #25382b;
+  --vw-plaque:  #5a3f26;
 }
 
 /* SOLAR FLARE → Emergency Broadcast
@@ -203,7 +213,7 @@ body::before {
 [data-theme="climate-collapse"] body::before { animation: water-ripple 6s ease-in-out infinite; }
 [data-theme="zombie-apocalypse"] body::before { animation: hazard-stripes 8s ease-in-out infinite; }
 [data-theme="ai-takeover"] body::before   { animation: scan-line 1.5s linear infinite; }
-[data-theme="volcanic-winter"] body::before { animation: ash-fall 10s linear infinite; }
+[data-theme="volcanic-winter"] body::before { animation: none; }
 [data-theme="solar-flare"] body::before   { animation: emp-flicker 1.2s steps(1) infinite; }
 [data-theme="dinosaur-comet"] body::before { animation: comet-dust 14s linear infinite; }
 
@@ -281,24 +291,6 @@ body::before {
     background-position: 0 0;
   }
   100% { background-position: 0 -100px; }
-}
-
-/* Volcanic: falling ash particles */
-@keyframes ash-fall {
-  0% {
-    background-image:
-      radial-gradient(1px 2px at 15% -5%, rgba(200,160,100,0.7) 0%, transparent 100%),
-      radial-gradient(1px 2px at 45% -5%, rgba(180,140,80,0.6) 0%, transparent 100%),
-      radial-gradient(1px 2px at 75% -5%, rgba(200,160,100,0.8) 0%, transparent 100%),
-      radial-gradient(1px 2px at 60% -5%, rgba(180,140,80,0.5) 0%, transparent 100%);
-    background-size: 100px 300px;
-    background-position: 0 0, 33px 0, 66px 0, 50px 0;
-    opacity: 0.4;
-  }
-  100% {
-    background-position: 20px 300px, 53px 300px, 86px 300px, 70px 300px;
-    opacity: 0.4;
-  }
 }
 
 /* Solar: EMP flicker — abrupt brightness spikes */
@@ -1456,6 +1448,227 @@ h1, h2, h3, .display {
   letter-spacing: 0.08em;
 }
 
+/* ── VOLCANIC WINTER: Tactile Tabletop ─────────────────────────────────────
+   Carved-wood survivor pieces resting on a felt tabletop. Beveled "tile" cards
+   with hard 3D drop shadows, a rotated wooden plaque for the turn banner, and
+   a wooden ability dock with circular gradient tokens.
+── */
+
+/* Wood-grain table behind the felt surface */
+[data-theme="volcanic-winter"] body {
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(255,140,66,0.10), transparent 55%),
+    repeating-linear-gradient(100deg, var(--vw-wood-1) 0 22px, var(--vw-wood-2) 22px 44px, var(--vw-wood-1) 44px 66px),
+    var(--vw-wood-1);
+}
+
+/* Felt tabletop surface wrapping the game board */
+[data-theme="volcanic-winter"] .game-layout {
+  margin: 14px;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.03), transparent 45%),
+    repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.012) 0 2px, transparent 2px 4px),
+    linear-gradient(160deg, var(--vw-felt-2), var(--vw-felt));
+  border-radius: 24px;
+  box-shadow:
+    inset 0 0 0 2px rgba(0,0,0,0.4),
+    inset 0 12px 40px rgba(0,0,0,0.55),
+    0 30px 70px rgba(0,0,0,0.6);
+}
+
+/* Plaque-style turn banner (argument phase header) */
+[data-theme="volcanic-winter"] .argument-phase {
+  background: linear-gradient(180deg, var(--vw-plaque), #4a3119);
+  border: 4px solid #2a1c0d;
+  border-radius: 18px;
+  padding: 20px 24px;
+  box-shadow:
+    0 6px 0 #1f1409,
+    0 14px 30px rgba(0,0,0,0.5),
+    inset 0 2px 0 rgba(255,255,255,0.08);
+  transform: rotate(-0.6deg);
+}
+[data-theme="volcanic-winter"] .argument-phase__round {
+  display: inline-block;
+  font-family: var(--font-display);
+  letter-spacing: 0.18em;
+  color: var(--c-accent);
+  background: rgba(0,0,0,0.28);
+  border: 2px solid rgba(255,140,66,0.4);
+  border-radius: 10px;
+  padding: 8px 16px;
+}
+[data-theme="volcanic-winter"] .argument-phase__speaker {
+  font-size: 2rem;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.4);
+}
+
+/* Tile-style ID cards (other survivors) */
+[data-theme="volcanic-winter"] .id-card {
+  background: linear-gradient(160deg, var(--vw-wood-3), var(--vw-wood-2));
+  border: 3px solid #20150b;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow:
+    0 8px 0 rgba(0,0,0,0.45),
+    0 18px 34px rgba(0,0,0,0.4),
+    inset 0 2px 0 rgba(255,255,255,0.06);
+  transition: transform 0.25s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+[data-theme="volcanic-winter"] .id-card--highlighted {
+  border-color: var(--c-primary);
+  box-shadow:
+    0 8px 0 rgba(0,0,0,0.45),
+    0 0 0 4px rgba(232,88,16,0.28),
+    0 18px 34px rgba(0,0,0,0.4);
+}
+[data-theme="volcanic-winter"] .id-card__header {
+  border-bottom: none;
+}
+[data-theme="volcanic-winter"] .id-card__name {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  letter-spacing: 0.04em;
+}
+[data-theme="volcanic-winter"] .id-card__attrs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+[data-theme="volcanic-winter"] .id-card__attr {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px dashed rgba(255,255,255,0.08);
+  padding-bottom: 6px;
+}
+[data-theme="volcanic-winter"] .id-card__attr:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+[data-theme="volcanic-winter"] .id-card__attr-val--hidden {
+  letter-spacing: 0.18em;
+}
+/* Each piece rests at a slight carved-wood tilt, straightens and lifts on hover */
+[data-theme="volcanic-winter"] .player-cards-grid > .id-card:nth-child(4n+1) { transform: rotate(-1.4deg); }
+[data-theme="volcanic-winter"] .player-cards-grid > .id-card:nth-child(4n+2) { transform: rotate(1deg); }
+[data-theme="volcanic-winter"] .player-cards-grid > .id-card:nth-child(4n+3) { transform: rotate(0.6deg); }
+[data-theme="volcanic-winter"] .player-cards-grid > .id-card:nth-child(4n+4) { transform: rotate(-0.8deg); }
+[data-theme="volcanic-winter"] .id-card:hover {
+  transform: translateY(-4px) rotate(0deg);
+}
+
+/* Hero tile for your own card */
+[data-theme="volcanic-winter"] .own-card {
+  position: relative;
+  background: linear-gradient(160deg, var(--vw-wood-3), var(--vw-wood-2));
+  border: 3px solid #20150b;
+  border-top: 3px solid #20150b;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow:
+    0 8px 0 rgba(0,0,0,0.45),
+    0 18px 34px rgba(0,0,0,0.4),
+    inset 0 2px 0 rgba(255,255,255,0.06);
+}
+[data-theme="volcanic-winter"] .own-card::before {
+  content: 'YOUR PIECE';
+  position: absolute;
+  top: -14px;
+  left: 22px;
+  background: var(--c-primary);
+  color: #2a1206;
+  font-family: var(--font-display);
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 2px solid #2a1206;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.35);
+}
+[data-theme="volcanic-winter"] .own-card__header {
+  border-bottom: none;
+}
+[data-theme="volcanic-winter"] .own-card__name {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  color: var(--c-accent);
+  text-shadow: 0 2px 0 rgba(0,0,0,0.4);
+}
+[data-theme="volcanic-winter"] .own-card__attr {
+  background: rgba(0,0,0,0.22);
+  border: 2px solid rgba(0,0,0,0.35);
+  border-radius: 12px;
+  padding: 11px 14px;
+  margin-bottom: 9px;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.05);
+}
+[data-theme="volcanic-winter"] .own-card__attr:last-child {
+  margin-bottom: 0;
+}
+[data-theme="volcanic-winter"] .own-card__reveal-btn--active {
+  font-family: var(--font-display);
+  letter-spacing: 0.12em;
+  background: var(--c-primary);
+  color: #2a1206;
+  border: 2px solid #2a1206;
+  border-radius: 7px;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+}
+[data-theme="volcanic-winter"] .own-card__reveal-btn--active:hover {
+  background: var(--c-accent);
+  color: #2a1206;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+}
+
+/* Wooden ability dock */
+[data-theme="volcanic-winter"] .ability-tray {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: linear-gradient(180deg, #241809, #1a1106);
+  border: 3px solid #140d05;
+  border-top: 3px solid #140d05;
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: inset 0 3px 14px rgba(0,0,0,0.6), 0 10px 24px rgba(0,0,0,0.4);
+}
+[data-theme="volcanic-winter"] .ability-tray__cards {
+  flex: 1;
+}
+[data-theme="volcanic-winter"] .ability-tray__hint {
+  flex-basis: 100%;
+}
+[data-theme="volcanic-winter"] .ability-tray__label {
+  font-family: var(--font-display);
+  letter-spacing: 0.2em;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+[data-theme="volcanic-winter"] .ability-card {
+  background: radial-gradient(circle at 35% 30%, var(--c-accent), var(--c-primary) 75%);
+  border: 3px solid #2a1206;
+  border-radius: 16px;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.4), inset 0 2px 8px rgba(255,255,255,0.35);
+  color: #2a1206;
+}
+[data-theme="volcanic-winter"] .ability-card--active:hover {
+  background: radial-gradient(circle at 35% 30%, var(--c-accent), var(--c-primary) 75%);
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4), inset 0 2px 8px rgba(255,255,255,0.35), 0 0 16px var(--c-glow);
+  transform: translateY(-2px);
+}
+[data-theme="volcanic-winter"] .ability-card__name {
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+  color: #2a1206;
+}
+[data-theme="volcanic-winter"] .ability-card__desc {
+  font-family: var(--font-mono);
+  color: rgba(42,18,6,0.75);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    REDUCED MOTION
    All animations collapse to instant transitions or simple fades.
@@ -1470,4 +1683,8 @@ h1, h2, h3, .display {
     transition-duration: 0.01ms !important;
   }
   body::before { display: none; }
+  [data-theme="volcanic-winter"] .id-card,
+  [data-theme="volcanic-winter"] .id-card:hover {
+    transform: none;
+  }
 }
