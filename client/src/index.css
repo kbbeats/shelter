@@ -5,21 +5,22 @@
    Green ops aesthetic. Replaces the previous amber/gold default.
 ── */
 :root {
-  --c-primary:    #2bb35a;
-  --c-accent:     #4fe084;
-  --c-bg:         #060a07;
-  --c-surface:    #0d130e;
-  --c-surface2:   #161f17;
-  --c-text:       #d8e6dc;
-  --c-text-dim:   #7a9082;
-  --c-glow:       rgba(43, 179, 90, 0.35);
-  --c-border:     rgba(255, 255, 255, 0.07);
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-mono:    'IBM Plex Mono', monospace;
-  --font-sans:    'IBM Plex Sans', sans-serif;
+  --c-primary:    #ff7e5f;
+  --c-accent:     #feb47b;
+  --c-bg:         #fff9f5;
+  --c-surface:    #ffffff;
+  --c-surface2:   #ffedea;
+  --c-text:       #3d3436;
+  --c-text-dim:   #78716C;
+  --c-glow:       rgba(255, 126, 95, 0.35);
+  --c-border:     #ffe0d6;
+  --font-display: 'Merriweather', serif;
+  --font-mono:    'Ubuntu Mono', monospace;
+  --font-sans:    'Montserrat', sans-serif;
   --radius:       4px;
   --transition:   0.2s ease;
 }
+/* dark mode palette available: bg #2a2024, card #392f35, fg #f2e9e4, border #463a41 */
 
 /* ── Scenario Themes ──────────────────────────────────────────────────────
    Each scenario overrides the token set to create a distinct world.
@@ -573,22 +574,459 @@ h1, h2, h3, .display {
   color: var(--c-bg);
 }
 
-/* ── Landing Page ─────────────────────────────────────────────────────────── */
+/* ── Landing Page — Civil Defense Bulletin ───────────────────────────────── */
+
+@keyframes z-flicker {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
+}
+
+@keyframes z-sign-swing {
+  0%   { opacity: 0; transform: rotate(-14deg) translateY(-28px); }
+  55%  { opacity: 1; transform: rotate(3deg) translateY(0); }
+  75%  { transform: rotate(-1.5deg); }
+  100% { transform: rotate(-1deg); }
+}
+
+@keyframes z-trefoil-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes z-icon-swap {
+  0%   { opacity: 0; transform: scale(0.4) rotate(-25deg); }
+  60%  { opacity: 1; transform: scale(1.08) rotate(4deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes z-tape-scan {
+  from { background-position: 0 0; }
+  to   { background-position: 64px 0; }
+}
+
+@keyframes z-tag-in {
+  0%   { opacity: 0; transform: rotate(12deg) scale(1.4) translateY(-12px); }
+  60%  { opacity: 1; transform: rotate(-1deg) scale(0.96); }
+  100% { opacity: 1; transform: rotate(2deg) scale(1); }
+}
 
 .landing {
-  min-height: 100vh;
+  /* Scoped palette — civil defense yellow + alert red on bunker black */
+  --c-primary:  #ffd400;
+  --c-accent:   #c1442e;
+  --c-bg:       #14130f;
+  --c-surface:  #1f1d17;
+  --c-surface2: #2a2720;
+  --c-text:     #f4efe2;
+  --c-text-dim: #8f8a78;
+  --c-glow:     rgba(255, 212, 0, 0.18);
+  --c-border:   rgba(244, 239, 226, 0.14);
+
+  min-height: 100dvh;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: 'Space Mono', monospace;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ── Top bar ─────────────────────────────────────────────────────────────── */
+
+.z-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 18px 28px;
+  border-bottom: 2px dashed var(--c-border);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-text-dim);
+}
+
+.z-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ── Main ────────────────────────────────────────────────────────────────── */
+
+.z-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 40px;
+  padding: 48px 28px;
+}
+
+@media (min-width: 880px) {
+  .z-main {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 64px;
+    padding: 0 64px;
+  }
+  .z-poster { flex: 1.4; }
+  .z-ticket { flex: 1; max-width: 380px; }
+}
+
+/* ── Poster: title + stamp ───────────────────────────────────────────────── */
+
+.z-poster {
+  position: relative;
+}
+
+.z-poster::before {
+  content: '';
+  position: absolute;
+  top: -36px;
+  right: -12px;
+  width: 180px;
+  height: 180px;
+  background-image: radial-gradient(var(--c-text-dim) 1.5px, transparent 1.6px);
+  background-size: 14px 14px;
+  opacity: 0.16;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.z-tape {
+  position: absolute;
+  left: -32px;
+  right: -32px;
+  top: 56%;
+  height: 22px;
+  z-index: 0;
+  transform: rotate(-2deg);
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--c-primary) 0 22px,
+    var(--c-bg) 22px 44px
+  );
+  background-size: 64px 100%;
+  box-shadow: 0 0 0 2px var(--c-bg);
+  opacity: 0.85;
+  pointer-events: none;
+  animation: z-tape-scan 3.5s linear infinite;
+}
+
+.z-sign {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(12px, 2.5vw, 28px);
+  background: var(--c-primary);
+  border: 5px solid var(--c-bg);
+  box-shadow: 9px 9px 0 var(--c-bg);
+  padding: clamp(16px, 3vw, 30px) clamp(20px, 4vw, 38px);
+  transform-origin: top center;
+  animation: z-sign-swing 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.z-trefoil {
+  width: clamp(48px, 8vw, 84px);
+  height: clamp(48px, 8vw, 84px);
+  flex-shrink: 0;
+  animation: z-trefoil-spin 36s linear infinite;
+}
+
+.z-trefoil__ring {
+  fill: none;
+  stroke: var(--c-bg);
+  stroke-width: 6;
+}
+
+.z-trefoil__blades,
+.z-trefoil__core,
+.z-trefoil__node {
+  fill: var(--c-bg);
+}
+
+.z-trefoil__arc,
+.z-trefoil__line {
+  fill: none;
+  stroke: var(--c-bg);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.z-trefoil__icon {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: z-icon-swap 0.5s ease both;
+}
+
+.z-title {
+  display: inline-block;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(2.6rem, 10vw, 6.2rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  color: var(--c-bg);
+}
+
+.z-stamp {
+  display: inline-flex;
+  flex-direction: column;
+  margin-top: 28px;
+  padding: 10px 18px;
+  background: var(--c-accent);
+  border: 3px dashed var(--c-bg);
+  transform: rotate(2deg);
+  transform-origin: left center;
+  animation: z-tag-in 0.6s cubic-bezier(0.22, 1.4, 0.4, 1) 0.5s both;
+}
+
+.z-stamp__line {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: clamp(1rem, 2.6vw, 1.6rem);
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  color: var(--c-text);
+  text-transform: uppercase;
+}
+
+/* ── Ticket panel ────────────────────────────────────────────────────────── */
+
+.z-ticket {
+  position: relative;
+  background: var(--c-surface);
+  border: 2px solid var(--c-text);
+  animation: fade-in-up 0.45s ease 0.15s both;
+}
+
+.z-ticket__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 22px;
+  border-bottom: 2px dashed var(--c-border);
+}
+
+.z-ticket__title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-primary);
+}
+
+.z-ticket__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-text-dim);
+}
+
+.z-ticket__status--ok { color: #6dffb0; }
+
+.z-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--c-text-dim);
+  animation: z-flicker 1.6s ease-in-out infinite;
+}
+
+.z-dot--ok {
+  background: #6dffb0;
+  animation: none;
+}
+
+.z-ticket__body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Actions (home view) ─────────────────────────────────────────────────── */
+
+.z-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.z-actions .z-btn {
+  animation: fade-in-up 0.35s ease both;
+}
+.z-actions .z-btn:nth-child(1) { animation-delay: 0.5s; }
+.z-actions .z-btn:nth-child(2) { animation-delay: 0.58s; }
+
+/* ── Form ────────────────────────────────────────────────────────────────── */
+
+.z-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fade-in 0.18s ease;
+}
+
+.z-form-row { display: flex; gap: 10px; }
+
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
+
+.z-input {
+  width: 100%;
+  background: var(--c-bg);
+  border: 2px solid var(--c-border);
+  color: var(--c-text);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  outline: none;
+  border-radius: 0;
+  transition: border-color 0.14s ease;
+}
+
+.z-input:focus { border-color: var(--c-primary); }
+
+.z-input::placeholder { color: var(--c-text-dim); }
+
+.z-input--code {
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.z-btn {
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-  gap: 32px;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 16px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 2px solid var(--c-text);
+  border-radius: 0;
+  background: transparent;
+  color: var(--c-text);
+  transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
-.landing__hero    { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.landing__actions { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
-.landing__form    { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; animation: fade-in 0.3s ease; }
-.landing__form-row { display: flex; gap: 8px; }
+
+.z-btn--primary {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: var(--c-bg);
+}
+.z-btn--primary:hover:not(:disabled) {
+  transform: rotate(-1deg) scale(1.02);
+}
+
+.z-btn--outline:hover:not(:disabled) {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  transform: rotate(1deg) scale(1.02);
+}
+
+.z-btn:active:not(:disabled) { transform: scale(0.96); }
+
+.z-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.z-btn--ghost {
+  width: auto;
+  border-color: transparent;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  padding: 6px 10px;
+  color: var(--c-text-dim);
+}
+.z-btn--ghost:hover:not(:disabled) {
+  color: var(--c-primary);
+  transform: none;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+
+.z-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 28px;
+  border-top: 2px dashed var(--c-border);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-text-dim);
+}
+
+.z-foot__tip-wrap {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.z-foot__tip {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: z-tip-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.z-foot__tip-label {
+  color: var(--c-accent);
+  font-weight: 700;
+}
+
+@keyframes z-tip-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .z-foot__sub { display: none; }
+}
+
+/* ── Landing reduced-motion overrides ────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .z-sign, .z-stamp, .z-ticket {
+    animation: none !important;
+  }
+  .z-sign { transform: rotate(-1deg); }
+  .z-stamp { transform: rotate(2deg); }
+  .z-trefoil { animation: none !important; }
+  .z-trefoil__icon { animation: none !important; }
+  .z-tape { animation: none !important; }
+  .z-dot { animation: none !important; }
+  .z-foot__tip { animation: none !important; }
+}
 
 /* ── How To Play Modal ────────────────────────────────────────────────────── */
 
@@ -1799,6 +2237,11 @@ h1, h2, h3, .display {
   body::before { display: none; }
   [data-theme="volcanic-winter"] .id-card,
   [data-theme="volcanic-winter"] .id-card:hover {
+    transform: none;
+  }
+  /* Landing: kill button lift and press transforms */
+  .landing .z-btn:hover:not(:disabled),
+  .landing .z-btn:active:not(:disabled) {
     transform: none;
   }
 }
