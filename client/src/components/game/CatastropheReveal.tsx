@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
@@ -6,15 +6,14 @@ import type { ScenarioPublic } from '@shelter/shared'
 
 const SPIN_EXTRA_TURNS = 8
 const SPIN_DURATION_MS = 5600
-const ZOOM_DURATION_MS = 900
-const EXIT_DURATION_MS = 650
-const ZOOM_FILL_RATIO = 0.78
+const GROW_DURATION_MS = 500
+const EXIT_DURATION_MS = 300
 
 const PIE_CENTER = 100
 const PIE_RADIUS = 90
 const ICON_RADIUS = 60
 
-type WheelPhase = 'idle' | 'spinning' | 'zoom' | 'exit' | 'done'
+type WheelPhase = 'idle' | 'spinning' | 'grow' | 'exit' | 'done'
 
 function polarPoint(angleDeg: number, r: number) {
   const rad = (angleDeg * Math.PI) / 180
@@ -24,24 +23,111 @@ function polarPoint(angleDeg: number, r: number) {
   }
 }
 
+// --- Slice color derivation (per-scenario theme.primaryColor, with collision avoidance) ---
+
+function hexToHsl(hex: string): { h: number; s: number; l: number } {
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const l = (max + min) / 2
+  let h = 0
+  let s = 0
+  if (max !== min) {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break
+      case g: h = (b - r) / d + 2; break
+      default: h = (r - g) / d + 4; break
+    }
+    h *= 60
+  }
+  return { h, s: s * 100, l: l * 100 }
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  h = ((h % 360) + 360) % 360
+  s /= 100
+  l /= 100
+  const c = (1 - Math.abs(2 * l - 1)) * s
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
+  const m = l - c / 2
+  let [r, g, b] = [0, 0, 0]
+  if (h < 60) [r, g, b] = [c, x, 0]
+  else if (h < 120) [r, g, b] = [x, c, 0]
+  else if (h < 180) [r, g, b] = [0, c, x]
+  else if (h < 240) [r, g, b] = [0, x, c]
+  else if (h < 300) [r, g, b] = [x, 0, c]
+  else [r, g, b] = [c, 0, x]
+  const toHex = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, '0')
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+}
+
+function hueDistance(a: number, b: number): number {
+  const d = Math.abs(a - b)
+  return Math.min(d, 360 - d)
+}
+
+const SLICE_HUE_THRESHOLD = 20
+const SLICE_LIGHTNESS_THRESHOLD = 15
+const SLICE_HUE_NUDGE = 35
+const SLICE_MIN_SAT = 55
+const SLICE_MAX_SAT = 90
+const SLICE_MIN_LIGHT = 40
+const SLICE_MAX_LIGHT = 65
+
+function getDistinctSliceColors(primaryColors: string[]): string[] {
+  const placed: { h: number; s: number; l: number }[] = []
+
+  for (const hex of primaryColors) {
+    const hsl = hexToHsl(hex)
+    let h = hsl.h
+    const s = Math.min(Math.max(hsl.s, SLICE_MIN_SAT), SLICE_MAX_SAT)
+    const l = Math.min(Math.max(hsl.l, SLICE_MIN_LIGHT), SLICE_MAX_LIGHT)
+
+    let attempts = 0
+    while (
+      placed.some(c => hueDistance(c.h, h) < SLICE_HUE_THRESHOLD && Math.abs(c.l - l) < SLICE_LIGHTNESS_THRESHOLD) &&
+      attempts < 6
+    ) {
+      h = (h + SLICE_HUE_NUDGE) % 360
+      attempts++
+    }
+
+    placed.push({ h, s, l })
+  }
+
+  return placed.map(c => hslToHex(c.h, c.s, c.l))
+}
+
 function ScenarioWheel({
   scenarioList,
   winnerIndex,
   phase,
   rotation,
-  winnerBadgeRef,
 }: {
   scenarioList: ScenarioPublic[]
   winnerIndex: number
   phase: WheelPhase
   rotation: number
-  winnerBadgeRef: React.RefObject<HTMLDivElement>
 }) {
   const n = scenarioList.length
   const anglePer = 360 / n
   const transition =
     phase === 'spinning' ? `transform ${SPIN_DURATION_MS}ms cubic-bezier(0.08, 0.82, 0.13, 1)` : 'none'
-  const landed = phase === 'zoom' || phase === 'exit'
+  const landed = phase === 'grow' || phase === 'exit'
+
+  const sliceColors = useMemo(
+    () => getDistinctSliceColors(scenarioList.map(s => s.theme.primaryColor)),
+    [scenarioList],
+  )
+
+  const winnerStart = polarPoint(anglePer * winnerIndex, PIE_RADIUS)
+  const winnerEnd = polarPoint(anglePer * (winnerIndex + 1), PIE_RADIUS)
+  const winnerLargeArc = anglePer > 180 ? 1 : 0
+  const winnerD = `M ${PIE_CENTER} ${PIE_CENTER} L ${winnerStart.x} ${winnerStart.y} A ${PIE_RADIUS} ${PIE_RADIUS} 0 ${winnerLargeArc} 1 ${winnerEnd.x} ${winnerEnd.y} Z`
 
   return (
     <div className={`scenario-wheel${phase === 'exit' ? ' scenario-wheel--exiting' : ''}`}>
@@ -60,10 +146,18 @@ function ScenarioWheel({
               <path
                 key={s.id}
                 d={d}
-                className={`scenario-wheel__slice scenario-wheel__slice--${i % 2 === 0 ? 'a' : 'b'}`}
+                className="scenario-wheel__slice"
+                style={{ fill: sliceColors[i] }}
               />
             )
           })}
+          {landed && (
+            <path
+              d={winnerD}
+              className="scenario-wheel__slice scenario-wheel__slice--winner"
+              style={{ fill: sliceColors[winnerIndex] }}
+            />
+          )}
         </svg>
         {scenarioList.map((s, i) => {
           const midAngle = anglePer * i + anglePer / 2
@@ -76,7 +170,6 @@ function ScenarioWheel({
             <div key={s.id} className="scenario-wheel__slice-icon-wrap" style={{ left: `${left}%`, top: `${top}%` }}>
               <div className="scenario-wheel__slice-icon-rotator" style={{ transform: `rotate(${-rotation}deg)`, transition }}>
                 <div
-                  ref={isWinner ? winnerBadgeRef : undefined}
                   className={`scenario-wheel__slice-icon${isWinner && landed ? ' scenario-wheel__slice-icon--winner' : ''}`}
                 >
                   {s.theme.icon}
@@ -86,71 +179,6 @@ function ScenarioWheel({
           )
         })}
       </div>
-      <div className="scenario-wheel__hub">
-        <svg className="scenario-wheel__hub-icon" viewBox="0 0 100 100" aria-hidden="true">
-          <circle className="scenario-wheel__hub-ring" cx="50" cy="50" r="45" />
-          <g className="scenario-wheel__hub-blades">
-            <path d="M60.69 44.55 L85.64 31.84 A40 40 0 0 1 85.64 68.16 L60.69 55.45 A12 12 0 0 0 60.69 44.55 Z" />
-            <path d="M60.69 44.55 L85.64 31.84 A40 40 0 0 1 85.64 68.16 L60.69 55.45 A12 12 0 0 0 60.69 44.55 Z" transform="rotate(120 50 50)" />
-            <path d="M60.69 44.55 L85.64 31.84 A40 40 0 0 1 85.64 68.16 L60.69 55.45 A12 12 0 0 0 60.69 44.55 Z" transform="rotate(240 50 50)" />
-          </g>
-          <circle className="scenario-wheel__hub-core" cx="50" cy="50" r="10" />
-        </svg>
-      </div>
-    </div>
-  )
-}
-
-function ZoomIcon({
-  icon,
-  rect,
-  phase,
-  sliceVariant,
-}: {
-  icon: string
-  rect: DOMRect | null
-  phase: WheelPhase
-  sliceVariant: 'a' | 'b'
-}) {
-  const [armed, setArmed] = useState(false)
-
-  useEffect(() => {
-    if (phase !== 'zoom' || !rect) return
-    const id = setTimeout(() => setArmed(true), 30)
-    return () => clearTimeout(id)
-  }, [phase, rect])
-
-  if (!rect) return null
-
-  const targetSize = Math.min(window.innerWidth, window.innerHeight) * ZOOM_FILL_RATIO
-  const scale = targetSize / rect.width
-
-  const style: React.CSSProperties = armed
-    ? {
-        top: '50%',
-        left: '50%',
-        width: rect.width,
-        height: rect.height,
-        transform: `translate(-50%, -50%) scale(${scale})`,
-        opacity: phase === 'exit' ? 0 : 1,
-        transition:
-          phase === 'exit'
-            ? `opacity ${EXIT_DURATION_MS}ms ease`
-            : `top ${ZOOM_DURATION_MS}ms cubic-bezier(0.3, 0, 0.2, 1), left ${ZOOM_DURATION_MS}ms cubic-bezier(0.3, 0, 0.2, 1), transform ${ZOOM_DURATION_MS}ms cubic-bezier(0.3, 0, 0.2, 1)`,
-      }
-    : {
-        top: rect.top + rect.height / 2,
-        left: rect.left + rect.width / 2,
-        width: rect.width,
-        height: rect.height,
-        transform: 'translate(-50%, -50%) scale(1)',
-        opacity: 1,
-        transition: 'none',
-      }
-
-  return (
-    <div className={`scenario-wheel__zoom-icon scenario-wheel__zoom-icon--slice-${sliceVariant}`} style={style} aria-hidden="true">
-      {icon}
     </div>
   )
 }
@@ -167,8 +195,6 @@ export function CatastropheReveal() {
   const isRandomMode = roomState?.scenarioMode === 'random'
   const [wheelPhase, setWheelPhase] = useState<WheelPhase>(isRandomMode ? 'idle' : 'done')
   const [rotation, setRotation] = useState(0)
-  const [overlayRect, setOverlayRect] = useState<DOMRect | null>(null)
-  const winnerBadgeRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isRandomMode && scenarioList.length === 0) getScenarios()
@@ -191,12 +217,11 @@ export function CatastropheReveal() {
 
   useEffect(() => {
     if (wheelPhase === 'spinning') {
-      const id = setTimeout(() => setWheelPhase('zoom'), SPIN_DURATION_MS)
+      const id = setTimeout(() => setWheelPhase('grow'), SPIN_DURATION_MS)
       return () => clearTimeout(id)
     }
-    if (wheelPhase === 'zoom') {
-      if (winnerBadgeRef.current) setOverlayRect(winnerBadgeRef.current.getBoundingClientRect())
-      const id = setTimeout(() => setWheelPhase('exit'), ZOOM_DURATION_MS)
+    if (wheelPhase === 'grow') {
+      const id = setTimeout(() => setWheelPhase('exit'), GROW_DURATION_MS)
       return () => clearTimeout(id)
     }
     if (wheelPhase === 'exit') {
@@ -210,9 +235,8 @@ export function CatastropheReveal() {
   const { scenario } = roomState
   const isHost = roomState.players.find(p => p.id === mySocketId)?.isHost
 
-  const wheelDrawing = isRandomMode && (wheelPhase === 'idle' || wheelPhase === 'spinning' || wheelPhase === 'zoom')
+  const wheelDrawing = isRandomMode && (wheelPhase === 'idle' || wheelPhase === 'spinning' || wheelPhase === 'grow')
   const showWheelChrome = isRandomMode && wheelPhase !== 'done'
-  const showOverlay = isRandomMode && (wheelPhase === 'zoom' || wheelPhase === 'exit')
   const showContent = !isRandomMode || wheelPhase === 'exit' || wheelPhase === 'done'
   const cameFromWheel = isRandomMode
 
@@ -230,22 +254,12 @@ export function CatastropheReveal() {
           winnerIndex={winnerIndex}
           phase={wheelPhase}
           rotation={rotation}
-          winnerBadgeRef={winnerBadgeRef}
-        />
-      )}
-
-      {showOverlay && (
-        <ZoomIcon
-          icon={scenario.theme.icon}
-          rect={overlayRect}
-          phase={wheelPhase}
-          sliceVariant={winnerIndex % 2 === 0 ? 'a' : 'b'}
         />
       )}
 
       {showContent && (
         <>
-          <div className={`catastrophe-reveal__icon${cameFromWheel ? ' catastrophe-reveal__icon--zoom-in' : ''}`}>
+          <div className={`catastrophe-reveal__icon${cameFromWheel ? ' catastrophe-reveal__icon--quick' : ''}`}>
             {scenario.theme.icon}
           </div>
           <h1 className={`catastrophe-reveal__title${cameFromWheel ? ' catastrophe-reveal__title--quick' : ''}`}>
