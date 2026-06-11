@@ -65,6 +65,7 @@ export const en: Record<string, string> = {
   'lobby.host': 'Host',
 
   'game.catastrophe.title': 'CATASTROPHE',
+  'game.catastrophe.drawing': 'DRAWING THE CATASTROPHE...',
   'game.catastrophe.continue': 'Continue',
   'game.catastrophe.waiting': 'Waiting for host...',
   'game.bunker.title': 'THE BUNKER',

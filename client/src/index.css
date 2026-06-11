@@ -1536,24 +1536,139 @@ h1, h2, h3, .display {
   animation: fade-in 0.4s ease 2s forwards;
 }
 
-/* Random-mode "spinning" scenario reveal */
-.catastrophe-reveal__icon.catastrophe-reveal__icon--spinning,
-.catastrophe-reveal__title.catastrophe-reveal__title--spinning {
-  opacity: 1;
-  letter-spacing: normal;
-  animation: catastrophe-spin-tick 0.12s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-@keyframes catastrophe-spin-tick {
-  0%   { opacity: 0.35; transform: scale(0.9); filter: blur(2px) drop-shadow(0 0 24px var(--c-glow)); }
-  60%  { opacity: 1; transform: scale(1.04); filter: blur(0) drop-shadow(0 0 24px var(--c-glow)); }
-  100% { opacity: 1; transform: scale(1); filter: blur(0) drop-shadow(0 0 24px var(--c-glow)); }
+/* Random-mode "scenario wheel" pre-reveal spin */
+.scenario-wheel {
+  position: relative;
+  width: min(320px, 78vw);
+  height: min(320px, 78vw);
+  margin-bottom: 8px;
+  animation: fade-in 0.4s ease;
 }
 
-.catastrophe-reveal__desc.catastrophe-reveal__desc--post-spin {
-  animation-delay: 0.7s;
+.scenario-wheel--exiting {
+  animation: scenario-wheel-exit 0.4s ease forwards;
 }
-.catastrophe-reveal__actions.catastrophe-reveal__actions--post-spin {
-  animation-delay: 1.3s;
+
+@keyframes scenario-wheel-exit {
+  to { opacity: 0; transform: scale(0.85); }
+}
+
+.scenario-wheel__indicator {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 16px solid var(--c-primary);
+  filter: drop-shadow(0 0 8px var(--c-glow));
+  z-index: 3;
+}
+
+.scenario-wheel__ring {
+  position: absolute;
+  inset: 0;
+}
+
+.scenario-wheel__badge {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  margin: -28px;
+}
+
+.scenario-wheel__badge-rotator {
+  width: 100%;
+  height: 100%;
+}
+
+.scenario-wheel__badge-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  background: var(--c-surface2);
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+}
+
+.scenario-wheel__badge-icon--winner {
+  animation: wheel-winner-zoom 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+  z-index: 5;
+}
+
+@keyframes wheel-winner-zoom {
+  0%   { transform: scale(1); border-color: var(--c-border); box-shadow: none; }
+  100% { transform: scale(2.6); border-color: var(--c-primary); box-shadow: 0 0 40px var(--c-glow), 0 0 70px var(--c-glow); }
+}
+
+.scenario-wheel__hub {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 46%;
+  height: 46%;
+  border-radius: 50%;
+  background: var(--c-surface2);
+  border: 3px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 0 24px var(--c-glow);
+}
+
+.scenario-wheel__hub-icon {
+  width: 42%;
+  height: 42%;
+  animation: z-trefoil-spin 36s linear infinite;
+}
+
+.scenario-wheel__hub-ring {
+  fill: none;
+  stroke: var(--c-primary);
+  stroke-width: 6;
+  opacity: 0.5;
+}
+
+.scenario-wheel__hub-blades,
+.scenario-wheel__hub-core {
+  fill: var(--c-primary);
+}
+
+.scenario-wheel__hub-title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-text);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scenario-wheel__ring,
+  .scenario-wheel__badge-rotator {
+    transition: none !important;
+  }
+  .scenario-wheel__badge-icon--winner {
+    animation: none !important;
+    transform: scale(2.6);
+    border-color: var(--c-primary);
+    box-shadow: 0 0 40px var(--c-glow), 0 0 70px var(--c-glow);
+  }
+  .scenario-wheel--exiting {
+    animation: none !important;
+    opacity: 0;
+  }
+  .scenario-wheel__hub-icon {
+    animation: none !important;
+  }
 }
 
 /* ── Bunker Reveal ────────────────────────────────────────────────────────── */

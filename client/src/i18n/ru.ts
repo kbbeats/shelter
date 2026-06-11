@@ -65,6 +65,7 @@ export const ru: Record<string, string> = {
   'lobby.host': 'Хост',
 
   'game.catastrophe.title': 'КАТАСТРОФА',
+  'game.catastrophe.drawing': 'ОПРЕДЕЛЯЕМ КАТАСТРОФУ...',
   'game.catastrophe.continue': 'Продолжить',
   'game.catastrophe.waiting': 'Ожидание хоста...',
   'game.bunker.title': 'БУНКЕР',
