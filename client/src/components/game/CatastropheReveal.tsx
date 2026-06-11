@@ -179,6 +179,7 @@ function ScenarioWheel({
           )
         })}
       </div>
+      <div className="scenario-wheel__hub" aria-hidden="true" />
     </div>
   )
 }
@@ -206,7 +207,8 @@ export function CatastropheReveal() {
     const winnerIndex = Math.max(0, scenarioList.findIndex(s => s.id === roomState.scenario!.id))
     const anglePer = 360 / scenarioList.length
     const winnerMidAngle = anglePer * winnerIndex + anglePer / 2
-    const target = ((360 - winnerMidAngle) % 360) + 360 * SPIN_EXTRA_TURNS
+    // Indicator sits at the 3 o'clock position (90deg in our polar convention)
+    const target = (((90 - winnerMidAngle) % 360) + 360) % 360 + 360 * SPIN_EXTRA_TURNS
 
     const id = setTimeout(() => {
       setRotation(target)
