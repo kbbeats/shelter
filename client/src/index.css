@@ -1588,31 +1588,51 @@ h1, h2, h3, .display {
   inset: 0;
 }
 
-.scenario-wheel__badge {
+.scenario-wheel__pie {
   position: absolute;
-  width: 70px;
-  height: 70px;
-  margin: -35px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  filter: drop-shadow(0 0 18px var(--c-glow));
 }
 
-.scenario-wheel__badge-rotator {
+.scenario-wheel__slice {
+  stroke: var(--c-border);
+  stroke-width: 1.5;
+}
+
+.scenario-wheel__slice--a {
+  fill: var(--c-surface2);
+}
+
+.scenario-wheel__slice--b {
+  fill: var(--c-bg);
+}
+
+.scenario-wheel__slice-icon-wrap {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  margin: -30px;
+}
+
+.scenario-wheel__slice-icon-rotator {
   width: 100%;
   height: 100%;
 }
 
-.scenario-wheel__badge-icon {
+.scenario-wheel__slice-icon {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.1rem;
-  background: var(--c-surface2);
-  border: 1px solid var(--c-border);
-  border-radius: 50%;
+  font-size: 2rem;
 }
 
-.scenario-wheel__badge-icon--winner {
+.scenario-wheel__slice-icon--winner {
   opacity: 0;
   transition: opacity 0.05s linear;
 }
@@ -1650,7 +1670,7 @@ h1, h2, h3, .display {
   fill: var(--c-primary);
 }
 
-/* "Camera zoom" overlay icon — flies from the winning badge to screen-center */
+/* "Camera zoom" overlay icon — flies from the winning slice to screen-center */
 .scenario-wheel__zoom-icon {
   position: fixed;
   z-index: 50;
@@ -1658,20 +1678,27 @@ h1, h2, h3, .display {
   align-items: center;
   justify-content: center;
   font-size: 2.1rem;
-  background: var(--c-surface2);
   border: 1px solid var(--c-border);
   border-radius: 50%;
   box-shadow: 0 0 50px var(--c-glow), 0 0 100px var(--c-glow);
   pointer-events: none;
 }
 
+.scenario-wheel__zoom-icon--slice-a {
+  background: var(--c-surface2);
+}
+
+.scenario-wheel__zoom-icon--slice-b {
+  background: var(--c-bg);
+}
+
 @media (max-width: 380px) {
-  .scenario-wheel__badge {
-    width: 56px;
-    height: 56px;
-    margin: -28px;
+  .scenario-wheel__slice-icon-wrap {
+    width: 46px;
+    height: 46px;
+    margin: -23px;
   }
-  .scenario-wheel__badge-icon,
+  .scenario-wheel__slice-icon,
   .scenario-wheel__zoom-icon {
     font-size: 1.7rem;
   }
@@ -1679,10 +1706,10 @@ h1, h2, h3, .display {
 
 @media (prefers-reduced-motion: reduce) {
   .scenario-wheel__ring,
-  .scenario-wheel__badge-rotator {
+  .scenario-wheel__slice-icon-rotator {
     transition: none !important;
   }
-  .scenario-wheel__badge-icon--winner {
+  .scenario-wheel__slice-icon--winner {
     opacity: 0;
   }
   .scenario-wheel--exiting {
