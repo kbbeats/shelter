@@ -1214,6 +1214,7 @@ h1, h2, h3, .display {
 }
 
 .lb-scenario {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1227,6 +1228,28 @@ h1, h2, h3, .display {
 
 .lb-scenario:hover {
   border-color: var(--c-primary);
+}
+
+.lb-scenarios--locked .lb-scenario {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+  cursor: default;
+  transition: none;
+}
+
+.lb-scenarios--locked .lb-scenario:hover {
+  border-color: var(--c-border);
+}
+
+.lb-scenario__lock-badge {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  background: var(--c-surface2);
+  opacity: 0.75;
 }
 
 .lb-scenario--selected {
@@ -1511,6 +1534,26 @@ h1, h2, h3, .display {
 .catastrophe-reveal__actions {
   opacity: 0;
   animation: fade-in 0.4s ease 2s forwards;
+}
+
+/* Random-mode "spinning" scenario reveal */
+.catastrophe-reveal__icon.catastrophe-reveal__icon--spinning,
+.catastrophe-reveal__title.catastrophe-reveal__title--spinning {
+  opacity: 1;
+  letter-spacing: normal;
+  animation: catastrophe-spin-tick 0.12s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+@keyframes catastrophe-spin-tick {
+  0%   { opacity: 0.35; transform: scale(0.9); filter: blur(2px) drop-shadow(0 0 24px var(--c-glow)); }
+  60%  { opacity: 1; transform: scale(1.04); filter: blur(0) drop-shadow(0 0 24px var(--c-glow)); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0) drop-shadow(0 0 24px var(--c-glow)); }
+}
+
+.catastrophe-reveal__desc.catastrophe-reveal__desc--post-spin {
+  animation-delay: 0.7s;
+}
+.catastrophe-reveal__actions.catastrophe-reveal__actions--post-spin {
+  animation-delay: 1.3s;
 }
 
 /* ── Bunker Reveal ────────────────────────────────────────────────────────── */

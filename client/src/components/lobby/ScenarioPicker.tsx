@@ -60,7 +60,7 @@ export function ScenarioPicker({ selectedId, isHost, scenarioMode, scenarioVotes
       {scenarioList.length === 0 ? (
         <p className="lb-ticket__body dim mono" style={{ fontSize: '0.8rem' }}>{t('lobby.scenario.select')}</p>
       ) : (
-        <div className="lb-scenarios">
+        <div className={`lb-scenarios${scenarioMode === 'random' ? ' lb-scenarios--locked' : ''}`}>
           {scenarioList.map((s: ScenarioPublic) => {
             const isSelected = s.id === selectedId
             const isMyVote = scenarioMode === 'vote' && s.id === myVote
@@ -96,6 +96,9 @@ export function ScenarioPicker({ selectedId, isHost, scenarioMode, scenarioVotes
                   <span className="lb-scenario__votes">
                     {voteCount} {voteCount === 1 ? t('lobby.scenario.vote') : t('lobby.scenario.votes')}
                   </span>
+                )}
+                {scenarioMode === 'random' && (
+                  <span className="lb-scenario__lock-badge" aria-hidden="true">🎲</span>
                 )}
               </div>
             )
