@@ -26,39 +26,41 @@ export function ScenarioPicker({ selectedId, isHost, scenarioMode, scenarioVotes
     : null
 
   return (
-    <div>
-      <div className="section-label">{t('lobby.scenario')}</div>
+    <div className="lb-ticket">
+      <div className="lb-ticket__head">
+        <span className="lb-ticket__title">{t('lobby.scenario')}</span>
+      </div>
 
       {isHost && (
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+        <div className="lb-modes">
           {(['host', 'vote', 'random'] as const).map(mode => (
             <button
               key={mode}
-              className={`btn btn--sm${scenarioMode === mode ? ' btn--primary' : ' btn--ghost'}`}
+              className={`z-btn z-btn--sm${scenarioMode === mode ? ' z-btn--primary' : ' z-btn--outline'}`}
               onClick={() => setScenarioMode(mode)}
             >
-              {mode === 'host' ? "I'll Choose" : mode === 'vote' ? 'Group Vote' : 'Random'}
+              {t(`lobby.scenario.mode.${mode}`)}
             </button>
           ))}
         </div>
       )}
 
       {!isHost && scenarioMode === 'host' && (
-        <p className="dim mono" style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-          Waiting for {hostName} to choose a scenario
+        <p className="lb-ticket__body dim mono" style={{ fontSize: '0.85rem', paddingBottom: 0 }}>
+          {t('lobby.scenario.waiting_host').replace('{host}', hostName)}
         </p>
       )}
 
       {!isHost && scenarioMode === 'random' && !selectedId && (
-        <p className="dim mono" style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-          Host is picking randomly...
+        <p className="lb-ticket__body dim mono" style={{ fontSize: '0.85rem', paddingBottom: 0 }}>
+          {t('lobby.scenario.waiting_random')}
         </p>
       )}
 
       {scenarioList.length === 0 ? (
-        <p className="dim mono" style={{ fontSize: '0.8rem' }}>{t('lobby.scenario.select')}</p>
+        <p className="lb-ticket__body dim mono" style={{ fontSize: '0.8rem' }}>{t('lobby.scenario.select')}</p>
       ) : (
-        <div className="scenario-picker">
+        <div className="lb-scenarios">
           {scenarioList.map((s: ScenarioPublic) => {
             const isSelected = s.id === selectedId
             const isMyVote = scenarioMode === 'vote' && s.id === myVote
@@ -72,29 +74,28 @@ export function ScenarioPicker({ selectedId, isHost, scenarioMode, scenarioVotes
               else if (scenarioMode === 'vote') castScenarioVote(s.id)
             }
 
+            const stateClass = isSelected
+              ? ' lb-scenario--selected'
+              : isMyVote
+              ? ' lb-scenario--voted'
+              : ''
+
             return (
               <div
                 key={s.id}
-                className={`scenario-card${isSelected || isMyVote ? ' scenario-card--selected' : ''}`}
+                className={`lb-scenario${stateClass}`}
                 onClick={clickable ? handleClick : undefined}
-                style={{
-                  cursor: clickable ? 'pointer' : 'default',
-                  borderColor: isSelected
-                    ? s.theme.primaryColor
-                    : isMyVote
-                    ? s.theme.accentColor
-                    : undefined,
-                }}
+                style={{ cursor: clickable ? 'pointer' : 'default' }}
               >
-                <div className="scenario-card__icon">{s.theme.icon}</div>
-                <div className="scenario-card__title">{s.title[lang]}</div>
+                <span className="lb-scenario__icon">{s.theme.icon}</span>
+                <span className="lb-scenario__title">{s.title[lang]}</span>
                 {s.isPremium && (
-                  <span className="badge badge--host" style={{ marginTop: 4 }}>PRO</span>
+                  <span className="lb-tag lb-tag--host">PRO</span>
                 )}
                 {scenarioMode === 'vote' && voteCount > 0 && (
-                  <div style={{ fontSize: '0.75rem', marginTop: 4, opacity: 0.75 }}>
-                    {voteCount} {voteCount === 1 ? 'vote' : 'votes'}
-                  </div>
+                  <span className="lb-scenario__votes">
+                    {voteCount} {voteCount === 1 ? t('lobby.scenario.vote') : t('lobby.scenario.votes')}
+                  </span>
                 )}
               </div>
             )

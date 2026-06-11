@@ -17,14 +17,16 @@ export function RoomCode({ code }: Props) {
   }
 
   return (
-    <div className="lobby__code-box">
-      <div>
-        <div className="section-label">{t('lobby.code.label')}</div>
-        <div className="lobby__code">{code}</div>
+    <div className="lb-ticket">
+      <div className="lb-ticket__head">
+        <span className="lb-ticket__title">{t('lobby.code.label')}</span>
+        <button className="z-btn z-btn--outline z-btn--sm" onClick={copy}>
+          {copied ? t('lobby.code.copied') : t('lobby.code.copy')}
+        </button>
       </div>
-      <button className="btn btn--outline btn--sm" onClick={copy}>
-        {copied ? t('lobby.code.copied') : t('lobby.code.copy')}
-      </button>
+      <div className="lb-code-row">
+        <span className="lb-code">{code}</span>
+      </div>
     </div>
   )
 }

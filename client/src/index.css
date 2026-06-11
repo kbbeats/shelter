@@ -962,6 +962,12 @@ h1, h2, h3, .display {
   transform: none;
 }
 
+.z-btn--sm {
+  width: auto;
+  padding: 9px 16px;
+  font-size: 0.7rem;
+}
+
 /* ── Footer ──────────────────────────────────────────────────────────────── */
 
 .z-foot {
@@ -1026,6 +1032,256 @@ h1, h2, h3, .display {
   .z-tape { animation: none !important; }
   .z-dot { animation: none !important; }
   .z-foot__tip { animation: none !important; }
+}
+
+/* ── Lobby Page — Survival Raffle ────────────────────────────────────────── */
+
+.lobby-page {
+  --c-primary:  #ffd400;
+  --c-accent:   #c1442e;
+  --c-bg:       #14130f;
+  --c-surface:  #1f1d17;
+  --c-surface2: #2a2720;
+  --c-text:     #f4efe2;
+  --c-text-dim: #8f8a78;
+  --c-glow:     rgba(255, 212, 0, 0.18);
+  --c-border:   rgba(244, 239, 226, 0.14);
+
+  min-height: 100dvh;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: 'Space Mono', monospace;
+  display: flex;
+  flex-direction: column;
+}
+
+.lobby-page .z-bar {
+  justify-content: space-between;
+}
+
+.lb-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-text);
+  text-decoration: none;
+}
+
+.lb-trefoil {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+/* ── Main layout ─────────────────────────────────────────────────────────── */
+
+.lb-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 28px;
+}
+
+/* ── Ticket panels ───────────────────────────────────────────────────────── */
+
+.lb-ticket {
+  position: relative;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  animation: fade-in-up 0.4s ease both;
+}
+
+.lb-ticket__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 2px dashed var(--c-border);
+}
+
+.lb-ticket__title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--c-primary);
+}
+
+.lb-ticket__body {
+  padding: 18px 20px;
+}
+
+/* ── Room code ───────────────────────────────────────────────────────────── */
+
+.lb-code-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+}
+
+.lb-code {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: clamp(2.2rem, 8vw, 3.2rem);
+  letter-spacing: 0.34em;
+  padding-left: 0.34em;
+  color: var(--c-primary);
+}
+
+/* ── Roster ──────────────────────────────────────────────────────────────── */
+
+.lb-roster {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--c-surface2);
+  border: 1px solid var(--c-border);
+  animation: fade-in-up 0.2s ease;
+}
+
+.lb-row--me {
+  border-color: var(--c-primary);
+}
+
+.lb-row__name {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.lb-row__badges {
+  display: flex;
+  gap: 6px;
+}
+
+.lb-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 1px;
+  border: 1px solid currentColor;
+  opacity: 0.85;
+}
+
+.lb-tag--you     { color: var(--c-primary); }
+.lb-tag--host    { color: var(--c-accent); }
+.lb-tag--offline { color: var(--c-text-dim); }
+
+/* ── Scenario picker ─────────────────────────────────────────────────────── */
+
+.lb-modes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 14px 20px 0;
+}
+
+.lb-modes .z-btn--sm {
+  flex: 1;
+  min-width: 100px;
+}
+
+.lb-scenarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  padding: 16px 20px;
+}
+
+.lb-scenario {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 14px;
+  background: var(--c-surface2);
+  border: 1px solid var(--c-border);
+  text-align: left;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.lb-scenario:hover {
+  border-color: var(--c-primary);
+}
+
+.lb-scenario--selected {
+  border-color: var(--c-primary);
+  background: rgba(255, 212, 0, 0.07);
+}
+
+.lb-scenario--voted {
+  border-color: var(--c-accent);
+  background: rgba(193, 68, 46, 0.08);
+}
+
+.lb-scenario__icon {
+  font-size: 1.6rem;
+}
+
+.lb-scenario__title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.lb-scenario__votes {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--c-text-dim);
+}
+
+/* ── Action footer ───────────────────────────────────────────────────────── */
+
+.lb-action {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0 24px;
+  animation: fade-in-up 0.35s ease 0.1s both;
+}
+
+.lb-hint {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--c-text-dim);
+}
+
+/* ── Lobby reduced-motion overrides ──────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .lb-ticket, .lb-row, .lb-action {
+    animation: none !important;
+  }
 }
 
 /* ── How To Play Modal ────────────────────────────────────────────────────── */

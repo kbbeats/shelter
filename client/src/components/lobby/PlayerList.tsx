@@ -10,24 +10,26 @@ export function PlayerList({ players, mySocketId }: Props) {
   const t = useT()
 
   return (
-    <div>
-      <div className="section-label">{t('lobby.players')} ({players.length})</div>
-      <div className="lobby__player-list">
+    <div className="lb-ticket">
+      <div className="lb-ticket__head">
+        <span className="lb-ticket__title">{t('lobby.players')} ({players.length})</span>
+      </div>
+      <div className="lb-roster">
         {players.map(p => (
           <div
             key={p.id}
-            className={`player-row${p.id === mySocketId ? ' player-row--me' : ''}`}
+            className={`lb-row${p.id === mySocketId ? ' lb-row--me' : ''}`}
           >
-            <span className="player-row__name">{p.name}</span>
-            <div className="player-row__badges">
+            <span className="lb-row__name">{p.name}</span>
+            <div className="lb-row__badges">
               {p.id === mySocketId && (
-                <span className="badge badge--you">{t('lobby.you')}</span>
+                <span className="lb-tag lb-tag--you">{t('lobby.you')}</span>
               )}
               {p.isHost && (
-                <span className="badge badge--host">{t('lobby.host')}</span>
+                <span className="lb-tag lb-tag--host">{t('lobby.host')}</span>
               )}
               {!p.isConnected && (
-                <span className="badge badge--offline">offline</span>
+                <span className="lb-tag lb-tag--offline">offline</span>
               )}
             </div>
           </div>
