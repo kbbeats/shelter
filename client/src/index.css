@@ -1514,6 +1514,13 @@ h1, h2, h3, .display {
   opacity: 0;
   animation: fade-in 0.4s ease 0.5s forwards;
 }
+.catastrophe-reveal__icon--zoom-in {
+  animation: catastrophe-icon-zoom-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes catastrophe-icon-zoom-in {
+  from { opacity: 0; transform: scale(2.6); filter: drop-shadow(0 0 70px var(--c-glow)); }
+  to   { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 24px var(--c-glow)); }
+}
 .catastrophe-reveal__title {
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 8vw, 5.5rem);
@@ -1523,6 +1530,9 @@ h1, h2, h3, .display {
   opacity: 0;
   animation: catastrophe-drop 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) 0.7s forwards;
 }
+.catastrophe-reveal__title--quick {
+  animation: catastrophe-drop 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) 0.25s forwards;
+}
 .catastrophe-reveal__desc {
   max-width: 560px;
   color: var(--c-text);
@@ -1531,22 +1541,28 @@ h1, h2, h3, .display {
   opacity: 0;
   animation: fade-in 0.5s ease 1.4s forwards;
 }
+.catastrophe-reveal__desc--quick {
+  animation: fade-in 0.5s ease 0.55s forwards;
+}
 .catastrophe-reveal__actions {
   opacity: 0;
   animation: fade-in 0.4s ease 2s forwards;
+}
+.catastrophe-reveal__actions--quick {
+  animation: fade-in 0.4s ease 0.9s forwards;
 }
 
 /* Random-mode "scenario wheel" pre-reveal spin */
 .scenario-wheel {
   position: relative;
-  width: min(320px, 78vw);
-  height: min(320px, 78vw);
+  width: min(400px, 80vw);
+  height: min(400px, 80vw);
   margin-bottom: 8px;
   animation: fade-in 0.4s ease;
 }
 
 .scenario-wheel--exiting {
-  animation: scenario-wheel-exit 0.4s ease forwards;
+  animation: scenario-wheel-exit 0.25s ease forwards;
 }
 
 @keyframes scenario-wheel-exit {
@@ -1574,9 +1590,9 @@ h1, h2, h3, .display {
 
 .scenario-wheel__badge {
   position: absolute;
-  width: 56px;
-  height: 56px;
-  margin: -28px;
+  width: 70px;
+  height: 70px;
+  margin: -35px;
 }
 
 .scenario-wheel__badge-rotator {
@@ -1590,20 +1606,15 @@ h1, h2, h3, .display {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.7rem;
+  font-size: 2.1rem;
   background: var(--c-surface2);
   border: 1px solid var(--c-border);
   border-radius: 50%;
 }
 
 .scenario-wheel__badge-icon--winner {
-  animation: wheel-winner-zoom 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
-  z-index: 5;
-}
-
-@keyframes wheel-winner-zoom {
-  0%   { transform: scale(1); border-color: var(--c-border); box-shadow: none; }
-  100% { transform: scale(2.6); border-color: var(--c-primary); box-shadow: 0 0 40px var(--c-glow), 0 0 70px var(--c-glow); }
+  opacity: 0;
+  transition: opacity 0.05s linear;
 }
 
 .scenario-wheel__hub {
@@ -1616,16 +1627,14 @@ h1, h2, h3, .display {
   background: var(--c-surface2);
   border: 3px solid var(--c-border);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
   box-shadow: 0 0 24px var(--c-glow);
 }
 
 .scenario-wheel__hub-icon {
-  width: 42%;
-  height: 42%;
+  width: 64%;
+  height: 64%;
   animation: z-trefoil-spin 36s linear infinite;
 }
 
@@ -1641,14 +1650,31 @@ h1, h2, h3, .display {
   fill: var(--c-primary);
 }
 
-.scenario-wheel__hub-title {
-  font-family: 'Oswald', sans-serif;
-  font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--c-text);
-  text-align: center;
+/* "Camera zoom" overlay icon — flies from the winning badge to screen-center */
+.scenario-wheel__zoom-icon {
+  position: fixed;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.1rem;
+  background: var(--c-surface2);
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+  box-shadow: 0 0 50px var(--c-glow), 0 0 100px var(--c-glow);
+  pointer-events: none;
+}
+
+@media (max-width: 380px) {
+  .scenario-wheel__badge {
+    width: 56px;
+    height: 56px;
+    margin: -28px;
+  }
+  .scenario-wheel__badge-icon,
+  .scenario-wheel__zoom-icon {
+    font-size: 1.7rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1657,10 +1683,7 @@ h1, h2, h3, .display {
     transition: none !important;
   }
   .scenario-wheel__badge-icon--winner {
-    animation: none !important;
-    transform: scale(2.6);
-    border-color: var(--c-primary);
-    box-shadow: 0 0 40px var(--c-glow), 0 0 70px var(--c-glow);
+    opacity: 0;
   }
   .scenario-wheel--exiting {
     animation: none !important;
@@ -1668,6 +1691,18 @@ h1, h2, h3, .display {
   }
   .scenario-wheel__hub-icon {
     animation: none !important;
+  }
+  .scenario-wheel__zoom-icon {
+    transition: none !important;
+    opacity: 0 !important;
+  }
+  .catastrophe-reveal__icon--zoom-in,
+  .catastrophe-reveal__title--quick,
+  .catastrophe-reveal__desc--quick,
+  .catastrophe-reveal__actions--quick {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
   }
 }
 

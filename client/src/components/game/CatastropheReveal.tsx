@@ -1,36 +1,36 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
 import type { ScenarioPublic } from '@shelter/shared'
 
-const WHEEL_RADIUS = 124
-const SPIN_EXTRA_TURNS = 5
-const SPIN_DURATION_MS = 3600
-const ZOOM_DURATION_MS = 700
-const EXIT_DURATION_MS = 400
+const WHEEL_RADIUS = 160
+const SPIN_EXTRA_TURNS = 8
+const SPIN_DURATION_MS = 5600
+const ZOOM_DURATION_MS = 900
+const EXIT_DURATION_MS = 650
+const ZOOM_FILL_RATIO = 0.78
 
 type WheelPhase = 'idle' | 'spinning' | 'zoom' | 'exit' | 'done'
 
 function ScenarioWheel({
   scenarioList,
   winnerIndex,
-  lang,
   phase,
   rotation,
-  appTitle,
+  winnerBadgeRef,
 }: {
   scenarioList: ScenarioPublic[]
   winnerIndex: number
-  lang: 'en' | 'ru'
   phase: WheelPhase
   rotation: number
-  appTitle: string
+  winnerBadgeRef: React.RefObject<HTMLDivElement>
 }) {
   const n = scenarioList.length
   const anglePer = 360 / n
   const transition =
-    phase === 'spinning' ? `transform ${SPIN_DURATION_MS}ms cubic-bezier(0.12, 0.6, 0.2, 1)` : 'none'
+    phase === 'spinning' ? `transform ${SPIN_DURATION_MS}ms cubic-bezier(0.08, 0.82, 0.13, 1)` : 'none'
+  const landed = phase === 'zoom' || phase === 'exit'
 
   return (
     <div className={`scenario-wheel${phase === 'exit' ? ' scenario-wheel--exiting' : ''}`}>
@@ -43,12 +43,15 @@ function ScenarioWheel({
           const rad = ((anglePer * i) * Math.PI) / 180
           const left = 50 + 50 * (WHEEL_RADIUS / 160) * Math.sin(rad)
           const top = 50 - 50 * (WHEEL_RADIUS / 160) * Math.cos(rad)
-          const isWinner = i === winnerIndex && phase !== 'spinning'
+          const isWinner = i === winnerIndex
 
           return (
             <div key={s.id} className="scenario-wheel__badge" style={{ left: `${left}%`, top: `${top}%` }}>
               <div className="scenario-wheel__badge-rotator" style={{ transform: `rotate(${-rotation}deg)`, transition }}>
-                <div className={`scenario-wheel__badge-icon${isWinner ? ' scenario-wheel__badge-icon--winner' : ''}`}>
+                <div
+                  ref={isWinner ? winnerBadgeRef : undefined}
+                  className={`scenario-wheel__badge-icon${isWinner && landed ? ' scenario-wheel__badge-icon--winner' : ''}`}
+                >
                   {s.theme.icon}
                 </div>
               </div>
@@ -66,8 +69,59 @@ function ScenarioWheel({
           </g>
           <circle className="scenario-wheel__hub-core" cx="50" cy="50" r="10" />
         </svg>
-        <span className="scenario-wheel__hub-title">{appTitle}</span>
       </div>
+    </div>
+  )
+}
+
+function ZoomIcon({
+  icon,
+  rect,
+  phase,
+}: {
+  icon: string
+  rect: DOMRect | null
+  phase: WheelPhase
+}) {
+  const [armed, setArmed] = useState(false)
+
+  useEffect(() => {
+    if (phase !== 'zoom' || !rect) return
+    const id = setTimeout(() => setArmed(true), 30)
+    return () => clearTimeout(id)
+  }, [phase, rect])
+
+  if (!rect) return null
+
+  const targetSize = Math.min(window.innerWidth, window.innerHeight) * ZOOM_FILL_RATIO
+  const scale = targetSize / rect.width
+
+  const style: React.CSSProperties = armed
+    ? {
+        top: '50%',
+        left: '50%',
+        width: rect.width,
+        height: rect.height,
+        transform: `translate(-50%, -50%) scale(${scale})`,
+        opacity: phase === 'exit' ? 0 : 1,
+        transition:
+          phase === 'exit'
+            ? `opacity ${EXIT_DURATION_MS}ms ease`
+            : `top ${ZOOM_DURATION_MS}ms cubic-bezier(0.3, 0, 0.2, 1), left ${ZOOM_DURATION_MS}ms cubic-bezier(0.3, 0, 0.2, 1), transform ${ZOOM_DURATION_MS}ms cubic-bezier(0.3, 0, 0.2, 1)`,
+      }
+    : {
+        top: rect.top + rect.height / 2,
+        left: rect.left + rect.width / 2,
+        width: rect.width,
+        height: rect.height,
+        transform: 'translate(-50%, -50%) scale(1)',
+        opacity: 1,
+        transition: 'none',
+      }
+
+  return (
+    <div className="scenario-wheel__zoom-icon" style={style} aria-hidden="true">
+      {icon}
     </div>
   )
 }
@@ -84,6 +138,8 @@ export function CatastropheReveal() {
   const isRandomMode = roomState?.scenarioMode === 'random'
   const [wheelPhase, setWheelPhase] = useState<WheelPhase>(isRandomMode ? 'idle' : 'done')
   const [rotation, setRotation] = useState(0)
+  const [overlayRect, setOverlayRect] = useState<DOMRect | null>(null)
+  const winnerBadgeRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isRandomMode && scenarioList.length === 0) getScenarios()
@@ -109,6 +165,7 @@ export function CatastropheReveal() {
       return () => clearTimeout(id)
     }
     if (wheelPhase === 'zoom') {
+      if (winnerBadgeRef.current) setOverlayRect(winnerBadgeRef.current.getBoundingClientRect())
       const id = setTimeout(() => setWheelPhase('exit'), ZOOM_DURATION_MS)
       return () => clearTimeout(id)
     }
@@ -122,31 +179,47 @@ export function CatastropheReveal() {
 
   const { scenario } = roomState
   const isHost = roomState.players.find(p => p.id === mySocketId)?.isHost
-  const showWheel = isRandomMode && wheelPhase !== 'done'
+
+  const wheelDrawing = isRandomMode && (wheelPhase === 'idle' || wheelPhase === 'spinning' || wheelPhase === 'zoom')
+  const showWheelChrome = isRandomMode && wheelPhase !== 'done'
+  const showOverlay = isRandomMode && (wheelPhase === 'zoom' || wheelPhase === 'exit')
+  const showContent = !isRandomMode || wheelPhase === 'exit' || wheelPhase === 'done'
+  const cameFromWheel = isRandomMode
 
   const winnerIndex = Math.max(0, scenarioList.findIndex(s => s.id === scenario.id))
 
   return (
     <div className="fullscreen-overlay catastrophe-reveal">
       <div className="catastrophe-reveal__eyebrow">
-        {showWheel ? t('game.catastrophe.drawing') : t('game.catastrophe.title')}
+        {wheelDrawing ? t('game.catastrophe.drawing') : t('game.catastrophe.title')}
       </div>
 
-      {showWheel && scenarioList.length > 0 ? (
+      {showWheelChrome && scenarioList.length > 0 && (
         <ScenarioWheel
           scenarioList={scenarioList}
           winnerIndex={winnerIndex}
-          lang={lang}
           phase={wheelPhase}
           rotation={rotation}
-          appTitle={t('app.title')}
+          winnerBadgeRef={winnerBadgeRef}
         />
-      ) : (
+      )}
+
+      {showOverlay && (
+        <ZoomIcon icon={scenario.theme.icon} rect={overlayRect} phase={wheelPhase} />
+      )}
+
+      {showContent && (
         <>
-          <div className="catastrophe-reveal__icon">{scenario.theme.icon}</div>
-          <h1 className="catastrophe-reveal__title">{scenario.title[lang]}</h1>
-          <p className="catastrophe-reveal__desc">{scenario.catastropheDescription[lang]}</p>
-          <div className="catastrophe-reveal__actions">
+          <div className={`catastrophe-reveal__icon${cameFromWheel ? ' catastrophe-reveal__icon--zoom-in' : ''}`}>
+            {scenario.theme.icon}
+          </div>
+          <h1 className={`catastrophe-reveal__title${cameFromWheel ? ' catastrophe-reveal__title--quick' : ''}`}>
+            {scenario.title[lang]}
+          </h1>
+          <p className={`catastrophe-reveal__desc${cameFromWheel ? ' catastrophe-reveal__desc--quick' : ''}`}>
+            {scenario.catastropheDescription[lang]}
+          </p>
+          <div className={`catastrophe-reveal__actions${cameFromWheel ? ' catastrophe-reveal__actions--quick' : ''}`}>
             {isHost ? (
               <Button size="lg" onClick={nextPhase}>{t('game.catastrophe.continue')}</Button>
             ) : (
