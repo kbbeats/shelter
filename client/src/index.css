@@ -1553,6 +1553,7 @@ h1, h2, h3, .display {
   position: relative;
   width: min(400px, 80vw);
   height: min(400px, 80vw);
+  flex-shrink: 0;
   margin-bottom: 8px;
   animation: fade-in 0.4s ease;
 }
