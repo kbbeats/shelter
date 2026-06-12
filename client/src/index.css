@@ -1503,9 +1503,12 @@ h1, h2, h3, .display {
 
 /* Before a scenario theme is applied (random-mode wheel, pre-wipe), fall back
    to a dark background instead of the light default --c-bg — the wheel's
-   theme-wipe takes over once data-theme is set. */
+   theme-wipe takes over once data-theme is set. --c-border is also darkened
+   here so the grid pattern / wheel rim outlines read as a distinct dark tone
+   against the dark background, instead of the light default --c-border. */
 :root:not([data-theme]) .catastrophe-reveal {
   background: #2a2024;
+  --c-border: #463a41;
 }
 .catastrophe-reveal__eyebrow {
   font-family: var(--font-mono);
