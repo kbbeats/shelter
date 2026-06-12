@@ -251,7 +251,7 @@ export function CatastropheReveal() {
     <div className="fullscreen-overlay catastrophe-reveal">
       {showBgPattern && <div className="scenario-wheel__bg-pattern" aria-hidden="true" />}
 
-      <div className="catastrophe-reveal__eyebrow">
+      <div className={`catastrophe-reveal__eyebrow${wheelDrawing ? ' catastrophe-reveal__eyebrow--wheel' : ''}`}>
         {wheelDrawing ? t('game.catastrophe.drawing') : t('game.catastrophe.title')}
       </div>
 
