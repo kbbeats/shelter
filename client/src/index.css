@@ -1568,6 +1568,23 @@ h1, h2, h3, .display {
   to   { opacity: 1; }
 }
 
+/* Subtle grid pattern behind the wheel during the spin, faded toward the
+   screen edges. Shown only before the winner is decided — removed once the
+   theme-wipe begins covering the screen. */
+.scenario-wheel__bg-pattern {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--c-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--c-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse at center, var(--c-bg), transparent);
+  -webkit-mask-image: radial-gradient(ellipse at center, var(--c-bg), transparent);
+  animation: scenario-wheel-fade-in 0.4s ease;
+}
+
 /* Circular wipe to the winning scenario's theme background, timed with the
    "grow" step. Originates from the winner segment's on-screen position
    (the wheel's right-edge indicator point) and expands to cover the
@@ -1723,6 +1740,10 @@ h1, h2, h3, .display {
   .scenario-wheel__theme-wipe {
     animation: none !important;
     transform: scale(6000);
+  }
+  .scenario-wheel__bg-pattern {
+    animation: none !important;
+    opacity: 1;
   }
   .catastrophe-reveal__icon--quick,
   .catastrophe-reveal__title--quick,

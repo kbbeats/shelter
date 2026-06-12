@@ -242,12 +242,15 @@ export function CatastropheReveal() {
   const showWheelChrome = isRandomMode && wheelPhase !== 'done'
   const showContent = !isRandomMode || wheelPhase === 'exit' || wheelPhase === 'done'
   const showThemeWipe = isRandomMode && (wheelPhase === 'grow' || wheelPhase === 'exit' || wheelPhase === 'done')
+  const showBgPattern = isRandomMode && (wheelPhase === 'idle' || wheelPhase === 'spinning')
   const cameFromWheel = isRandomMode
 
   const winnerIndex = Math.max(0, scenarioList.findIndex(s => s.id === scenario.id))
 
   return (
     <div className="fullscreen-overlay catastrophe-reveal">
+      {showBgPattern && <div className="scenario-wheel__bg-pattern" aria-hidden="true" />}
+
       <div className="catastrophe-reveal__eyebrow">
         {wheelDrawing ? t('game.catastrophe.drawing') : t('game.catastrophe.title')}
       </div>
