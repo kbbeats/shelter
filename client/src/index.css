@@ -1553,13 +1553,18 @@ h1, h2, h3, .display {
   position: absolute;
   left: 0;
   top: 50%;
-  width: clamp(240px, min(70vw, 70vh), 560px);
-  height: clamp(240px, min(70vw, 70vh), 560px);
+  width: clamp(280px, min(82vw, 82vh), 820px);
+  height: clamp(280px, min(82vw, 82vh), 820px);
   transform: translate(-50%, -50%);
   flex-shrink: 0;
-  font-size: clamp(1.3rem, 3.2vw, 2.2rem);
-  animation: fade-in 0.4s ease;
+  font-size: clamp(1.5rem, 3.8vw, 2.6rem);
+  animation: scenario-wheel-fade-in 0.4s ease;
   pointer-events: none;
+}
+
+@keyframes scenario-wheel-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .scenario-wheel::before {
