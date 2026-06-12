@@ -5,8 +5,9 @@ import { useT } from '../../i18n'
 import type { ScenarioPublic } from '@shelter/shared'
 
 const SPIN_EXTRA_TURNS = 8
-const SPIN_DURATION_MS = 5600
-const GROW_DURATION_MS = 500
+export const WHEEL_SPIN_START_DELAY_MS = 30
+export const SPIN_DURATION_MS = 5600
+export const GROW_DURATION_MS = 500
 const EXIT_DURATION_MS = 300
 
 const PIE_CENTER = 100
@@ -213,7 +214,7 @@ export function CatastropheReveal() {
     const id = setTimeout(() => {
       setRotation(target)
       setWheelPhase('spinning')
-    }, 30)
+    }, WHEEL_SPIN_START_DELAY_MS)
     return () => clearTimeout(id)
   }, [isRandomMode, wheelPhase, scenarioList, roomState?.scenario])
 
@@ -240,6 +241,7 @@ export function CatastropheReveal() {
   const wheelDrawing = isRandomMode && (wheelPhase === 'idle' || wheelPhase === 'spinning' || wheelPhase === 'grow')
   const showWheelChrome = isRandomMode && wheelPhase !== 'done'
   const showContent = !isRandomMode || wheelPhase === 'exit' || wheelPhase === 'done'
+  const showThemeWipe = isRandomMode && (wheelPhase === 'grow' || wheelPhase === 'exit' || wheelPhase === 'done')
   const cameFromWheel = isRandomMode
 
   const winnerIndex = Math.max(0, scenarioList.findIndex(s => s.id === scenario.id))
@@ -249,6 +251,14 @@ export function CatastropheReveal() {
       <div className="catastrophe-reveal__eyebrow">
         {wheelDrawing ? t('game.catastrophe.drawing') : t('game.catastrophe.title')}
       </div>
+
+      {showThemeWipe && (
+        <div
+          className="scenario-wheel__theme-wipe"
+          style={{ background: scenario.theme.bgColor }}
+          aria-hidden="true"
+        />
+      )}
 
       {showWheelChrome && scenarioList.length > 0 && (
         <ScenarioWheel

@@ -1498,6 +1498,7 @@ h1, h2, h3, .display {
   gap: 24px;
   padding: 40px 24px;
   min-height: 100vh;
+  --scenario-wheel-size: clamp(280px, min(82vw, 82vh), 820px);
 }
 .catastrophe-reveal__eyebrow {
   font-family: var(--font-mono);
@@ -1553,8 +1554,8 @@ h1, h2, h3, .display {
   position: absolute;
   left: 0;
   top: 50%;
-  width: clamp(280px, min(82vw, 82vh), 820px);
-  height: clamp(280px, min(82vw, 82vh), 820px);
+  width: var(--scenario-wheel-size);
+  height: var(--scenario-wheel-size);
   transform: translate(-50%, -50%);
   flex-shrink: 0;
   font-size: clamp(1.5rem, 3.8vw, 2.6rem);
@@ -1565,6 +1566,28 @@ h1, h2, h3, .display {
 @keyframes scenario-wheel-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+/* Circular wipe to the winning scenario's theme background, timed with the
+   "grow" step. Originates from the winner segment's on-screen position
+   (the wheel's right-edge indicator point) and expands to cover the
+   viewport; ThemeProvider switches `data-theme` to match at the same time
+   the wipe finishes, so the swap underneath is invisible. */
+.scenario-wheel__theme-wipe {
+  position: fixed;
+  top: 50%;
+  left: calc(var(--scenario-wheel-size) / 2);
+  width: 2px;
+  height: 2px;
+  margin: -1px;
+  border-radius: 50%;
+  transform: scale(0);
+  pointer-events: none;
+  animation: scenario-wheel-theme-wipe 500ms ease-out forwards;
+}
+
+@keyframes scenario-wheel-theme-wipe {
+  to { transform: scale(6000); }
 }
 
 .scenario-wheel::before {
@@ -1696,6 +1719,10 @@ h1, h2, h3, .display {
   .scenario-wheel--exiting {
     animation: none !important;
     opacity: 0;
+  }
+  .scenario-wheel__theme-wipe {
+    animation: none !important;
+    transform: scale(6000);
   }
   .catastrophe-reveal__icon--quick,
   .catastrophe-reveal__title--quick,
