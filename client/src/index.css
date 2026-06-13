@@ -31,15 +31,15 @@
    Soviet red on near-black. Zero radius — every corner is brutal.
    Constructivist geometry, heavy borders, propaganda poster gravity. */
 [data-theme="nuclear-war"] {
-  --c-primary:  #d42020;
-  --c-accent:   #f03030;
+  --c-primary:  #FFFF00;
+  --c-accent:   #FFFF66;
   --c-bg:       #060202;
   --c-surface:  #0e0505;
   --c-surface2: #180808;
   --c-text:     #f2e0e0;
   --c-text-dim: #b07070;
-  --c-glow:     rgba(212, 32, 32, 0.45);
-  --c-border:   rgba(212, 32, 32, 0.15);
+  --c-glow:     rgba(255, 255, 0, 0.45);
+  --c-border:   rgba(255, 255, 0, 0.15);
   --radius:     0px;
 }
 
@@ -47,15 +47,15 @@
    Biomonitor green on near-black teal. Clinical 2px radius.
    IBM Plex Mono replaces Bebas Neue — medical readouts, not posters. */
 [data-theme="pandemic"] {
-  --c-primary:    #0ed464;
-  --c-accent:     #28f07c;
+  --c-primary:    #00E676;
+  --c-accent:     #69F0AE;
   --c-bg:         #020b07;
   --c-surface:    #061208;
   --c-surface2:   #0b1e0e;
   --c-text:       #c0f0d8;
   --c-text-dim:   #4a8a62;
-  --c-glow:       rgba(14, 212, 100, 0.3);
-  --c-border:     rgba(14, 212, 100, 0.12);
+  --c-glow:       rgba(0, 230, 118, 0.3);
+  --c-border:     rgba(0, 230, 118, 0.12);
   --radius:       2px;
   --font-display: 'IBM Plex Mono', monospace;
 }
@@ -63,45 +63,45 @@
 /* ASTEROID IMPACT → Mission Control
    Deep space navy, flight-data cyan. 6px radius — engineered, space-age. */
 [data-theme="asteroid-impact"] {
-  --c-primary:  #00b8f0;
-  --c-accent:   #40d8ff;
+  --c-primary:  #D500F9;
+  --c-accent:   #EA80FC;
   --c-bg:       #020610;
   --c-surface:  #060c1c;
   --c-surface2: #0a1228;
   --c-text:     #c8e4f8;
   --c-text-dim: #5878b0;
-  --c-glow:     rgba(0, 184, 240, 0.35);
-  --c-border:   rgba(0, 184, 240, 0.1);
+  --c-glow:     rgba(213, 0, 249, 0.35);
+  --c-border:   rgba(213, 0, 249, 0.1);
   --radius:     6px;
 }
 
 /* CLIMATE COLLAPSE → Crisis Response
    Ocean deep teal on near-black green. Emergency without hysteria. */
 [data-theme="climate-collapse"] {
-  --c-primary:  #0aa888;
-  --c-accent:   #18d0a8;
+  --c-primary:  #00E5FF;
+  --c-accent:   #84FFFF;
   --c-bg:       #010c0a;
   --c-surface:  #051410;
   --c-surface2: #081e18;
   --c-text:     #b0e8e0;
   --c-text-dim: #4d8880;
-  --c-glow:     rgba(10, 168, 136, 0.35);
-  --c-border:   rgba(10, 168, 136, 0.1);
+  --c-glow:     rgba(0, 229, 255, 0.35);
+  --c-border:   rgba(0, 229, 255, 0.1);
   --radius:     4px;
 }
 
 /* ZOMBIE APOCALYPSE → Field Operations
    Survival lime on military near-black. 2px radius — field-kit rough. */
 [data-theme="zombie-apocalypse"] {
-  --c-primary:  #5c9c10;
-  --c-accent:   #78bc18;
+  --c-primary:  #76FF03;
+  --c-accent:   #B2FF59;
   --c-bg:       #050801;
   --c-surface:  #0c1005;
   --c-surface2: #141a08;
   --c-text:     #d4e8a0;
   --c-text-dim: #6a8840;
-  --c-glow:     rgba(92, 156, 16, 0.35);
-  --c-border:   rgba(92, 156, 16, 0.1);
+  --c-glow:     rgba(118, 255, 3, 0.35);
+  --c-border:   rgba(118, 255, 3, 0.1);
   --radius:     2px;
 }
 
@@ -109,15 +109,15 @@
    Cold data cyan. Zero radius — totalitarian precision.
    IBM Plex Mono display — machine output, not human typography. */
 [data-theme="ai-takeover"] {
-  --c-primary:    #00d8f8;
-  --c-accent:     #60ecff;
+  --c-primary:    #2979FF;
+  --c-accent:     #82B1FF;
   --c-bg:         #00040c;
   --c-surface:    #000816;
   --c-surface2:   #000d22;
   --c-text:       #b0e8f8;
   --c-text-dim:   #4880a8;
-  --c-glow:       rgba(0, 216, 248, 0.35);
-  --c-border:     rgba(0, 216, 248, 0.1);
+  --c-glow:       rgba(41, 121, 255, 0.35);
+  --c-border:     rgba(41, 121, 255, 0.1);
   --radius:       0px;
   --font-display: 'IBM Plex Mono', monospace;
 }
@@ -128,14 +128,14 @@
    3px-radius "Geological Emergency" look. Fredoka brings a chunky, hand-carved
    body type; the palette runs warm wood browns against deep felt green. */
 [data-theme="volcanic-winter"] {
-  --c-primary:  #e85810;
-  --c-accent:   #ff8c42;
+  --c-primary:  #FF1744;
+  --c-accent:   #FF5C77;
   --c-bg:       #2b1d12;
   --c-surface:  #3a2817;
   --c-surface2: #4a3420;
   --c-text:     #f3e0c8;
   --c-text-dim: #b89878;
-  --c-glow:     rgba(232, 88, 16, 0.4);
+  --c-glow:     rgba(255, 23, 68, 0.4);
   --c-border:   rgba(32, 21, 11, 0.5);
   --radius:     16px;
   --font-sans:  'Fredoka', sans-serif;
@@ -150,31 +150,16 @@
 /* SOLAR FLARE → Emergency Broadcast
    Alert amber on near-black gold. EMP flickers. Grid going dark. */
 [data-theme="solar-flare"] {
-  --c-primary:  #e8a800;
-  --c-accent:   #ffd040;
+  --c-primary:  #FF6F00;
+  --c-accent:   #FF9E40;
   --c-bg:       #0a0800;
   --c-surface:  #181200;
   --c-surface2: #241c00;
   --c-text:     #fff0c8;
   --c-text-dim: #947840;
-  --c-glow:     rgba(232, 168, 0, 0.5);
-  --c-border:   rgba(232, 168, 0, 0.15);
+  --c-glow:     rgba(255, 111, 0, 0.5);
+  --c-border:   rgba(255, 111, 0, 0.15);
   --radius:     3px;
-}
-
-/* DINOSAUR COMET → Extinction Survey
-   Terracotta on deep earthen black. 5px radius — expedition equipment. */
-[data-theme="dinosaur-comet"] {
-  --c-primary:  #c86820;
-  --c-accent:   #e08040;
-  --c-bg:       #0d0804;
-  --c-surface:  #181208;
-  --c-surface2: #22180c;
-  --c-text:     #f0dcc0;
-  --c-text-dim: #9a7850;
-  --c-glow:     rgba(200, 104, 32, 0.35);
-  --c-border:   rgba(200, 104, 32, 0.12);
-  --radius:     5px;
 }
 
 /* ── Background Effect Layer ──────────────────────────────────────────────── */
@@ -216,7 +201,6 @@ body::before {
 [data-theme="ai-takeover"] body::before   { animation: scan-line 1.5s linear infinite; }
 [data-theme="volcanic-winter"] body::before { animation: none; }
 [data-theme="solar-flare"] body::before   { animation: emp-flicker 1.2s steps(1) infinite; }
-[data-theme="dinosaur-comet"] body::before { animation: comet-dust 14s linear infinite; }
 
 /* ── Keyframes ────────────────────────────────────────────────────────────── */
 
@@ -302,13 +286,6 @@ body::before {
   35%  { opacity: 0.14; }
   60%  { opacity: 0.07; }
   80%  { opacity: 0.22; }
-}
-
-/* Dinosaur: slow comet dust drift */
-@keyframes comet-dust {
-  0%   { background: linear-gradient(135deg, rgba(200,104,32,0.1) 0%, transparent 55%); opacity: 0.3; }
-  50%  { background: linear-gradient(135deg, transparent 0%, rgba(200,104,32,0.13) 50%, transparent 100%); opacity: 0.5; }
-  100% { opacity: 0.3; }
 }
 
 /* Shared component animations */
@@ -1266,6 +1243,18 @@ h1, h2, h3, .display {
   font-size: 1.6rem;
 }
 
+/* Custom per-scenario PNG icons (replace emoji glyphs). Sized via 1em so they
+   inherit the font-size set on their containing element (lobby picker, wheel
+   slice, reveal screen). Transparent PNGs sit directly on whatever surface or
+   slice color is behind them. */
+.scenario-icon {
+  width: 1em;
+  height: 1em;
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
 .lb-scenario__title {
   font-family: 'Oswald', sans-serif;
   font-weight: 600;
@@ -1566,7 +1555,6 @@ h1, h2, h3, .display {
 }
 .catastrophe-reveal__icon {
   font-size: 6rem;
-  filter: drop-shadow(0 0 24px var(--c-glow));
   opacity: 0;
   animation: fade-in 0.4s ease 0.5s forwards;
 }
@@ -2543,14 +2531,6 @@ h1, h2, h3, .display {
 }
 [data-theme="solar-flare"] .lobby__code {
   animation: glow-pulse 1.8s ease-in-out infinite;
-}
-
-/* ── DINOSAUR COMET: Extinction Survey ───────────────────────────────────
-   Slightly warmer, earthier. Expedition-notebook feel.
-── */
-
-[data-theme="dinosaur-comet"] .id-card__attr-label {
-  letter-spacing: 0.08em;
 }
 
 /* ── VOLCANIC WINTER: Tactile Tabletop ─────────────────────────────────────

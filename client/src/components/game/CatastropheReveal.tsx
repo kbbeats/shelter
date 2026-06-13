@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
+import { ScenarioIcon } from '../icons/ScenarioIcons'
 import type { ScenarioPublic } from '@shelter/shared'
 
 const SPIN_EXTRA_TURNS = 8
@@ -173,7 +174,7 @@ function ScenarioWheel({
                 <div
                   className={`scenario-wheel__slice-icon${isWinner && landed ? ' scenario-wheel__slice-icon--winner' : ''}`}
                 >
-                  {s.theme.icon}
+                  <ScenarioIcon id={s.id} />
                 </div>
               </div>
             </div>
@@ -274,8 +275,10 @@ export function CatastropheReveal() {
 
       {showContent && (
         <>
-          <div className={`catastrophe-reveal__icon${cameFromWheel ? ' catastrophe-reveal__icon--quick' : ''}`}>
-            {scenario.theme.icon}
+          <div
+            className={`catastrophe-reveal__icon${cameFromWheel ? ' catastrophe-reveal__icon--quick' : ''}`}
+          >
+            <ScenarioIcon id={scenario.id} />
           </div>
           <h1 className={`catastrophe-reveal__title${cameFromWheel ? ' catastrophe-reveal__title--quick' : ''}`}>
             {scenario.title[lang]}

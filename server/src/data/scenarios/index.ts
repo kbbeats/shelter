@@ -13,7 +13,6 @@ import zombieApocalypse from './zombie-apocalypse'
 import aiTakeover from './ai-takeover'
 import volcanicWinter from './volcanic-winter'
 import solarFlare from './solar-flare'
-import dinosaurComet from './dinosaur-comet'
 
 const allScenarios: ScenarioFull[] = [
   nuclearWar,
@@ -24,7 +23,6 @@ const allScenarios: ScenarioFull[] = [
   aiTakeover,
   volcanicWinter,
   solarFlare,
-  dinosaurComet,
 ]
 
 export const scenarioMap = new Map<string, ScenarioFull>(

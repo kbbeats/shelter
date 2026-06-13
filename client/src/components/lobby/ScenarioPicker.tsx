@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useGameStore } from '../../store/gameStore'
 import { useT } from '../../i18n'
+import { ScenarioIcon } from '../icons/ScenarioIcons'
 import type { ScenarioPublic, ScenarioMode } from '@shelter/shared'
 
 interface Props {
@@ -87,7 +88,9 @@ export function ScenarioPicker({ selectedId, isHost, scenarioMode, scenarioVotes
                 onClick={clickable ? handleClick : undefined}
                 style={{ cursor: clickable ? 'pointer' : 'default' }}
               >
-                <span className="lb-scenario__icon">{s.theme.icon}</span>
+                <span className="lb-scenario__icon">
+                  <ScenarioIcon id={s.id} />
+                </span>
                 <span className="lb-scenario__title">{s.title[lang]}</span>
                 {s.isPremium && (
                   <span className="lb-tag lb-tag--host">PRO</span>
