@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
@@ -25,83 +25,17 @@ function polarPoint(angleDeg: number, r: number) {
   }
 }
 
-// --- Slice color derivation (per-scenario theme.primaryColor, with collision avoidance) ---
+// --- Per-scenario "washed" wheel gradient stops ---
 
-function hexToHsl(hex: string): { h: number; s: number; l: number } {
-  const r = parseInt(hex.slice(1, 3), 16) / 255
-  const g = parseInt(hex.slice(3, 5), 16) / 255
-  const b = parseInt(hex.slice(5, 7), 16) / 255
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  const l = (max + min) / 2
-  let h = 0
-  let s = 0
-  if (max !== min) {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break
-      case g: h = (b - r) / d + 2; break
-      default: h = (r - g) / d + 4; break
-    }
-    h *= 60
-  }
-  return { h, s: s * 100, l: l * 100 }
-}
-
-function hslToHex(h: number, s: number, l: number): string {
-  h = ((h % 360) + 360) % 360
-  s /= 100
-  l /= 100
-  const c = (1 - Math.abs(2 * l - 1)) * s
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
-  const m = l - c / 2
-  let [r, g, b] = [0, 0, 0]
-  if (h < 60) [r, g, b] = [c, x, 0]
-  else if (h < 120) [r, g, b] = [x, c, 0]
-  else if (h < 180) [r, g, b] = [0, c, x]
-  else if (h < 240) [r, g, b] = [0, x, c]
-  else if (h < 300) [r, g, b] = [x, 0, c]
-  else [r, g, b] = [c, 0, x]
-  const toHex = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, '0')
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`
-}
-
-function hueDistance(a: number, b: number): number {
-  const d = Math.abs(a - b)
-  return Math.min(d, 360 - d)
-}
-
-const SLICE_HUE_THRESHOLD = 20
-const SLICE_LIGHTNESS_THRESHOLD = 15
-const SLICE_HUE_NUDGE = 35
-const SLICE_MIN_SAT = 55
-const SLICE_MAX_SAT = 90
-const SLICE_MIN_LIGHT = 40
-const SLICE_MAX_LIGHT = 65
-
-function getDistinctSliceColors(primaryColors: string[]): string[] {
-  const placed: { h: number; s: number; l: number }[] = []
-
-  for (const hex of primaryColors) {
-    const hsl = hexToHsl(hex)
-    let h = hsl.h
-    const s = Math.min(Math.max(hsl.s, SLICE_MIN_SAT), SLICE_MAX_SAT)
-    const l = Math.min(Math.max(hsl.l, SLICE_MIN_LIGHT), SLICE_MAX_LIGHT)
-
-    let attempts = 0
-    while (
-      placed.some(c => hueDistance(c.h, h) < SLICE_HUE_THRESHOLD && Math.abs(c.l - l) < SLICE_LIGHTNESS_THRESHOLD) &&
-      attempts < 6
-    ) {
-      h = (h + SLICE_HUE_NUDGE) % 360
-      attempts++
-    }
-
-    placed.push({ h, s, l })
-  }
-
-  return placed.map(c => hslToHex(c.h, c.s, c.l))
+const WHEEL_GRADIENTS: Record<string, { type: 'radial' | 'linear'; stops: [string, string, string] }> = {
+  'nuclear-war':        { type: 'radial', stops: ['#E0B01A', '#6E6A57', '#7A3324'] },
+  pandemic:             { type: 'radial', stops: ['#4F9E55', '#8C9590', '#7A3B3B'] },
+  'asteroid-impact':    { type: 'linear', stops: ['#7C5FC2', '#4A4A52', '#B5651D'] },
+  'climate-collapse':   { type: 'radial', stops: ['#2E96A0', '#7A8270', '#3A5A52'] },
+  'zombie-apocalypse':  { type: 'linear', stops: ['#7E9A2E', '#6E6E64', '#7A2B2B'] },
+  'ai-takeover':        { type: 'radial', stops: ['#3A6FB5', '#5A6068', '#8A3030'] },
+  'volcanic-winter':    { type: 'linear', stops: ['#C2421E', '#7D7368', '#3A2E26'] },
+  'solar-flare':        { type: 'radial', stops: ['#D9791A', '#8A8278', '#4A3826'] },
 }
 
 function ScenarioWheel({
@@ -121,11 +55,6 @@ function ScenarioWheel({
     phase === 'spinning' ? `transform ${SPIN_DURATION_MS}ms cubic-bezier(0.08, 0.82, 0.13, 1)` : 'none'
   const landed = phase === 'grow' || phase === 'exit'
 
-  const sliceColors = useMemo(
-    () => getDistinctSliceColors(scenarioList.map(s => s.theme.primaryColor)),
-    [scenarioList],
-  )
-
   const winnerStart = polarPoint(anglePer * winnerIndex, PIE_RADIUS)
   const winnerEnd = polarPoint(anglePer * (winnerIndex + 1), PIE_RADIUS)
   const winnerLargeArc = anglePer > 180 ? 1 : 0
@@ -139,25 +68,79 @@ function ScenarioWheel({
         style={{ transform: `rotate(${rotation}deg)`, transition }}
       >
         <svg className="scenario-wheel__pie" viewBox="0 0 200 200" aria-hidden="true">
+          <defs>
+            <filter id="wheel-grain" x="0%" y="0%" width="100%" height="100%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="noise" />
+              <feColorMatrix
+                in="noise"
+                type="matrix"
+                values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.3 0.3 0.3 0 0"
+                result="alphaNoise"
+              />
+              <feComposite in="alphaNoise" in2="SourceGraphic" operator="in" />
+            </filter>
+            {scenarioList.map((s, i) => {
+              const grad = WHEEL_GRADIENTS[s.id]
+              if (!grad) return null
+              const midAngle = anglePer * i + anglePer / 2
+              const [c0, c1, c2] = grad.stops
+              if (grad.type === 'radial') {
+                const center = polarPoint(midAngle, PIE_RADIUS * 0.15)
+                return (
+                  <radialGradient
+                    key={s.id}
+                    id={`wheel-grad-${s.id}`}
+                    gradientUnits="userSpaceOnUse"
+                    cx={center.x}
+                    cy={center.y}
+                    r={PIE_RADIUS * 0.95}
+                  >
+                    <stop offset="0%" stopColor={c2} />
+                    <stop offset="35%" stopColor={c1} />
+                    <stop offset="100%" stopColor={c0} />
+                  </radialGradient>
+                )
+              }
+              const edge = polarPoint(midAngle, PIE_RADIUS)
+              return (
+                <linearGradient
+                  key={s.id}
+                  id={`wheel-grad-${s.id}`}
+                  gradientUnits="userSpaceOnUse"
+                  x1={PIE_CENTER}
+                  y1={PIE_CENTER}
+                  x2={edge.x}
+                  y2={edge.y}
+                >
+                  <stop offset="0%" stopColor={c2} />
+                  <stop offset="35%" stopColor={c1} />
+                  <stop offset="100%" stopColor={c0} />
+                </linearGradient>
+              )
+            })}
+          </defs>
           {scenarioList.map((s, i) => {
             const start = polarPoint(anglePer * i, PIE_RADIUS)
             const end = polarPoint(anglePer * (i + 1), PIE_RADIUS)
             const largeArc = anglePer > 180 ? 1 : 0
             const d = `M ${PIE_CENTER} ${PIE_CENTER} L ${start.x} ${start.y} A ${PIE_RADIUS} ${PIE_RADIUS} 0 ${largeArc} 1 ${end.x} ${end.y} Z`
             return (
-              <path
-                key={s.id}
-                d={d}
-                className="scenario-wheel__slice"
-                style={{ fill: sliceColors[i] }}
-              />
+              <g key={s.id}>
+                <path d={d} className="scenario-wheel__slice" style={{ fill: `url(#wheel-grad-${s.id})` }} />
+                <path
+                  d={d}
+                  className="scenario-wheel__slice-grain"
+                  fill="#ffffff"
+                  filter="url(#wheel-grain)"
+                />
+              </g>
             )
           })}
           {landed && (
             <path
               d={winnerD}
               className="scenario-wheel__slice scenario-wheel__slice--winner"
-              style={{ fill: sliceColors[winnerIndex] }}
+              style={{ fill: `url(#wheel-grad-${scenarioList[winnerIndex]?.id})` }}
             />
           )}
         </svg>

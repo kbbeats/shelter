@@ -31,15 +31,16 @@
    Soviet red on near-black. Zero radius — every corner is brutal.
    Constructivist geometry, heavy borders, propaganda poster gravity. */
 [data-theme="nuclear-war"] {
-  --c-primary:  #FFFF00;
-  --c-accent:   #FFFF66;
+  --c-primary:  #C9A22A;
+  --c-accent:   #D9C26A;
   --c-bg:       #060202;
   --c-surface:  #0e0505;
   --c-surface2: #180808;
   --c-text:     #f2e0e0;
   --c-text-dim: #b07070;
-  --c-glow:     rgba(255, 255, 0, 0.45);
-  --c-border:   rgba(255, 255, 0, 0.15);
+  --c-glow:     rgba(201, 162, 42, 0.35);
+  --c-border:   rgba(201, 162, 42, 0.15);
+  --c-bg-wash:  linear-gradient(135deg, rgba(201,162,42,0.08), rgba(122,51,36,0.06));
   --radius:     0px;
 }
 
@@ -47,15 +48,16 @@
    Biomonitor green on near-black teal. Clinical 2px radius.
    IBM Plex Mono replaces Bebas Neue — medical readouts, not posters. */
 [data-theme="pandemic"] {
-  --c-primary:    #00E676;
-  --c-accent:     #69F0AE;
+  --c-primary:    #6E8F5C;
+  --c-accent:     #9BB587;
   --c-bg:         #020b07;
   --c-surface:    #061208;
   --c-surface2:   #0b1e0e;
   --c-text:       #c0f0d8;
   --c-text-dim:   #4a8a62;
-  --c-glow:       rgba(0, 230, 118, 0.3);
-  --c-border:     rgba(0, 230, 118, 0.12);
+  --c-glow:       rgba(110, 143, 92, 0.3);
+  --c-border:     rgba(110, 143, 92, 0.12);
+  --c-bg-wash:    linear-gradient(135deg, rgba(110,143,92,0.08), rgba(122,59,59,0.05));
   --radius:       2px;
   --font-display: 'IBM Plex Mono', monospace;
 }
@@ -63,45 +65,48 @@
 /* ASTEROID IMPACT → Mission Control
    Deep space navy, flight-data cyan. 6px radius — engineered, space-age. */
 [data-theme="asteroid-impact"] {
-  --c-primary:  #D500F9;
-  --c-accent:   #EA80FC;
+  --c-primary:  #6B5B95;
+  --c-accent:   #9685C0;
   --c-bg:       #020610;
   --c-surface:  #060c1c;
   --c-surface2: #0a1228;
   --c-text:     #c8e4f8;
   --c-text-dim: #5878b0;
-  --c-glow:     rgba(213, 0, 249, 0.35);
-  --c-border:   rgba(213, 0, 249, 0.1);
+  --c-glow:     rgba(107, 91, 149, 0.35);
+  --c-border:   rgba(107, 91, 149, 0.1);
+  --c-bg-wash:  linear-gradient(135deg, rgba(107,91,149,0.08), rgba(74,74,82,0.07));
   --radius:     6px;
 }
 
 /* CLIMATE COLLAPSE → Crisis Response
    Ocean deep teal on near-black green. Emergency without hysteria. */
 [data-theme="climate-collapse"] {
-  --c-primary:  #00E5FF;
-  --c-accent:   #84FFFF;
+  --c-primary:  #4A8B8B;
+  --c-accent:   #7DB3B0;
   --c-bg:       #010c0a;
   --c-surface:  #051410;
   --c-surface2: #081e18;
   --c-text:     #b0e8e0;
   --c-text-dim: #4d8880;
-  --c-glow:     rgba(0, 229, 255, 0.35);
-  --c-border:   rgba(0, 229, 255, 0.1);
+  --c-glow:     rgba(74, 139, 139, 0.35);
+  --c-border:   rgba(74, 139, 139, 0.1);
+  --c-bg-wash:  linear-gradient(135deg, rgba(74,139,139,0.08), rgba(122,130,112,0.06));
   --radius:     4px;
 }
 
 /* ZOMBIE APOCALYPSE → Field Operations
    Survival lime on military near-black. 2px radius — field-kit rough. */
 [data-theme="zombie-apocalypse"] {
-  --c-primary:  #76FF03;
-  --c-accent:   #B2FF59;
+  --c-primary:  #5C7048;
+  --c-accent:   #8A9C72;
   --c-bg:       #050801;
   --c-surface:  #0c1005;
   --c-surface2: #141a08;
   --c-text:     #d4e8a0;
   --c-text-dim: #6a8840;
-  --c-glow:     rgba(118, 255, 3, 0.35);
-  --c-border:   rgba(118, 255, 3, 0.1);
+  --c-glow:     rgba(92, 112, 72, 0.35);
+  --c-border:   rgba(92, 112, 72, 0.1);
+  --c-bg-wash:  linear-gradient(135deg, rgba(92,112,72,0.08), rgba(122,43,43,0.06));
   --radius:     2px;
 }
 
@@ -109,15 +114,16 @@
    Cold data cyan. Zero radius — totalitarian precision.
    IBM Plex Mono display — machine output, not human typography. */
 [data-theme="ai-takeover"] {
-  --c-primary:    #2979FF;
-  --c-accent:     #82B1FF;
+  --c-primary:    #4A6B8A;
+  --c-accent:     #7E9CBE;
   --c-bg:         #00040c;
   --c-surface:    #000816;
   --c-surface2:   #000d22;
   --c-text:       #b0e8f8;
   --c-text-dim:   #4880a8;
-  --c-glow:       rgba(41, 121, 255, 0.35);
-  --c-border:     rgba(41, 121, 255, 0.1);
+  --c-glow:       rgba(74, 107, 138, 0.35);
+  --c-border:     rgba(74, 107, 138, 0.1);
+  --c-bg-wash:    linear-gradient(135deg, rgba(74,107,138,0.08), rgba(90,96,104,0.06));
   --radius:       0px;
   --font-display: 'IBM Plex Mono', monospace;
 }
@@ -128,15 +134,16 @@
    3px-radius "Geological Emergency" look. Fredoka brings a chunky, hand-carved
    body type; the palette runs warm wood browns against deep felt green. */
 [data-theme="volcanic-winter"] {
-  --c-primary:  #FF1744;
-  --c-accent:   #FF5C77;
+  --c-primary:  #A8462E;
+  --c-accent:   #C97758;
   --c-bg:       #2b1d12;
   --c-surface:  #3a2817;
   --c-surface2: #4a3420;
   --c-text:     #f3e0c8;
   --c-text-dim: #b89878;
-  --c-glow:     rgba(255, 23, 68, 0.4);
-  --c-border:   rgba(32, 21, 11, 0.5);
+  --c-glow:     rgba(168, 70, 46, 0.4);
+  --c-border:   rgba(60, 40, 28, 0.5);
+  --c-bg-wash:  linear-gradient(135deg, rgba(168,70,46,0.10), rgba(125,115,104,0.06));
   --radius:     16px;
   --font-sans:  'Fredoka', sans-serif;
   --vw-wood-1:  #2b1d12;
@@ -150,15 +157,16 @@
 /* SOLAR FLARE → Emergency Broadcast
    Alert amber on near-black gold. EMP flickers. Grid going dark. */
 [data-theme="solar-flare"] {
-  --c-primary:  #FF6F00;
-  --c-accent:   #FF9E40;
+  --c-primary:  #B5651D;
+  --c-accent:   #D38A4A;
   --c-bg:       #0a0800;
   --c-surface:  #181200;
   --c-surface2: #241c00;
   --c-text:     #fff0c8;
   --c-text-dim: #947840;
-  --c-glow:     rgba(255, 111, 0, 0.5);
-  --c-border:   rgba(255, 111, 0, 0.15);
+  --c-glow:     rgba(181, 101, 29, 0.5);
+  --c-border:   rgba(181, 101, 29, 0.15);
+  --c-bg-wash:  linear-gradient(135deg, rgba(181,101,29,0.10), rgba(74,56,38,0.06));
   --radius:     3px;
 }
 
@@ -166,6 +174,8 @@
 
 body {
   background-color: var(--c-bg);
+  background-image: var(--c-bg-wash, none);
+  background-attachment: fixed;
   color: var(--c-text);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -1497,6 +1507,7 @@ h1, h2, h3, .display {
    against the dark background, instead of the light default --c-border. */
 :root:not([data-theme]) .catastrophe-reveal {
   background: #2a2024;
+  --c-bg: #2a2024;
   --c-border: #463a41;
 }
 .catastrophe-reveal__eyebrow {
@@ -1670,15 +1681,29 @@ h1, h2, h3, .display {
 .scenario-wheel__indicator {
   position: absolute;
   top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-top: 16px solid transparent;
-  border-bottom: 16px solid transparent;
-  border-right: 24px solid #000;
-  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.5));
+  right: -2px;
+  margin-top: -9px;
+  width: 18px;
+  height: 18px;
+  border: solid var(--c-primary);
+  border-width: 0 5px 5px 0;
+  border-radius: 0 0 4px 0;
+  transform: rotate(135deg);
+  filter: drop-shadow(0 0 8px var(--c-glow));
   z-index: 3;
+  animation: scenario-wheel-indicator-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes scenario-wheel-indicator-pulse {
+  0%, 100% { opacity: 0.75; filter: drop-shadow(0 0 4px var(--c-glow)); }
+  50%      { opacity: 1;    filter: drop-shadow(0 0 12px var(--c-glow)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scenario-wheel__indicator {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 .scenario-wheel__ring {
@@ -1700,8 +1725,15 @@ h1, h2, h3, .display {
 }
 
 .scenario-wheel__slice {
-  stroke: var(--c-bg);
+  stroke: var(--c-border);
   stroke-width: 2;
+}
+
+.scenario-wheel__slice-grain {
+  stroke: none;
+  opacity: 0.1;
+  mix-blend-mode: multiply;
+  pointer-events: none;
 }
 
 .scenario-wheel__hub {
