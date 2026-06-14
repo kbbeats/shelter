@@ -3,6 +3,7 @@ import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
 import { ScenarioIcon } from '../icons/ScenarioIcons'
+import { BunkerCard } from './BunkerReveal'
 import type { ScenarioPublic } from '@shelter/shared'
 
 const SPIN_EXTRA_TURNS = 8
@@ -229,27 +230,33 @@ export function CatastropheReveal() {
     }
   }, [wheelPhase])
 
-  if (!roomState || roomState.phase !== 'CATASTROPHE_REVEAL' || !roomState.scenario) return null
+  if (!roomState || !roomState.scenario) return null
+  const isBunkerPhase = roomState.phase === 'BUNKER_REVEAL'
+  if (roomState.phase !== 'CATASTROPHE_REVEAL' && !isBunkerPhase) return null
+  if (isBunkerPhase && !roomState.bunker) return null
 
-  const { scenario } = roomState
+  const { scenario, bunker } = roomState
   const isHost = roomState.players.find(p => p.id === mySocketId)?.isHost
 
-  const wheelDrawing = isRandomMode && (wheelPhase === 'idle' || wheelPhase === 'spinning' || wheelPhase === 'grow')
-  const showWheelChrome = isRandomMode && wheelPhase !== 'done'
-  const showContent = !isRandomMode || wheelPhase === 'exit' || wheelPhase === 'done'
-  const showThemeWipe = isRandomMode && (wheelPhase === 'grow' || wheelPhase === 'exit' || wheelPhase === 'done')
-  const showBgPattern = isRandomMode && (wheelPhase === 'idle' || wheelPhase === 'spinning')
-  const cameFromWheel = isRandomMode
+  const isCatastrophePhase = !isBunkerPhase
+  const wheelDrawing = isCatastrophePhase && isRandomMode && (wheelPhase === 'idle' || wheelPhase === 'spinning' || wheelPhase === 'grow')
+  const showWheelChrome = isCatastrophePhase && isRandomMode && wheelPhase !== 'done'
+  const showContent = isBunkerPhase || !isRandomMode || wheelPhase === 'exit' || wheelPhase === 'done'
+  const showThemeWipe = isCatastrophePhase && isRandomMode && (wheelPhase === 'grow' || wheelPhase === 'exit' || wheelPhase === 'done')
+  const showBgPattern = isCatastrophePhase && isRandomMode && (wheelPhase === 'idle' || wheelPhase === 'spinning')
+  const cameFromWheel = isCatastrophePhase && isRandomMode
 
   const winnerIndex = Math.max(0, scenarioList.findIndex(s => s.id === scenario.id))
 
   return (
-    <div className="fullscreen-overlay catastrophe-reveal">
+    <div className={`fullscreen-overlay catastrophe-reveal${isBunkerPhase ? ' catastrophe-reveal--bunker' : ''}`}>
       {showBgPattern && <div className="scenario-wheel__bg-pattern" aria-hidden="true" />}
 
-      <div className={`catastrophe-reveal__eyebrow${wheelDrawing ? ' catastrophe-reveal__eyebrow--wheel' : ''}`}>
-        {wheelDrawing ? t('game.catastrophe.drawing') : t('game.catastrophe.title')}
-      </div>
+      {isCatastrophePhase && (
+        <div className={`catastrophe-reveal__eyebrow${wheelDrawing ? ' catastrophe-reveal__eyebrow--wheel' : ''}`}>
+          {wheelDrawing ? t('game.catastrophe.drawing') : t('game.catastrophe.title')}
+        </div>
+      )}
 
       {showThemeWipe && (
         <div
@@ -270,20 +277,30 @@ export function CatastropheReveal() {
 
       {showContent && (
         <>
-          <div
-            className={`catastrophe-reveal__icon${cameFromWheel ? ' catastrophe-reveal__icon--quick' : ''}`}
-          >
-            <ScenarioIcon id={scenario.id} />
+          <div className={`catastrophe-reveal__layout${isBunkerPhase ? ' catastrophe-reveal__layout--bunker' : ''}`}>
+            <div className="catastrophe-reveal__hero">
+              <div
+                className={`catastrophe-reveal__icon${cameFromWheel ? ' catastrophe-reveal__icon--quick' : ''}`}
+              >
+                <ScenarioIcon id={scenario.id} />
+              </div>
+              <h1 className={`catastrophe-reveal__title${cameFromWheel ? ' catastrophe-reveal__title--quick' : ''}`}>
+                {scenario.title[lang]}
+              </h1>
+            </div>
+
+            {isBunkerPhase && bunker && (
+              <div className="catastrophe-reveal__bunker-card">
+                <BunkerCard bunker={bunker} lang={lang} />
+              </div>
+            )}
           </div>
-          <h1 className={`catastrophe-reveal__title${cameFromWheel ? ' catastrophe-reveal__title--quick' : ''}`}>
-            {scenario.title[lang]}
-          </h1>
-          <p className={`catastrophe-reveal__desc${cameFromWheel ? ' catastrophe-reveal__desc--quick' : ''}`}>
-            {scenario.catastropheDescription[lang]}
-          </p>
+
           <div className={`catastrophe-reveal__actions${cameFromWheel ? ' catastrophe-reveal__actions--quick' : ''}`}>
             {isHost ? (
-              <Button size="lg" onClick={nextPhase}>{t('game.catastrophe.continue')}</Button>
+              <Button size="lg" onClick={nextPhase}>
+                {isBunkerPhase ? t('game.bunker.continue') : t('game.catastrophe.continue')}
+              </Button>
             ) : (
               <p className="dim mono" style={{ fontSize: '0.85rem', letterSpacing: '0.1em' }}>
                 {t('game.catastrophe.waiting')}

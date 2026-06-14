@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../store/gameStore'
 import { CatastropheReveal } from '../components/game/CatastropheReveal'
-import { BunkerReveal } from '../components/game/BunkerReveal'
 import { ArgumentPhase } from '../components/game/ArgumentPhase'
 import { VotingPanel } from '../components/game/VotingPanel'
 import { ExileReveal } from '../components/game/ExileReveal'
@@ -40,8 +39,7 @@ export default function Game() {
   const otherPlayers = players.filter(p => p.id !== mySocketId)
 
   // Fullscreen overlays take priority
-  if (phase === 'CATASTROPHE_REVEAL') return <CatastropheReveal />
-  if (phase === 'BUNKER_REVEAL') return <BunkerReveal />
+  if (phase === 'CATASTROPHE_REVEAL' || phase === 'BUNKER_REVEAL') return <CatastropheReveal />
   if (phase === 'EXILE_REVEAL') return <ExileReveal />
   if (phase === 'ABILITY_INTERRUPT') return <AbilityInterruptScreen />
   if (phase === 'DEALING') {

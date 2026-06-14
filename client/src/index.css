@@ -1593,23 +1593,71 @@ h1, h2, h3, .display {
 .catastrophe-reveal__title--quick {
   animation: catastrophe-drop 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) 0.25s forwards;
 }
-.catastrophe-reveal__desc {
-  max-width: 560px;
-  color: var(--c-text);
-  font-size: 1.05rem;
-  line-height: 1.6;
-  opacity: 0;
-  animation: fade-in 0.5s ease 1.4s forwards;
-}
-.catastrophe-reveal__desc--quick {
-  animation: fade-in 0.5s ease 0.55s forwards;
-}
 .catastrophe-reveal__actions {
   opacity: 0;
   animation: fade-in 0.4s ease 2s forwards;
 }
 .catastrophe-reveal__actions--quick {
   animation: fade-in 0.4s ease 0.9s forwards;
+}
+
+/* Wraps the icon+title "hero" and (during BUNKER_REVEAL) the bunker info
+   card, so the two phases can share one continuous overlay instead of a
+   hard cut. Identical to the old centered column when no bunker card is
+   present. */
+.catastrophe-reveal__layout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+.catastrophe-reveal__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.catastrophe-reveal__bunker-card {
+  width: 100%;
+  max-width: 480px;
+  opacity: 0;
+  animation: bunker-card-in 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.15s forwards;
+}
+@keyframes bunker-card-in {
+  from { opacity: 0; transform: translate(var(--bunker-card-from-x, 0), var(--bunker-card-from-y, 28px)); }
+  to   { opacity: 1; transform: translate(0, 0); }
+}
+@media (min-width: 769px) {
+  .catastrophe-reveal__layout--bunker {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 64px;
+  }
+  .catastrophe-reveal__layout--bunker .catastrophe-reveal__hero {
+    transform: translateX(-12vw);
+  }
+  .catastrophe-reveal__bunker-card {
+    --bunker-card-from-x: 40px;
+    --bunker-card-from-y: 0px;
+  }
+}
+@media (max-width: 768px) {
+  .catastrophe-reveal__layout--bunker .catastrophe-reveal__hero {
+    transform: translateY(-40px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .catastrophe-reveal__hero {
+    transition: none;
+  }
+  .catastrophe-reveal__bunker-card {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 /* Random-mode "scenario wheel" pre-reveal spin */
@@ -1864,7 +1912,6 @@ h1, h2, h3, .display {
   }
   .catastrophe-reveal__icon--quick,
   .catastrophe-reveal__title--quick,
-  .catastrophe-reveal__desc--quick,
   .catastrophe-reveal__actions--quick {
     animation: none !important;
     opacity: 1;
@@ -1874,15 +1921,6 @@ h1, h2, h3, .display {
 
 /* ── Bunker Reveal ────────────────────────────────────────────────────────── */
 
-.bunker-reveal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 40px 24px;
-  gap: 28px;
-}
 .bunker-card {
   width: 100%;
   max-width: 480px;
@@ -1891,7 +1929,6 @@ h1, h2, h3, .display {
   border: 1px solid var(--c-primary);
   border-radius: var(--radius);
   box-shadow: 0 0 32px var(--c-glow), inset 0 0 32px rgba(0,0,0,0.3);
-  animation: fade-in-up 0.5s ease;
 }
 .bunker-card__header {
   display: flex;
