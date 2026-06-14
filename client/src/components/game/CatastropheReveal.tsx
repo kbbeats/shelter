@@ -25,6 +25,17 @@ function polarPoint(angleDeg: number, r: number) {
   }
 }
 
+// Mirrors index.css's `@media (max-width: 768px)` breakpoint, which moves the
+// wheel indicator from the 3 o'clock edge (90deg) to the 6 o'clock edge (180deg).
+const MOBILE_BREAKPOINT_PX = 768
+const INDICATOR_ANGLE_DESKTOP = 90
+const INDICATOR_ANGLE_MOBILE = 180
+
+function getIndicatorAngle() {
+  if (typeof window === 'undefined') return INDICATOR_ANGLE_DESKTOP
+  return window.innerWidth <= MOBILE_BREAKPOINT_PX ? INDICATOR_ANGLE_MOBILE : INDICATOR_ANGLE_DESKTOP
+}
+
 // --- Per-scenario "washed" wheel gradient stops ---
 
 const WHEEL_GRADIENTS: Record<string, { type: 'radial' | 'linear'; stops: [string, string, string] }> = {
@@ -192,8 +203,9 @@ export function CatastropheReveal() {
     const winnerIndex = Math.max(0, scenarioList.findIndex(s => s.id === roomState.scenario!.id))
     const anglePer = 360 / scenarioList.length
     const winnerMidAngle = anglePer * winnerIndex + anglePer / 2
-    // Indicator sits at the 3 o'clock position (90deg in our polar convention)
-    const target = (((90 - winnerMidAngle) % 360) + 360) % 360 + 360 * SPIN_EXTRA_TURNS
+    // Indicator sits at 90deg (3 o'clock) on desktop, 180deg (6 o'clock) on mobile
+    const indicatorAngle = getIndicatorAngle()
+    const target = (((indicatorAngle - winnerMidAngle) % 360) + 360) % 360 + 360 * SPIN_EXTRA_TURNS
 
     const id = setTimeout(() => {
       setRotation(target)
