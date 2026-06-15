@@ -6,7 +6,6 @@ import Game from './pages/Game'
 import Results from './pages/Results'
 import { ThemeProvider } from './theme/ThemeProvider'
 import { useGameStore } from './store/gameStore'
-import { AgeGateModal } from './components/layout/AgeGateModal'
 
 export default function App() {
   const { connect } = useGameStore()
@@ -17,7 +16,6 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <AgeGateModal />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/lobby/:code" element={<Lobby />} />

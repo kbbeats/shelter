@@ -1344,67 +1344,6 @@ h1, h2, h3, .display {
   right: 12px;
 }
 
-/* ── Age Gate Modal ────────────────────────────────────────────────────── */
-
-.age-gate-modal__backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(4px);
-  z-index: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  animation: fade-in 0.15s ease;
-}
-.age-gate-modal__panel {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius);
-  padding: 40px 28px;
-  max-width: 520px;
-  width: 100%;
-  max-height: 88vh;
-  overflow-y: auto;
-  text-align: center;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
-  animation: fade-in-up 0.25s ease;
-}
-.age-gate-modal__title {
-  font-family: var(--font-display);
-  font-size: clamp(1.8rem, 6vw, 2.6rem);
-  color: var(--c-primary);
-  text-shadow: 0 0 40px var(--c-glow);
-  letter-spacing: 0.08em;
-}
-.age-gate-modal__body {
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--c-text-dim);
-}
-.age-gate-modal__actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-}
-.age-gate-modal__deny {
-  color: var(--c-text-dim);
-}
-.age-gate-modal__denied {
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--c-danger, #e85c5c);
-}
 .how-to-play__hero {
   display: flex;
   flex-direction: column;
@@ -2193,38 +2132,52 @@ h1, h2, h3, .display {
 }
 .players-list { display: flex; flex-direction: column; gap: 12px; }
 
-/* ── ID Card (opponent view) ──────────────────────────────────────────────── */
+/* ── ID Card (opponent view) ──────────────────────────────────────────────────
+   Tactical dossier: a classification stripe along the top, a label-plate
+   header, and a spec-sheet of attribute rows with hairline dividers.
+   Unrevealed attributes render as a redacted bar, exiled players get a
+   stamped-over file marker. Holds up cleanly at 8 attribute rows.
+── */
 
 .id-card {
+  position: relative;
   background: var(--c-surface2);
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  box-shadow: inset 0 3px 0 0 var(--c-primary);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .id-card--highlighted {
   border-color: var(--c-primary);
-  box-shadow: 0 0 20px var(--c-glow);
+  box-shadow: inset 0 3px 0 0 var(--c-primary), 0 0 20px var(--c-glow);
 }
 .id-card__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
+  gap: 8px;
+  padding: 9px 12px 7px;
   border-bottom: 1px solid var(--c-border);
 }
 .id-card__name {
+  flex: 1;
+  min-width: 0;
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--c-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .id-card__attrs {
   display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 3px 8px;
-  align-items: baseline;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0;
+  padding: 0 12px 2px;
 }
 .id-card__attr       { display: contents; }
 .id-card__attr-label {
@@ -2234,21 +2187,62 @@ h1, h2, h3, .display {
   text-transform: uppercase;
   color: var(--c-text-dim);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--c-border);
 }
 .id-card__attr-val {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--c-text);
+  font-size: 0.72rem;
   font-weight: 500;
+  color: var(--c-text);
+  text-align: right;
+  justify-self: end;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--c-border);
+}
+.id-card__attr:last-child .id-card__attr-label,
+.id-card__attr:last-child .id-card__attr-val {
+  border-bottom: none;
 }
 .id-card__attr-val--hidden {
-  color: var(--c-text-dim);
+  align-self: center;
+  width: 2.4em;
+  height: 0.65em;
+  border-radius: 2px;
+  background: repeating-linear-gradient(135deg, var(--c-text-dim) 0 3px, transparent 3px 6px);
   opacity: 0.4;
-  letter-spacing: 0.12em;
+  color: transparent;
+  letter-spacing: 0;
+}
+
+/* Exiled players get a stamped-over file marker instead of an inline badge */
+.id-card .badge--exiled {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 9px;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1.5px solid #f87171;
+  border-radius: 3px;
+  color: #f87171;
+  transform: rotate(-8deg);
+  pointer-events: none;
+  z-index: 1;
+}
+.id-card:has(.badge--exiled) {
+  filter: saturate(0.55);
 }
 
 /* ── Own Card (my card panel) ─────────────────────────────────────────────── */
@@ -2648,11 +2642,11 @@ h1, h2, h3, .display {
 }
 [data-theme="nuclear-war"] .id-card {
   border-width: 2px;
-  border-top: 5px solid var(--c-primary);
+  box-shadow: inset 0 5px 0 0 var(--c-primary);
 }
 [data-theme="nuclear-war"] .id-card--highlighted {
   border-color: var(--c-primary);
-  border-top-color: var(--c-primary);
+  box-shadow: inset 0 5px 0 0 var(--c-primary), 0 0 20px var(--c-glow);
 }
 [data-theme="nuclear-war"] .own-card {
   border-width: 2px;
@@ -2693,6 +2687,10 @@ h1, h2, h3, .display {
 [data-theme="pandemic"] .id-card__attr-label {
   color: var(--c-primary);
   opacity: 0.75;
+}
+[data-theme="pandemic"] .id-card__attr-label,
+[data-theme="pandemic"] .id-card__attr-val {
+  border-bottom-style: dashed;
 }
 [data-theme="pandemic"] .own-card__attr {
   border-bottom-style: dashed;
@@ -2872,6 +2870,7 @@ h1, h2, h3, .display {
     0 18px 34px rgba(0,0,0,0.4);
 }
 [data-theme="volcanic-winter"] .id-card__header {
+  padding: 0 0 10px;
   border-bottom: none;
 }
 [data-theme="volcanic-winter"] .id-card__name {
@@ -2882,7 +2881,9 @@ h1, h2, h3, .display {
 [data-theme="volcanic-winter"] .id-card__attrs {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 6px;
+  padding: 0;
 }
 [data-theme="volcanic-winter"] .id-card__attr {
   display: flex;
@@ -2895,8 +2896,14 @@ h1, h2, h3, .display {
   border-bottom: none;
   padding-bottom: 0;
 }
+[data-theme="volcanic-winter"] .id-card__attr-label,
+[data-theme="volcanic-winter"] .id-card__attr-val {
+  border-bottom: none;
+  padding: 0;
+}
 [data-theme="volcanic-winter"] .id-card__attr-val--hidden {
-  letter-spacing: 0.18em;
+  background: repeating-linear-gradient(135deg, rgba(0,0,0,0.35) 0 3px, transparent 3px 6px);
+  opacity: 0.5;
 }
 /* Each piece rests at a slight carved-wood tilt, straightens and lifts on hover */
 [data-theme="volcanic-winter"] .player-cards-grid > .id-card:nth-child(4n+1) { transform: rotate(-1.4deg); }

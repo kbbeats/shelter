@@ -16,12 +16,6 @@ export const en: Record<string, string> = {
   'howToPlay.step.survive.body': 'Rounds continue until only as many players remain as the bunker can hold. Make it to the end, and you survive.',
   'howToPlay.close': 'Got it',
 
-  'agegate.title': 'Adult Content Warning',
-  'agegate.body': 'This game contains adult humor and mature themes (sexuality, suggestive content). Players must be 21+.',
-  'agegate.confirm': 'I am 21 or older — Enter',
-  'agegate.deny': "I'm under 21",
-  'agegate.denied_message': 'Sorry, this app is only available to users 21 and older. You cannot continue.',
-
   'landing.create': 'Create Room',
   'landing.join': 'Join Room',
   'landing.tutorial': 'How to Play',
