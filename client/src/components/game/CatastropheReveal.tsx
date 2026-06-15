@@ -3,7 +3,7 @@ import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
 import { ScenarioIcon } from '../icons/ScenarioIcons'
-import { BunkerCard } from './BunkerReveal'
+import { OwnAttributesCard } from './OwnAttributesCard'
 import type { ScenarioPublic } from '@shelter/shared'
 
 const SPIN_EXTRA_TURNS = 8
@@ -233,9 +233,7 @@ export function CatastropheReveal() {
   if (!roomState || !roomState.scenario) return null
   const isBunkerPhase = roomState.phase === 'BUNKER_REVEAL'
   if (roomState.phase !== 'CATASTROPHE_REVEAL' && !isBunkerPhase) return null
-  if (isBunkerPhase && !roomState.bunker) return null
-
-  const { scenario, bunker } = roomState
+  const { scenario } = roomState
   const isHost = roomState.players.find(p => p.id === mySocketId)?.isHost
 
   const isCatastrophePhase = !isBunkerPhase
@@ -302,9 +300,9 @@ export function CatastropheReveal() {
               </h1>
             </div>
 
-            {isBunkerPhase && bunker && (
+            {isBunkerPhase && (
               <div className="catastrophe-reveal__bunker-card">
-                <BunkerCard bunker={bunker} lang={lang} />
+                <OwnAttributesCard lang={lang} />
               </div>
             )}
           </div>

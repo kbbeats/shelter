@@ -85,6 +85,7 @@ export interface ScenarioPublic {
   id: string
   title: BilingualText
   catastropheDescription: BilingualText
+  story: BilingualText
   theme: ScenarioTheme
   cardCategories: CardCategory[]
   isPremium: boolean

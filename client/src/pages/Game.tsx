@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../store/gameStore'
 import { CatastropheReveal } from '../components/game/CatastropheReveal'
@@ -11,6 +11,7 @@ import { PlayerCard } from '../components/game/PlayerCard'
 import { AbilityTray } from '../components/game/AbilityTray'
 import { AbilityAnnouncement } from '../components/game/AbilityAnnouncement'
 import { AbilityInterruptScreen } from '../components/game/AbilityInterruptScreen'
+import { ScenarioStoryModal } from '../components/game/ScenarioStoryModal'
 import { useT } from '../i18n'
 
 export default function Game() {
@@ -25,6 +26,23 @@ export default function Game() {
     if (roomState?.phase === 'LOBBY') navigate(`/lobby/${roomState.code}`)
     if (roomState?.phase === 'GAME_ENDED') navigate(`/results/${roomState?.code}`)
   }, [roomState, navigate])
+
+  const prevPhaseRef = useRef<string | null>(null)
+  const storyShownRef = useRef(false)
+  const [showStory, setShowStory] = useState(false)
+
+  useEffect(() => {
+    const phase = roomState?.phase
+    if (!phase) return
+    if (phase === 'CATASTROPHE_REVEAL') {
+      storyShownRef.current = false
+    }
+    if (phase === 'DEALING' && prevPhaseRef.current !== 'DEALING' && !storyShownRef.current) {
+      storyShownRef.current = true
+      setShowStory(true)
+    }
+    prevPhaseRef.current = phase
+  }, [roomState?.phase])
 
   if (!roomState || !roomState.scenario) {
     return (
@@ -44,10 +62,15 @@ export default function Game() {
   if (phase === 'ABILITY_INTERRUPT') return <AbilityInterruptScreen />
   if (phase === 'DEALING') {
     return (
-      <div className="dealing-screen">
-        <div className="spinner" />
-        <div className="dealing-screen__title">{t('game.dealing.title')}</div>
-      </div>
+      <>
+        <div className="dealing-screen">
+          <div className="spinner" />
+          <div className="dealing-screen__title">{t('game.dealing.title')}</div>
+        </div>
+        {showStory && (
+          <ScenarioStoryModal scenario={scenario} lang={lang} onClose={() => setShowStory(false)} />
+        )}
+      </>
     )
   }
 
@@ -84,6 +107,10 @@ export default function Game() {
       </div>
 
       <AbilityAnnouncement />
+
+      {showStory && (
+        <ScenarioStoryModal scenario={scenario} lang={lang} onClose={() => setShowStory(false)} />
+      )}
     </div>
   )
 }

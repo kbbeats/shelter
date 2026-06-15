@@ -10,6 +10,10 @@ const scenario: ScenarioFull = {
     en: 'A coronal mass ejection wiped all electronics. Civilization has reset to 1800. The bunker, built with analog systems, is the last organized refuge.',
     ru: 'Корональный выброс уничтожил всю электронику. Цивилизация откатилась к 1800-м. Бункер с аналоговыми системами — последнее организованное убежище.',
   },
+  story: {
+    en: 'A series of massive solar flares hit the planet within days of each other, far stronger than anything on record. The resulting surges knocked out power grids, satellites, and most electronics across entire hemispheres, almost all at once. Without power, water treatment, communication, and supply chains broke down faster than anyone could respond. The flares themselves only lasted hours, but the damage they caused didn\'t stop there.\n\nThis bunker holds 2 people and has supplies for about 10 years. The surge damaged the timer that controls the backup lighting, so the "day" and "night" cycle down here no longer matches 24 hours, sometimes longer, sometimes shorter, and it drifts a little more each week. Nobody\'s been able to reset it.',
+    ru: 'Серия мощных солнечных вспышек обрушилась на планету с разницей в несколько дней — сильнее всего, что было зафиксировано ранее. Возникшие из-за них перенапряжения вывели из строя энергосети, спутники и большую часть электроники сразу на нескольких полушариях. Без электричества системы водоочистки, связи и поставок рухнули быстрее, чем кто-либо успел отреагировать. Сами вспышки продолжались всего несколько часов, но причинённый ими урон этим не ограничился.\n\nЭтот бункер рассчитан на 2 человек и имеет запасы примерно на 10 лет. Скачок напряжения повредил таймер, управляющий резервным освещением, поэтому цикл «дня» и «ночи» здесь больше не соответствует 24 часам — то длиннее, то короче — и расхождение немного нарастает каждую неделю. Сбросить его настройки пока никому не удалось.',
+  },
   theme: {
     primaryColor: '#B5651D',
     accentColor: '#D38A4A',

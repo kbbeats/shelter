@@ -75,6 +75,8 @@ export const ru: Record<string, string> = {
   'game.bunker.water': 'Запасы воды',
   'game.bunker.feature': 'Особенность',
   'game.bunker.continue': 'Начать дебаты',
+  'game.story.title': 'ИСТОРИЯ',
+  'game.story.close': 'Понятно',
   'game.dealing.title': 'Раздача карт...',
   'game.round': 'Раунд',
   'game.your_turn': 'Ваш ход — аргументируйте!',

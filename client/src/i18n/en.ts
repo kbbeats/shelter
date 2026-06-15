@@ -75,6 +75,8 @@ export const en: Record<string, string> = {
   'game.bunker.water': 'Water Supply',
   'game.bunker.feature': 'Special Feature',
   'game.bunker.continue': 'Begin the Debate',
+  'game.story.title': 'THE STORY',
+  'game.story.close': 'Got it',
   'game.dealing.title': 'Dealing Cards...',
   'game.round': 'Round',
   'game.your_turn': "It's your turn to argue!",

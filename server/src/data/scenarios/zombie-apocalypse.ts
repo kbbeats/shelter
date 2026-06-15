@@ -10,6 +10,10 @@ const scenario: ScenarioFull = {
     en: 'Infection spreads via contact. The undead outnumber the living 100:1. The bunker is sealed. Anyone bitten stays outside.',
     ru: 'Заражение через контакт. Мертвецы превосходят живых 100:1. Бункер запечатан. Укушенные остаются снаружи.',
   },
+  story: {
+    en: 'It started as reports of a strange illness in a few cities, then spread faster than anyone could track. Within weeks, the infected weren\'t just sick, they stopped responding to anything except movement and sound. Cities fell one by one. The military tried to hold lines and failed. Anyone left now either found somewhere to seal themselves in early, or didn\'t make it.\n\nThis bunker holds 2 people and has supplies for about 6 years. It was built into the side of an old parking structure, and the wall facing the stairwell isn\'t as thick as the rest. Most nights are quiet, but every so often there\'s a faint scraping sound from somewhere above, slow and irregular, gone before anyone can be sure they heard it at all.',
+    ru: 'Сначала это были лишь сообщения о странной болезни в нескольких городах, но затем она распространилась быстрее, чем кто-либо успевал отслеживать. Через несколько недель заражённые были уже не просто больны — они перестали реагировать на что-либо, кроме движения и звука. Города падали один за другим. Армия пыталась удерживать рубежи и не смогла. Те, кто остался, либо успели заранее запереться в укрытии, либо не выжили.\n\nЭтот бункер рассчитан на 2 человек и имеет запасы примерно на 6 лет. Он встроен в старую парковочную конструкцию, и стена, обращённая к лестничной клетке, тоньше остальных. Большинство ночей тихие, но временами сверху доносится едва слышный скребущий звук — медленный и неровный, пропадающий прежде, чем кто-либо успеет убедиться, что действительно его слышал.',
+  },
   theme: {
     primaryColor: '#5C7048',
     accentColor: '#8A9C72',

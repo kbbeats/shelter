@@ -10,6 +10,10 @@ const scenario: ScenarioFull = {
     en: 'Mega-floods are rising. 70% of land will be submerged within 18 months. The bunker is on high ground — one of the last dry places.',
     ru: 'Меганаводнения нарастают. 70% суши уйдёт под воду за 18 месяцев. Бункер на возвышенности — одно из последних сухих мест.',
   },
+  story: {
+    en: 'It didn\'t happen all at once. Over a decade, heatwaves got longer, storms got worse, and entire regions slowly became too hot or too flooded to live in. Governments tried to manage the migrations, then couldn\'t anymore. By the time the average global temperature had climbed past the point scientists had warned about for years, most farmland had failed and the power grids in the hardest-hit areas gave out for good.\n\nThis bunker holds 2 people and has supplies for about 7 years. To survive the heat outside, the cooling system runs around the clock, and it\'s old. It rattles, hums, and occasionally clunks through the night. Nobody\'s been able to fully fix it without shutting it off, which isn\'t an option, so it\'s just become part of the background noise down here.',
+    ru: 'Это не случилось сразу. На протяжении десятилетия волны жары становились длиннее, штормы — сильнее, и целые регионы постепенно становились слишком жаркими или слишком затопленными для жизни. Правительства пытались управлять потоками переселенцев, но затем перестали справляться. К тому моменту, когда средняя температура на планете превысила порог, о котором учёные предупреждали годами, большая часть сельскохозяйственных земель пришла в негодность, а энергосети в самых пострадавших районах окончательно вышли из строя.\n\nЭтот бункер рассчитан на 2 человек и имеет запасы примерно на 7 лет. Чтобы выдержать жару снаружи, система охлаждения работает круглосуточно, и она старая. По ночам она дребезжит, гудит и временами лязгает. Полностью починить её без отключения никому не удалось, а отключать её нельзя, так что этот шум просто стал частью здешнего фона.',
+  },
   theme: {
     primaryColor: '#4A8B8B',
     accentColor: '#7DB3B0',
