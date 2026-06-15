@@ -38,7 +38,7 @@ export default function Game() {
     if (phase === 'CATASTROPHE_REVEAL') {
       storyShownRef.current = false
     }
-    if (phase === 'DEALING' && prevPhaseRef.current !== 'DEALING' && !storyShownRef.current) {
+    if (phase === 'ROUND_ARGUMENT' && prevPhaseRef.current !== 'ROUND_ARGUMENT' && !storyShownRef.current) {
       storyShownRef.current = true
       setShowStory(true)
     }
@@ -64,15 +64,10 @@ export default function Game() {
   if (phase === 'ABILITY_INTERRUPT') return <AbilityInterruptScreen />
   if (phase === 'DEALING') {
     return (
-      <>
-        <div className="dealing-screen">
-          <div className="spinner" />
-          <div className="dealing-screen__title">{t('game.dealing.title')}</div>
-        </div>
-        {showStory && (
-          <ScenarioStoryModal scenario={scenario} lang={lang} onClose={() => setShowStory(false)} />
-        )}
-      </>
+      <div className="dealing-screen">
+        <div className="spinner" />
+        <div className="dealing-screen__title">{t('game.dealing.title')}</div>
+      </div>
     )
   }
 
