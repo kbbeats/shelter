@@ -1,4 +1,5 @@
 import { useGameStore } from '../../store/gameStore'
+import { getInitials } from '../../utils/avatar'
 
 export function SurvivorBoard() {
   const roomState = useGameStore(s => s.roomState)
@@ -22,12 +23,7 @@ export function SurvivorBoard() {
               isSpeaking ? 'survivor-item--speaking' : '',
             ].filter(Boolean).join(' ')}
           >
-            <div
-              className={[
-                'survivor-dot',
-                isSpeaking ? 'survivor-dot--speaking' : p.isAlive ? 'survivor-dot--alive' : 'survivor-dot--exiled',
-              ].join(' ')}
-            />
+            <span className={`avatar survivor-item__avatar${isSpeaking ? ' avatar--active' : ''}`}>{getInitials(p.name)}</span>
             <span style={{ flex: 1 }}>{p.name}</span>
             {!p.isConnected && (
               <span style={{ fontSize: '0.65rem', color: 'var(--c-text-dim)' }}>⚡</span>

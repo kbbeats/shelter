@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept 3 — Survival HUD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /*
+    CONCEPT 3 — "SURVIVAL HUD"
+    Direction: cinematic survival-horror heads-up display. Near-black with
+    a vignette, condensed alert typography, targeting-reticle corner brackets
+    on cards, a "vitals" style pulse bar for votes, and a static/noise overlay
+    on redacted fields.
+
+    Component map → real app:
+      .hud-shell          → .game-layout (overall screen)
+      .hud-main           → .game-layout__main
+      .hud-panel.argument → .argument-phase (.argument-phase__round/__speaker/__hint, .arg-order-item)
+      .hud-panel.voting   → .voting-panel (.vote-option, .vote-bar-wrap → .hud-vitals-bar)
+      .hud-grid / .hud-card → .player-cards-grid / .id-card (targeting profile)
+      .hud-sidebar        → .game-layout__sidebar (.survivor-board)
+      .hud-hand           → .game-layout__hand (.own-card + .ability-tray)
+  */
+
+  :root {
+    --bg:        #0a0908;
+    --panel:     #14110f;
+    --panel-2:   #1c1714;
+    --alert:     #e2402d;
+    --alert-glow: rgba(226,64,45,0.45);
+    --amber:     #f0a830;
+    --ok:        #6fbf73;
+    --text:      #e9e2da;
+    --text-dim:  #8a7f76;
+    --border:    rgba(226,64,45,0.18);
+    --font-display: 'Oswald', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    padding: 16px;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 50; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.75) 100%);
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 49; pointer-events: none; opacity: 0.05;
+    background-image: repeating-linear-gradient(0deg, #fff 0px, transparent 1px, transparent 2px);
+  }
+
+  .hud-shell {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    grid-template-rows: auto 1fr auto;
+    gap: 14px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .hud-main    { grid-column: 1; grid-row: 1 / 3; display: flex; flex-direction: column; gap: 14px; }
+  .hud-sidebar { grid-column: 2; grid-row: 1 / 3; }
+  .hud-hand    { grid-column: 1 / 3; grid-row: 3; }
+
+  .hud-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    border: 1px solid var(--border); background: var(--panel);
+    padding: 8px 14px; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim);
+  }
+  .hud-topbar__alert { color: var(--alert); font-weight: 700; animation: pulse 1.4s ease infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* ── Argument panel ───────────────────────────────────────────── */
+  .hud-panel {
+    border: 1px solid var(--border); background: var(--panel);
+    padding: 18px 20px; position: relative;
+  }
+  .hud-panel::before, .hud-panel::after, .hud-panel .corner-tl, .hud-panel .corner-br {
+    content: ''; position: absolute; width: 14px; height: 14px;
+    border-color: var(--alert); pointer-events: none;
+  }
+  .hud-panel::before { top: -1px; left: -1px; border-top: 2px solid var(--alert); border-left: 2px solid var(--alert); }
+  .hud-panel::after  { bottom: -1px; right: -1px; border-bottom: 2px solid var(--alert); border-right: 2px solid var(--alert); }
+  .hud-panel.voting { display: none; }
+  .hud-panel.voting.is-active { display: block; }
+
+  .hud-label { font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; }
+  .hud-speaker {
+    font-family: var(--font-display); font-weight: 700; text-transform: uppercase;
+    font-size: clamp(1.4rem, 4vw, 2.1rem); letter-spacing: 0.06em; color: var(--alert);
+    text-shadow: 0 0 18px var(--alert-glow); margin-bottom: 4px;
+  }
+  .hud-hint { font-size: 0.78rem; color: var(--text-dim); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .hud-order { display: flex; flex-direction: column; gap: 4px; }
+  .hud-order-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 10px; font-size: 0.82rem;
+    background: rgba(255,255,255,0.02); border-left: 2px solid transparent;
+  }
+  .hud-order-item--active { border-left-color: var(--alert); color: var(--text); background: rgba(226,64,45,0.08); }
+  .hud-order-item--done { opacity: 0.4; text-decoration: line-through; }
+  .hud-order-item__icon { font-family: var(--font-display); }
+  .hud-order-item__status { margin-left: auto; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; }
+
+  /* ── Voting panel — "vitals" ──────────────────────────────────── */
+  .hud-vote-title { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 1.6rem; color: var(--alert); margin-bottom: 4px; }
+  .hud-vote-sub { font-size: 0.72rem; color: var(--text-dim); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px; }
+  .hud-vote-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .hud-vote-row:last-child { border-bottom: none; }
+  .hud-vote-row__name { min-width: 150px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .hud-vitals-bar { flex: 1; height: 18px; background: rgba(255,255,255,0.04); position: relative; overflow: hidden; }
+  .hud-vitals-bar__fill {
+    position: absolute; inset: 0; width: 0%;
+    background: repeating-linear-gradient(90deg, var(--alert) 0 3px, transparent 3px 6px);
+    box-shadow: 0 0 12px var(--alert-glow);
+    animation: scan 2s linear infinite;
+  }
+  @keyframes scan { from { background-position: 0 0; } to { background-position: 24px 0; } }
+  .hud-vote-row__count { font-size: 0.9rem; color: var(--alert); min-width: 26px; text-align: right; font-weight: 700; }
+  .hud-vote-row__btn {
+    font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    background: transparent; border: 1px solid var(--alert); color: var(--alert);
+    padding: 6px 14px; cursor: pointer;
+  }
+  .hud-vote-row__btn:hover { background: var(--alert); color: var(--bg); }
+
+  /* ── Targeting cards / grid ───────────────────────────────────── */
+  .hud-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .hud-card {
+    border: 1px solid var(--border); background: var(--panel);
+    position: relative; padding: 2px;
+  }
+  .hud-card::before, .hud-card::after {
+    content: ''; position: absolute; width: 12px; height: 12px; pointer-events: none;
+    border-color: var(--text-dim);
+  }
+  .hud-card::before { top: 4px; left: 4px; border-top: 1px solid var(--text-dim); border-left: 1px solid var(--text-dim); }
+  .hud-card::after  { bottom: 4px; right: 4px; border-bottom: 1px solid var(--text-dim); border-right: 1px solid var(--text-dim); }
+  .hud-card--highlighted { border-color: var(--alert); box-shadow: 0 0 20px var(--alert-glow); }
+  .hud-card--highlighted::before, .hud-card--highlighted::after { border-color: var(--alert); }
+  .hud-card__head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px 8px; font-family: var(--font-display); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.78rem; color: var(--text);
+  }
+  .hud-card__tag { font-size: 0.6rem; color: var(--alert); border: 1px solid var(--alert); padding: 1px 6px; letter-spacing: 0.15em; }
+  .hud-card__attrs { padding: 4px 14px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .hud-card__attr { display: flex; justify-content: space-between; font-size: 0.74rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
+  .hud-card__attr:last-child { border-bottom: none; }
+  .hud-card__attr-label { color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.65rem; }
+  .hud-card__attr-val { color: var(--text); text-align: right; }
+  .hud-card__static {
+    display: inline-block; width: 56px; height: 10px;
+    background: repeating-linear-gradient(45deg, var(--text-dim) 0 2px, transparent 2px 4px);
+    opacity: 0.35;
+  }
+  .hud-card--exiled { opacity: 0.4; filter: grayscale(1); }
+  .hud-card--exiled .hud-card__head { color: var(--alert); }
+
+  /* ── Sidebar ──────────────────────────────────────────────────── */
+  .hud-sidebar-panel { border: 1px solid var(--border); background: var(--panel); padding: 14px; position: relative; }
+  .hud-sidebar-panel::before { content: ''; position: absolute; top: -1px; left: -1px; width: 14px; height: 14px; border-top: 2px solid var(--alert); border-left: 2px solid var(--alert); }
+  .hud-sidebar-panel::after { content: ''; position: absolute; bottom: -1px; right: -1px; width: 14px; height: 14px; border-bottom: 2px solid var(--alert); border-right: 2px solid var(--alert); }
+  .hud-roster-item {
+    display: flex; align-items: center; gap: 8px; padding: 7px 8px; font-size: 0.78rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .hud-roster-item:last-child { border-bottom: none; }
+  .hud-roster-item--exiled { color: var(--text-dim); text-decoration: line-through; opacity: 0.6; }
+  .hud-roster-item--speaking { color: var(--alert); }
+  .hud-roster-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .hud-roster-dot--ok { background: var(--ok); }
+  .hud-roster-dot--exiled { background: var(--text-dim); }
+  .hud-roster-dot--speaking { background: var(--alert); box-shadow: 0 0 8px var(--alert-glow); animation: pulse 1.2s ease infinite; }
+
+  /* ── Hand area ────────────────────────────────────────────────── */
+  .hud-hand-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 14px; }
+  .hud-own { border: 1px solid var(--border); background: var(--panel); padding: 14px 16px; position: relative; }
+  .hud-own::before { content: ''; position: absolute; top: -1px; left: -1px; width: 14px; height: 14px; border-top: 2px solid var(--alert); border-left: 2px solid var(--alert); }
+  .hud-own::after { content: ''; position: absolute; bottom: -1px; right: -1px; width: 14px; height: 14px; border-bottom: 2px solid var(--alert); border-right: 2px solid var(--alert); }
+  .hud-own__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .hud-own__name { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--alert); font-size: 1.1rem; }
+  .hud-own__label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); }
+  .hud-own__attrs { display: flex; flex-direction: column; gap: 6px; }
+  .hud-own__attr { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
+  .hud-own__attr-label { color: var(--text-dim); min-width: 90px; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.08em; }
+  .hud-own__attr-val { flex: 1; }
+  .hud-own__reveal { font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; border: 1px solid var(--alert); color: var(--alert); background: transparent; padding: 3px 9px; cursor: pointer; }
+  .hud-own__reveal:hover { background: var(--alert); color: var(--bg); }
+  .hud-own__public { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ok); }
+
+  .hud-abilities { border: 1px solid var(--border); background: var(--panel); padding: 14px 16px; position: relative; }
+  .hud-abilities::before { content: ''; position: absolute; top: -1px; left: -1px; width: 14px; height: 14px; border-top: 2px solid var(--alert); border-left: 2px solid var(--alert); }
+  .hud-abilities::after { content: ''; position: absolute; bottom: -1px; right: -1px; width: 14px; height: 14px; border-bottom: 2px solid var(--alert); border-right: 2px solid var(--alert); }
+  .hud-abilities__label { font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+  .hud-ability-cards { display: flex; gap: 10px; }
+  .hud-ability-card { flex: 1; border: 1px solid var(--alert); padding: 10px; text-align: center; cursor: pointer; }
+  .hud-ability-card:hover { background: rgba(226,64,45,0.08); }
+  .hud-ability-card__icon { font-size: 1.3rem; }
+  .hud-ability-card__name { font-family: var(--font-display); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--alert); margin: 4px 0 2px; }
+  .hud-ability-card__desc { font-size: 0.6rem; color: var(--text-dim); line-height: 1.3; }
+
+  @media (max-width: 760px) {
+    .hud-shell { grid-template-columns: 1fr; }
+    .hud-main, .hud-sidebar, .hud-hand { grid-column: 1; grid-row: auto; }
+    .hud-hand-wrap { grid-template-columns: 1fr; }
+    .hud-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  }
+
+  .legend {
+    max-width: 1200px; margin: 24px auto 0; border: 1px solid var(--border); background: var(--panel);
+    padding: 12px 16px; font-size: 0.7rem; color: var(--text-dim); line-height: 1.7;
+  }
+  .legend b { color: var(--alert); }
+  .legend button { font-family: var(--font-display); cursor: pointer; background: transparent; color: var(--amber); border: 1px solid var(--amber); padding: 3px 10px; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.68rem; }
+</style>
+</head>
+<body>
+  <div class="hud-shell">
+    <div class="hud-main">
+      <div class="hud-topbar">
+        <span>SECTOR-7 BUNKER // SCENARIO: NUCLEAR WINTER</span>
+        <span class="hud-topbar__alert">⚠ 1 SLOT REMAINING</span>
+      </div>
+
+      <!-- .argument-phase -->
+      <div class="hud-panel" id="argPanel">
+        <div class="hud-label">// Round 03 of 06 — Testimony</div>
+        <div class="hud-speaker">SARA CHEN — TRANSMITTING</div>
+        <div class="hud-hint">Hold for statement to conclude</div>
+        <div class="hud-order">
+          <div class="hud-order-item hud-order-item--done"><span class="hud-order-item__icon">◆</span><span>Priya Nair</span><span class="hud-order-item__status">complete</span></div>
+          <div class="hud-order-item hud-order-item--done"><span class="hud-order-item__icon">◆</span><span>Viktor Kuznetsov</span><span class="hud-order-item__status">complete</span></div>
+          <div class="hud-order-item hud-order-item--active"><span class="hud-order-item__icon">▶</span><span>Sara Chen</span><span class="hud-order-item__status">live</span></div>
+          <div class="hud-order-item"><span class="hud-order-item__icon">○</span><span>Alex Romero (you)</span><span class="hud-order-item__status">standby</span></div>
+        </div>
+      </div>
+
+      <!-- .voting-panel -->
+      <div class="hud-panel voting" id="votePanel">
+        <div class="hud-label">// Exile Vote</div>
+        <div class="hud-vote-title">Cast Vote — Threat Assessment</div>
+        <div class="hud-vote-sub">Tally: 2 / 4 reporting</div>
+        <div class="hud-vote-row">
+          <span class="hud-vote-row__name">Sara Chen</span>
+          <div class="hud-vitals-bar"><div class="hud-vitals-bar__fill" style="width:25%"></div></div>
+          <span class="hud-vote-row__count">1</span>
+          <button class="hud-vote-row__btn">Vote</button>
+        </div>
+        <div class="hud-vote-row">
+          <span class="hud-vote-row__name">Viktor Kuznetsov</span>
+          <div class="hud-vitals-bar"><div class="hud-vitals-bar__fill" style="width:50%"></div></div>
+          <span class="hud-vote-row__count">2</span>
+          <button class="hud-vote-row__btn">Vote</button>
+        </div>
+        <div class="hud-vote-row">
+          <span class="hud-vote-row__name">Priya Nair</span>
+          <div class="hud-vitals-bar"><div class="hud-vitals-bar__fill" style="width:0%"></div></div>
+          <span class="hud-vote-row__count">0</span>
+          <button class="hud-vote-row__btn">Vote</button>
+        </div>
+      </div>
+
+      <!-- .player-cards-grid -->
+      <div class="hud-grid">
+        <div class="hud-card hud-card--highlighted">
+          <div class="hud-card__head"><span>Sara Chen</span></div>
+          <div class="hud-card__attrs">
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Profession</span><span class="hud-card__attr-val">Surgeon</span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Health</span><span class="hud-card__attr-val"><span class="hud-card__static"></span></span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Item</span><span class="hud-card__attr-val">First Aid Kit</span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Phobia</span><span class="hud-card__attr-val"><span class="hud-card__static"></span></span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Skill</span><span class="hud-card__attr-val"><span class="hud-card__static"></span></span></div>
+          </div>
+        </div>
+
+        <div class="hud-card">
+          <div class="hud-card__head"><span>Viktor Kuznetsov</span></div>
+          <div class="hud-card__attrs">
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Profession</span><span class="hud-card__attr-val">Engineer</span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Health</span><span class="hud-card__attr-val">Diabetic</span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Item</span><span class="hud-card__attr-val"><span class="hud-card__static"></span></span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Phobia</span><span class="hud-card__attr-val"><span class="hud-card__static"></span></span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Skill</span><span class="hud-card__attr-val"><span class="hud-card__static"></span></span></div>
+          </div>
+        </div>
+
+        <div class="hud-card">
+          <div class="hud-card__head"><span>Priya Nair</span></div>
+          <div class="hud-card__attrs">
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Profession</span><span class="hud-card__attr-val"><span class="hud-card__static"></span></span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Health</span><span class="hud-card__attr-val">Healthy</span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Item</span><span class="hud-card__attr-val">Water Filter</span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Phobia</span><span class="hud-card__attr-val"><span class="hud-card__static"></span></span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Skill</span><span class="hud-card__attr-val"><span class="hud-card__static"></span></span></div>
+          </div>
+        </div>
+
+        <div class="hud-card hud-card--exiled">
+          <div class="hud-card__head"><span>Marco Diaz</span><span class="hud-card__tag">EXILED</span></div>
+          <div class="hud-card__attrs">
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Profession</span><span class="hud-card__attr-val">Soldier</span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Health</span><span class="hud-card__attr-val">Insomnia</span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Item</span><span class="hud-card__attr-val">Rifle</span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Phobia</span><span class="hud-card__attr-val">Claustrophobia</span></div>
+            <div class="hud-card__attr"><span class="hud-card__attr-label">Skill</span><span class="hud-card__attr-val"><span class="hud-card__static"></span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- .survivor-board -->
+    <div class="hud-sidebar">
+      <div class="hud-sidebar-panel">
+        <div class="hud-label">Survivors</div>
+        <div class="hud-roster-item hud-roster-item--speaking"><span class="hud-roster-dot hud-roster-dot--speaking"></span><span>Sara Chen</span></div>
+        <div class="hud-roster-item"><span class="hud-roster-dot hud-roster-dot--ok"></span><span>Viktor Kuznetsov</span></div>
+        <div class="hud-roster-item"><span class="hud-roster-dot hud-roster-dot--ok"></span><span>Priya Nair</span></div>
+        <div class="hud-roster-item"><span class="hud-roster-dot hud-roster-dot--ok"></span><span>Alex Romero (you)</span></div>
+        <div class="hud-roster-item hud-roster-item--exiled"><span class="hud-roster-dot hud-roster-dot--exiled"></span><span>Marco Diaz</span></div>
+      </div>
+    </div>
+
+    <!-- .own-card + .ability-tray -->
+    <div class="hud-hand">
+      <div class="hud-hand-wrap">
+        <div class="hud-own">
+          <div class="hud-own__header">
+            <span class="hud-own__name">Alex Romero</span>
+            <span class="hud-own__label">Self Scan</span>
+          </div>
+          <div class="hud-own__attrs">
+            <div class="hud-own__attr"><span class="hud-own__attr-label">Profession</span><span class="hud-own__attr-val">Botanist</span><span class="hud-own__public">visible</span></div>
+            <div class="hud-own__attr"><span class="hud-own__attr-label">Health</span><span class="hud-own__attr-val">Asthmatic</span><button class="hud-own__reveal">Reveal</button></div>
+            <div class="hud-own__attr"><span class="hud-own__attr-label">Item</span><span class="hud-own__attr-val">Seed Vault</span><span class="hud-own__public">visible</span></div>
+            <div class="hud-own__attr"><span class="hud-own__attr-label">Phobia</span><span class="hud-own__attr-val">Heights</span><button class="hud-own__reveal">Reveal</button></div>
+            <div class="hud-own__attr"><span class="hud-own__attr-label">Skill</span><span class="hud-own__attr-val">Hydroponics</span><button class="hud-own__reveal">Reveal</button></div>
+          </div>
+        </div>
+        <div class="hud-abilities">
+          <div class="hud-abilities__label">Tactical Items</div>
+          <div class="hud-ability-cards">
+            <div class="hud-ability-card">
+              <div class="hud-ability-card__icon">🔍</div>
+              <div class="hud-ability-card__name">Inspect</div>
+              <div class="hud-ability-card__desc">Scan one hidden attribute</div>
+            </div>
+            <div class="hud-ability-card">
+              <div class="hud-ability-card__icon">🛡</div>
+              <div class="hud-ability-card__name">Immunity</div>
+              <div class="hud-ability-card__desc">Block exile this round</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <b>Toggle:</b> <button onclick="showPhase('argument')">ARGUMENT</button> <button onclick="showPhase('voting')">VOTING</button> —
+    <b>MAP:</b> #argPanel → ArgumentPhase · #votePanel → VotingPanel · .hud-grid/.hud-card → player-cards-grid/PlayerCard (id-card) ·
+    .hud-sidebar-panel → SurvivorBoard · .hud-own → PlayerHand (own-card) · .hud-abilities → AbilityTray
+  </div>
+
+  <script>
+    function showPhase(p) {
+      document.getElementById('argPanel').style.display = p === 'argument' ? '' : 'none';
+      document.getElementById('votePanel').classList.toggle('is-active', p === 'voting');
+    }
+  </script>
+</body>
+</html>

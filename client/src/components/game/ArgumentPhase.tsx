@@ -1,6 +1,7 @@
 import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
+import { getInitials } from '../../utils/avatar'
 
 export function ArgumentPhase() {
   const t = useT()
@@ -47,9 +48,9 @@ export function ArgumentPhase() {
               key={id}
               className={`arg-order-item${active ? ' arg-order-item--active' : done ? ' arg-order-item--done' : ''}`}
             >
-              <div className="arg-order-item__dot" />
+              <span className={`avatar arg-order-item__avatar${active ? ' avatar--active' : ''}`}>{getInitials(getPlayerName(id))}</span>
               <span>{getPlayerName(id)}</span>
-              {done && <span style={{ marginLeft: 'auto', fontSize: '0.7rem' }}>✓</span>}
+              {done && <span className="arg-order-item__check">✓</span>}
             </div>
           )
         })}

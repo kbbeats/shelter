@@ -2,6 +2,7 @@ import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
 import { useState } from 'react'
+import { getInitials } from '../../utils/avatar'
 
 export function VotingPanel() {
   const t = useT()
@@ -39,6 +40,7 @@ export function VotingPanel() {
 
           return (
             <div key={player.id} className="vote-option">
+              <span className="avatar vote-option__avatar">{getInitials(player.name)}</span>
               <span className="vote-option__name">{player.name}</span>
               <div className="vote-bar-wrap">
                 <div className="vote-bar" style={{ width: `${pct}%` }} />

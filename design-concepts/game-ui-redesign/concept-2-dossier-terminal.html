@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept 2 — Dossier Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /*
+    CONCEPT 2 — "DOSSIER TERMINAL"
+    Direction: a classified field terminal. Monochrome phosphor-green CRT,
+    scanlines, blinking cursor, box-drawn panels, ASCII progress bars for
+    votes, redacted attributes as solid black blocks with [CLASSIFIED] tags.
+
+    Component map → real app:
+      .term-shell        → .game-layout (overall screen)
+      .term-main         → .game-layout__main
+      .term-panel.argument → .argument-phase (.argument-phase__round/__speaker/__hint, .arg-order-item)
+      .term-panel.voting   → .voting-panel (.vote-option, .vote-bar-wrap → ascii bar)
+      .term-grid / .term-card → .player-cards-grid / .id-card
+      .term-sidebar      → .game-layout__sidebar (.survivor-board)
+      .term-hand         → .game-layout__hand (.own-card + .ability-tray)
+  */
+
+  :root {
+    --bg:      #040a06;
+    --panel:   #07120c;
+    --panel-2: #0c1f14;
+    --green:   #39ff88;
+    --green-dim: #1f7d4a;
+    --amber:   #ffb000;
+    --text:    #bdf8d4;
+    --border:  rgba(57,255,136,0.25);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    padding: 16px;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 50;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px);
+    mix-blend-mode: multiply;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 49;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.55) 100%);
+  }
+
+  .term-shell {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    grid-template-rows: auto 1fr auto;
+    gap: 14px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .term-main    { grid-column: 1; grid-row: 1 / 3; display: flex; flex-direction: column; gap: 14px; }
+  .term-sidebar { grid-column: 2; grid-row: 1 / 3; }
+  .term-hand    { grid-column: 1 / 3; grid-row: 3; }
+
+  .term-header {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 8px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green-dim);
+  }
+  .term-header .term-title { color: var(--green); font-weight: 600; }
+  .term-header .blink { animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .term-panel {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 16px 18px;
+    position: relative;
+  }
+  .term-panel__label {
+    position: absolute; top: -10px; left: 12px;
+    background: var(--bg); padding: 0 8px;
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--green-dim);
+  }
+  .term-panel.voting { display: none; }
+  .term-panel.voting.is-active { display: block; }
+
+  /* ── Argument panel ───────────────────────────────────────────── */
+  .term-round { font-size: 0.7rem; color: var(--green-dim); letter-spacing: 0.2em; margin-bottom: 8px; }
+  .term-speaker { font-size: clamp(1.2rem, 3.4vw, 1.7rem); font-weight: 700; color: var(--green); margin-bottom: 4px; text-shadow: 0 0 12px rgba(57,255,136,0.4); }
+  .term-hint { font-size: 0.8rem; color: var(--green-dim); margin-bottom: 14px; }
+  .term-order { display: flex; flex-direction: column; gap: 4px; }
+  .term-order-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 10px; font-size: 0.8rem; color: var(--green-dim);
+    border: 1px solid transparent;
+  }
+  .term-order-item--active {
+    border-color: var(--green); color: var(--green); background: rgba(57,255,136,0.06);
+  }
+  .term-order-item--done { opacity: 0.5; }
+  .term-order-item__bracket { font-weight: 700; }
+  .term-order-item__check { margin-left: auto; }
+
+  /* ── Voting panel ─────────────────────────────────────────────── */
+  .term-vote-title { font-size: 1.3rem; font-weight: 700; color: var(--amber); margin-bottom: 4px; text-shadow: 0 0 12px rgba(255,176,0,0.4); }
+  .term-vote-tally { font-size: 0.7rem; color: var(--green-dim); margin-bottom: 14px; }
+  .term-vote-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 0.82rem; }
+  .term-vote-row:last-child { border-bottom: none; }
+  .term-vote-row__name { min-width: 150px; }
+  .term-vote-row__bar { flex: 1; color: var(--amber); letter-spacing: 0; font-size: 0.9rem; overflow: hidden; white-space: nowrap; }
+  .term-vote-row__bar .empty { color: var(--green-dim); opacity: 0.35; }
+  .term-vote-row__count { min-width: 30px; text-align: right; color: var(--amber); }
+  .term-vote-row__btn {
+    font-family: inherit; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    background: transparent; border: 1px solid var(--amber); color: var(--amber);
+    padding: 5px 12px; cursor: pointer;
+  }
+  .term-vote-row__btn:hover { background: var(--amber); color: var(--bg); }
+
+  /* ── ID cards / grid ──────────────────────────────────────────── */
+  .term-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .term-card {
+    border: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .term-card--highlighted {
+    border-color: var(--green);
+    box-shadow: 0 0 0 1px var(--green), 0 0 18px rgba(57,255,136,0.25) inset;
+  }
+  .term-card__head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; border-bottom: 1px solid var(--border);
+    font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green);
+  }
+  .term-card__head::before { content: '> '; color: var(--green-dim); }
+  .term-card__exiled {
+    font-size: 0.6rem; color: var(--amber); border: 1px solid var(--amber); padding: 1px 6px;
+  }
+  .term-card__attrs { padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; }
+  .term-card__attr { display: flex; justify-content: space-between; font-size: 0.74rem; gap: 8px; }
+  .term-card__attr-label { color: var(--green-dim); }
+  .term-card__attr-val { color: var(--text); text-align: right; }
+  .term-card__redacted {
+    background: var(--amber); color: var(--bg); font-size: 0.6rem; letter-spacing: 0.1em;
+    padding: 0 5px;
+  }
+  .term-card--exiled { opacity: 0.55; }
+  .term-card--exiled .term-card__head { color: var(--amber); }
+
+  /* ── Sidebar ──────────────────────────────────────────────────── */
+  .term-sidebar-panel { border: 1px solid var(--border); background: var(--panel); padding: 12px; position: relative; }
+  .term-roster-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px; font-size: 0.78rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .term-roster-item:last-child { border-bottom: none; }
+  .term-roster-item--exiled { color: var(--green-dim); text-decoration: line-through; }
+  .term-roster-item--speaking { color: var(--green); background: rgba(57,255,136,0.06); }
+  .term-roster-marker { width: 14px; text-align: center; }
+
+  /* ── Hand area ────────────────────────────────────────────────── */
+  .term-hand-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 14px; }
+  .term-own { border: 1px solid var(--border); background: var(--panel); padding: 14px 16px; position: relative; }
+  .term-own__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed var(--border); padding-bottom: 8px; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; }
+  .term-own__name { color: var(--green); font-weight: 700; }
+  .term-own__attrs { display: flex; flex-direction: column; gap: 5px; }
+  .term-own__attr { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
+  .term-own__attr-label { color: var(--green-dim); min-width: 90px; text-transform: uppercase; font-size: 0.68rem; }
+  .term-own__attr-val { flex: 1; }
+  .term-own__reveal { font-family: inherit; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--green); color: var(--green); background: transparent; padding: 3px 8px; cursor: pointer; }
+  .term-own__reveal:hover { background: var(--green); color: var(--bg); }
+  .term-own__public { font-size: 0.62rem; color: var(--green-dim); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .term-abilities { border: 1px solid var(--border); background: var(--panel); padding: 14px 16px; position: relative; }
+  .term-abilities__label { font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+  .term-ability-cards { display: flex; gap: 10px; }
+  .term-ability-card {
+    flex: 1; border: 1px solid var(--green); padding: 8px; text-align: center; cursor: pointer;
+  }
+  .term-ability-card:hover { background: rgba(57,255,136,0.08); }
+  .term-ability-card__icon { font-size: 1.2rem; }
+  .term-ability-card__name { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin: 4px 0 2px; }
+  .term-ability-card__desc { font-size: 0.6rem; color: var(--green-dim); line-height: 1.3; }
+
+  .panel-label { position: absolute; top: -10px; left: 12px; background: var(--bg); padding: 0 8px; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--green-dim); }
+
+  @media (max-width: 760px) {
+    .term-shell { grid-template-columns: 1fr; }
+    .term-main, .term-sidebar, .term-hand { grid-column: 1; grid-row: auto; }
+    .term-hand-wrap { grid-template-columns: 1fr; }
+    .term-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  }
+
+  .legend {
+    max-width: 1200px; margin: 24px auto 0; border: 1px solid var(--border);
+    padding: 12px 16px; font-size: 0.7rem; color: var(--green-dim); line-height: 1.7;
+    background: var(--panel);
+  }
+  .legend b { color: var(--green); }
+  .legend button { font-family: inherit; cursor: pointer; background: transparent; color: var(--amber); border: 1px solid var(--amber); padding: 2px 8px; font-size: 0.68rem; }
+</style>
+</head>
+<body>
+  <div class="term-shell">
+    <div class="term-main">
+      <div class="term-header">
+        <span>FIELD TERMINAL // SCENARIO: NUCLEAR_WINTER.DAT</span>
+        <span class="term-title">ROUND 03<span class="blink">_</span></span>
+      </div>
+
+      <!-- .argument-phase -->
+      <div class="term-panel" id="argPanel">
+        <div class="panel-label">ARGUMENT_PHASE</div>
+        <div class="term-round">[ ROUND 3 / 6 ]</div>
+        <div class="term-speaker">SARA_CHEN.exe is transmitting</div>
+        <div class="term-hint">awaiting end-of-transmission signal...</div>
+        <div class="term-order">
+          <div class="term-order-item term-order-item--done"><span class="term-order-item__bracket">[x]</span><span>Priya Nair</span><span class="term-order-item__check">DONE</span></div>
+          <div class="term-order-item term-order-item--done"><span class="term-order-item__bracket">[x]</span><span>Viktor Kuznetsov</span><span class="term-order-item__check">DONE</span></div>
+          <div class="term-order-item term-order-item--active"><span class="term-order-item__bracket">[&gt;]</span><span>Sara Chen</span><span class="term-order-item__check blink">LIVE</span></div>
+          <div class="term-order-item"><span class="term-order-item__bracket">[ ]</span><span>Alex Romero (you)</span></div>
+        </div>
+      </div>
+
+      <!-- .voting-panel -->
+      <div class="term-panel voting" id="votePanel">
+        <div class="panel-label">VOTE_TALLY</div>
+        <div class="term-vote-title">SUBMIT EXILE VOTE</div>
+        <div class="term-vote-tally">PROGRESS: 2 / 4 RECEIVED</div>
+        <div class="term-vote-row">
+          <span class="term-vote-row__name">SARA_CHEN</span>
+          <span class="term-vote-row__bar">█<span class="empty">░░░░░░░░░░░░░░░░░░░</span></span>
+          <span class="term-vote-row__count">1</span>
+          <button class="term-vote-row__btn">VOTE</button>
+        </div>
+        <div class="term-vote-row">
+          <span class="term-vote-row__name">VIKTOR_KUZNETSOV</span>
+          <span class="term-vote-row__bar">██<span class="empty">░░░░░░░░░░░░░░░░░░</span></span>
+          <span class="term-vote-row__count">2</span>
+          <button class="term-vote-row__btn">VOTE</button>
+        </div>
+        <div class="term-vote-row">
+          <span class="term-vote-row__name">PRIYA_NAIR</span>
+          <span class="term-vote-row__bar"><span class="empty">░░░░░░░░░░░░░░░░░░░░░</span></span>
+          <span class="term-vote-row__count">0</span>
+          <button class="term-vote-row__btn">VOTE</button>
+        </div>
+      </div>
+
+      <!-- .player-cards-grid -->
+      <div class="term-grid">
+        <div class="term-card term-card--highlighted">
+          <div class="term-card__head"><span>SARA_CHEN.dat</span></div>
+          <div class="term-card__attrs">
+            <div class="term-card__attr"><span class="term-card__attr-label">PROFESSION</span><span class="term-card__attr-val">SURGEON</span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">HEALTH</span><span class="term-card__attr-val"><span class="term-card__redacted">CLASSIFIED</span></span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">ITEM</span><span class="term-card__attr-val">FIRST AID KIT</span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">PHOBIA</span><span class="term-card__attr-val"><span class="term-card__redacted">CLASSIFIED</span></span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">SKILL</span><span class="term-card__attr-val"><span class="term-card__redacted">CLASSIFIED</span></span></div>
+          </div>
+        </div>
+
+        <div class="term-card">
+          <div class="term-card__head"><span>VIKTOR_K.dat</span></div>
+          <div class="term-card__attrs">
+            <div class="term-card__attr"><span class="term-card__attr-label">PROFESSION</span><span class="term-card__attr-val">ENGINEER</span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">HEALTH</span><span class="term-card__attr-val">DIABETIC</span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">ITEM</span><span class="term-card__attr-val"><span class="term-card__redacted">CLASSIFIED</span></span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">PHOBIA</span><span class="term-card__attr-val"><span class="term-card__redacted">CLASSIFIED</span></span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">SKILL</span><span class="term-card__attr-val"><span class="term-card__redacted">CLASSIFIED</span></span></div>
+          </div>
+        </div>
+
+        <div class="term-card">
+          <div class="term-card__head"><span>PRIYA_NAIR.dat</span></div>
+          <div class="term-card__attrs">
+            <div class="term-card__attr"><span class="term-card__attr-label">PROFESSION</span><span class="term-card__attr-val"><span class="term-card__redacted">CLASSIFIED</span></span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">HEALTH</span><span class="term-card__attr-val">HEALTHY</span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">ITEM</span><span class="term-card__attr-val">WATER FILTER</span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">PHOBIA</span><span class="term-card__attr-val"><span class="term-card__redacted">CLASSIFIED</span></span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">SKILL</span><span class="term-card__attr-val"><span class="term-card__redacted">CLASSIFIED</span></span></div>
+          </div>
+        </div>
+
+        <div class="term-card term-card--exiled">
+          <div class="term-card__head"><span>MARCO_DIAZ.dat</span><span class="term-card__exiled">EXILED</span></div>
+          <div class="term-card__attrs">
+            <div class="term-card__attr"><span class="term-card__attr-label">PROFESSION</span><span class="term-card__attr-val">SOLDIER</span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">HEALTH</span><span class="term-card__attr-val">INSOMNIA</span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">ITEM</span><span class="term-card__attr-val">RIFLE</span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">PHOBIA</span><span class="term-card__attr-val">CLAUSTROPHOBIA</span></div>
+            <div class="term-card__attr"><span class="term-card__attr-label">SKILL</span><span class="term-card__attr-val"><span class="term-card__redacted">CLASSIFIED</span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- .survivor-board -->
+    <div class="term-sidebar">
+      <div class="term-sidebar-panel">
+        <div class="panel-label">PERSONNEL</div>
+        <div class="term-roster-item term-roster-item--speaking"><span class="term-roster-marker">▶</span><span>Sara Chen</span></div>
+        <div class="term-roster-item"><span class="term-roster-marker">●</span><span>Viktor Kuznetsov</span></div>
+        <div class="term-roster-item"><span class="term-roster-marker">●</span><span>Priya Nair</span></div>
+        <div class="term-roster-item"><span class="term-roster-marker">●</span><span>Alex Romero (you)</span></div>
+        <div class="term-roster-item term-roster-item--exiled"><span class="term-roster-marker">✕</span><span>Marco Diaz</span></div>
+      </div>
+    </div>
+
+    <!-- .own-card + .ability-tray -->
+    <div class="term-hand">
+      <div class="term-hand-wrap">
+        <div class="term-own">
+          <div class="panel-label">YOUR_FILE</div>
+          <div class="term-own__header">
+            <span class="term-own__name">ALEX_ROMERO.dat</span>
+            <span>USER</span>
+          </div>
+          <div class="term-own__attrs">
+            <div class="term-own__attr"><span class="term-own__attr-label">PROFESSION</span><span class="term-own__attr-val">BOTANIST</span><span class="term-own__public">PUBLIC</span></div>
+            <div class="term-own__attr"><span class="term-own__attr-label">HEALTH</span><span class="term-own__attr-val">ASTHMATIC</span><button class="term-own__reveal">REVEAL</button></div>
+            <div class="term-own__attr"><span class="term-own__attr-label">ITEM</span><span class="term-own__attr-val">SEED VAULT</span><span class="term-own__public">PUBLIC</span></div>
+            <div class="term-own__attr"><span class="term-own__attr-label">PHOBIA</span><span class="term-own__attr-val">HEIGHTS</span><button class="term-own__reveal">REVEAL</button></div>
+            <div class="term-own__attr"><span class="term-own__attr-label">SKILL</span><span class="term-own__attr-val">HYDROPONICS</span><button class="term-own__reveal">REVEAL</button></div>
+          </div>
+        </div>
+        <div class="term-abilities">
+          <div class="panel-label">ABILITIES</div>
+          <div class="term-abilities__label">SPECIAL ACCESS</div>
+          <div class="term-ability-cards">
+            <div class="term-ability-card">
+              <div class="term-ability-card__icon">🔍</div>
+              <div class="term-ability-card__name">INSPECT</div>
+              <div class="term-ability-card__desc">Decrypt one hidden field</div>
+            </div>
+            <div class="term-ability-card">
+              <div class="term-ability-card__icon">🛡</div>
+              <div class="term-ability-card__name">IMMUNITY</div>
+              <div class="term-ability-card__desc">Block exile this cycle</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <b>Toggle:</b> <button onclick="showPhase('argument')">ARGUMENT</button> <button onclick="showPhase('voting')">VOTING</button> —
+    <b>MAP:</b> #argPanel → ArgumentPhase · #votePanel → VotingPanel · .term-grid/.term-card → player-cards-grid/PlayerCard (id-card) ·
+    .term-sidebar-panel → SurvivorBoard · .term-own → PlayerHand (own-card) · .term-abilities → AbilityTray
+  </div>
+
+  <script>
+    function showPhase(p) {
+      document.getElementById('argPanel').style.display = p === 'argument' ? '' : 'none';
+      document.getElementById('votePanel').classList.toggle('is-active', p === 'voting');
+    }
+  </script>
+</body>
+</html>

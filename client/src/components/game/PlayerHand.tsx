@@ -1,5 +1,6 @@
 import { useGameStore } from '../../store/gameStore'
 import { useT } from '../../i18n'
+import { getInitials } from '../../utils/avatar'
 
 export function PlayerHand() {
   const t = useT()
@@ -23,7 +24,10 @@ export function PlayerHand() {
   return (
     <div className="own-card">
       <div className="own-card__header">
-        <span className="own-card__name">{me.name}</span>
+        <span style={{ display: 'flex', alignItems: 'center' }}>
+          <span className="avatar own-card__avatar avatar--active">{getInitials(me.name)}</span>
+          <span className="own-card__name">{me.name}</span>
+        </span>
         <span className="section-label" style={{ marginBottom: 0 }}>Your cards</span>
       </div>
       <div className="own-card__attrs">
@@ -45,10 +49,10 @@ export function PlayerHand() {
                     Reveal
                   </button>
                 ) : (
-                  <span className="own-card__public-badge own-card__public-badge--hidden">{t('game.hidden')}</span>
+                  <span className="pill pill--neutral">{t('game.hidden')}</span>
                 )
               ) : (
-                <span className="own-card__public-badge">Public</span>
+                <span className="pill pill--accent">Public</span>
               )}
             </div>
           )

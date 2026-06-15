@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept 4 — Modern Card Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /*
+    CONCEPT 4 — "MODERN CARD GAME"
+    Direction: a crisp, contemporary digital card-game UI (Hearthstone /
+    Slay the Spire register), tuned to a cool post-apocalyptic palette.
+    Avatar-led player cards, rounded surfaces, pill badges for
+    revealed/hidden state, smooth rounded vote meters.
+
+    Component map → real app:
+      .mc-shell           → .game-layout (overall screen)
+      .mc-main            → .game-layout__main
+      .mc-panel.argument  → .argument-phase (.argument-phase__round/__speaker/__hint, .arg-order-item)
+      .mc-panel.voting    → .voting-panel (.vote-option, .vote-bar-wrap → .mc-meter)
+      .mc-grid / .mc-card → .player-cards-grid / .id-card
+      .mc-sidebar         → .game-layout__sidebar (.survivor-board)
+      .mc-hand            → .game-layout__hand (.own-card + .ability-tray)
+  */
+
+  :root {
+    --bg:        #0f1117;
+    --surface:   #171a23;
+    --surface-2: #1f2330;
+    --border:    #2a2f3f;
+    --accent:    #8b7cf6;
+    --accent-2:  #5ad1c7;
+    --danger:    #f6705f;
+    --text:      #eef0f5;
+    --text-dim:  #8b91a5;
+    --radius:    14px;
+    --font-display: 'Sora', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  .mc-shell {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    grid-template-rows: auto 1fr auto;
+    gap: 14px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .mc-main    { grid-column: 1; grid-row: 1 / 3; display: flex; flex-direction: column; gap: 14px; }
+  .mc-sidebar { grid-column: 2; grid-row: 1 / 3; }
+  .mc-hand    { grid-column: 1 / 3; grid-row: 3; }
+
+  .mc-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 18px; border-radius: var(--radius); background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .mc-topbar__scenario { font-size: 0.78rem; color: var(--text-dim); font-weight: 500; }
+  .mc-topbar__round {
+    font-family: var(--font-mono); font-size: 0.75rem; font-weight: 600;
+    color: var(--accent); background: rgba(139,124,246,0.12);
+    padding: 5px 12px; border-radius: 999px;
+  }
+
+  /* ── Argument / voting panel ─────────────────────────────────── */
+  .mc-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; }
+  .mc-panel.voting { display: none; }
+  .mc-panel.voting.is-active { display: block; }
+
+  .mc-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 6px; }
+  .mc-speaker { font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; margin-bottom: 4px; }
+  .mc-speaker .you { color: var(--accent-2); }
+  .mc-hint { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 18px; }
+
+  .mc-order { display: flex; flex-direction: column; gap: 6px; }
+  .mc-order-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px; border-radius: 10px; font-size: 0.88rem;
+    background: var(--surface-2); border: 1px solid transparent;
+  }
+  .mc-order-item--active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,124,246,0.15); }
+  .mc-order-item--done { opacity: 0.5; }
+  .mc-order-avatar {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700;
+    background: var(--border); color: var(--text);
+  }
+  .mc-order-item--active .mc-order-avatar { background: var(--accent); color: #15131f; }
+  .mc-order-item__check { margin-left: auto; color: var(--accent-2); font-weight: 700; }
+
+  /* ── Voting panel ─────────────────────────────────────────────── */
+  .mc-vote-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
+  .mc-vote-sub { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 18px; }
+  .mc-vote-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .mc-vote-row:last-child { border-bottom: none; }
+  .mc-vote-avatar {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700;
+    background: var(--surface-2); border: 1px solid var(--border);
+  }
+  .mc-vote-row__name { min-width: 130px; font-weight: 500; font-size: 0.9rem; }
+  .mc-meter { flex: 1; height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+  .mc-meter__fill { height: 100%; border-radius: 999px; background: var(--danger); transition: width 0.4s ease; }
+  .mc-vote-row__count { font-family: var(--font-mono); font-size: 0.85rem; color: var(--danger); min-width: 22px; text-align: right; font-weight: 600; }
+  .mc-vote-row__btn {
+    font-family: var(--font-display); font-size: 0.78rem; font-weight: 600;
+    background: var(--danger); color: #1a0c0a; border: none;
+    padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  }
+  .mc-vote-row__btn:hover { filter: brightness(1.1); }
+
+  /* ── Player cards grid ────────────────────────────────────────── */
+  .mc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+  .mc-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; transition: transform 0.15s ease, border-color 0.2s ease;
+  }
+  .mc-card:hover { transform: translateY(-2px); }
+  .mc-card--highlighted { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,124,246,0.18); }
+  .mc-card__head {
+    display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+    background: var(--surface-2); border-bottom: 1px solid var(--border);
+  }
+  .mc-card__avatar {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700;
+    background: var(--border); color: var(--text);
+  }
+  .mc-card--highlighted .mc-card__avatar { background: var(--accent); color: #15131f; }
+  .mc-card__name { font-weight: 600; font-size: 0.9rem; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mc-card__pill {
+    font-family: var(--font-mono); font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 3px 9px; border-radius: 999px;
+    background: rgba(246,112,95,0.15); color: var(--danger);
+  }
+  .mc-card__attrs { padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .mc-card__attr { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; }
+  .mc-card__attr-label { color: var(--text-dim); font-size: 0.74rem; display: flex; align-items: center; gap: 6px; }
+  .mc-card__attr-val { font-weight: 500; text-align: right; }
+  .mc-card__hidden {
+    font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-dim); background: var(--surface-2);
+    padding: 2px 8px; border-radius: 6px;
+  }
+  .mc-card--exiled { opacity: 0.5; }
+  .mc-card--exiled .mc-card__head { filter: grayscale(1); }
+
+  /* ── Sidebar ──────────────────────────────────────────────────── */
+  .mc-sidebar-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+  .mc-sidebar__title { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 10px; text-transform: uppercase; }
+  .mc-roster-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px;
+    font-size: 0.85rem; margin-bottom: 4px; background: var(--surface-2);
+  }
+  .mc-roster-item:last-child { margin-bottom: 0; }
+  .mc-roster-item--exiled { opacity: 0.4; text-decoration: line-through; }
+  .mc-roster-item--speaking { border: 1px solid var(--accent); box-shadow: 0 0 0 3px rgba(139,124,246,0.15); background: var(--surface); }
+  .mc-roster-avatar {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono); font-size: 0.62rem; font-weight: 700;
+    background: var(--border); color: var(--text);
+  }
+  .mc-roster-item--speaking .mc-roster-avatar { background: var(--accent); color: #15131f; }
+  .mc-roster-status { margin-left: auto; font-size: 0.65rem; color: var(--accent-2); }
+
+  /* ── Hand area ────────────────────────────────────────────────── */
+  .mc-hand-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 14px; }
+  .mc-own { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+  .mc-own__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .mc-own__name { font-weight: 700; font-size: 1.05rem; color: var(--accent-2); }
+  .mc-own__label { font-size: 0.7rem; color: var(--text-dim); font-weight: 500; }
+  .mc-own__attrs { display: flex; flex-direction: column; gap: 8px; }
+  .mc-own__attr { display: flex; align-items: center; gap: 12px; font-size: 0.86rem; padding: 4px 0; }
+  .mc-own__attr-label { color: var(--text-dim); min-width: 90px; font-size: 0.74rem; }
+  .mc-own__attr-val { flex: 1; font-weight: 500; }
+  .mc-own__reveal {
+    font-family: var(--font-display); font-size: 0.7rem; font-weight: 600;
+    border: 1px solid var(--accent); color: var(--accent); background: transparent;
+    padding: 5px 12px; border-radius: 999px; cursor: pointer;
+  }
+  .mc-own__reveal:hover { background: var(--accent); color: #15131f; }
+  .mc-own__public {
+    font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--accent-2); background: rgba(90,209,199,0.12);
+    padding: 3px 9px; border-radius: 999px;
+  }
+
+  .mc-abilities { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+  .mc-abilities__label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 12px; }
+  .mc-ability-cards { display: flex; gap: 10px; }
+  .mc-ability-card {
+    flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px; text-align: center; cursor: pointer; transition: border-color 0.2s ease, transform 0.15s ease;
+  }
+  .mc-ability-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .mc-ability-card__icon { font-size: 1.5rem; }
+  .mc-ability-card__name { font-weight: 600; font-size: 0.78rem; margin: 6px 0 3px; }
+  .mc-ability-card__desc { font-size: 0.68rem; color: var(--text-dim); line-height: 1.35; }
+
+  @media (max-width: 760px) {
+    .mc-shell { grid-template-columns: 1fr; }
+    .mc-main, .mc-sidebar, .mc-hand { grid-column: 1; grid-row: auto; }
+    .mc-hand-wrap { grid-template-columns: 1fr; }
+    .mc-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  }
+
+  .legend {
+    max-width: 1200px; margin: 24px auto 0; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 18px; font-size: 0.78rem; color: var(--text-dim); line-height: 1.7;
+  }
+  .legend b { color: var(--text); }
+  .legend button {
+    font-family: var(--font-display); cursor: pointer; background: var(--surface-2); color: var(--accent);
+    border: 1px solid var(--border); padding: 4px 12px; border-radius: 999px; font-size: 0.74rem; font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="mc-shell">
+    <div class="mc-main">
+      <div class="mc-topbar">
+        <span class="mc-topbar__scenario">Scenario: Nuclear Winter Bunker</span>
+        <span class="mc-topbar__round">Round 3 / 6</span>
+      </div>
+
+      <!-- .argument-phase -->
+      <div class="mc-panel" id="argPanel">
+        <div class="mc-eyebrow">Argument phase</div>
+        <div class="mc-speaker">Sara Chen's turn to speak</div>
+        <div class="mc-hint">⏳ Waiting for them to finish…</div>
+        <div class="mc-order">
+          <div class="mc-order-item mc-order-item--done"><span class="mc-order-avatar">PN</span><span>Priya Nair</span><span class="mc-order-item__check">✓</span></div>
+          <div class="mc-order-item mc-order-item--done"><span class="mc-order-avatar">VK</span><span>Viktor Kuznetsov</span><span class="mc-order-item__check">✓</span></div>
+          <div class="mc-order-item mc-order-item--active"><span class="mc-order-avatar">SC</span><span>Sara Chen</span></div>
+          <div class="mc-order-item"><span class="mc-order-avatar">AR</span><span>Alex Romero <span class="you">(you)</span></span></div>
+        </div>
+      </div>
+
+      <!-- .voting-panel -->
+      <div class="mc-panel voting" id="votePanel">
+        <div class="mc-vote-title">Vote to exile</div>
+        <div class="mc-vote-sub">2 / 4 votes cast</div>
+        <div class="mc-vote-row">
+          <span class="mc-vote-avatar">SC</span>
+          <span class="mc-vote-row__name">Sara Chen</span>
+          <div class="mc-meter"><div class="mc-meter__fill" style="width:25%"></div></div>
+          <span class="mc-vote-row__count">1</span>
+          <button class="mc-vote-row__btn">Vote</button>
+        </div>
+        <div class="mc-vote-row">
+          <span class="mc-vote-avatar">VK</span>
+          <span class="mc-vote-row__name">Viktor Kuznetsov</span>
+          <div class="mc-meter"><div class="mc-meter__fill" style="width:50%"></div></div>
+          <span class="mc-vote-row__count">2</span>
+          <button class="mc-vote-row__btn">Vote</button>
+        </div>
+        <div class="mc-vote-row">
+          <span class="mc-vote-avatar">PN</span>
+          <span class="mc-vote-row__name">Priya Nair</span>
+          <div class="mc-meter"><div class="mc-meter__fill" style="width:0%"></div></div>
+          <span class="mc-vote-row__count">0</span>
+          <button class="mc-vote-row__btn">Vote</button>
+        </div>
+      </div>
+
+      <!-- .player-cards-grid -->
+      <div class="mc-grid">
+        <div class="mc-card mc-card--highlighted">
+          <div class="mc-card__head"><span class="mc-card__avatar">SC</span><span class="mc-card__name">Sara Chen</span></div>
+          <div class="mc-card__attrs">
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🧑‍⚕️ Profession</span><span class="mc-card__attr-val">Surgeon</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">❤️ Health</span><span class="mc-card__hidden">Hidden</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🎒 Item</span><span class="mc-card__attr-val">First Aid Kit</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🧠 Phobia</span><span class="mc-card__hidden">Hidden</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🎓 Skill</span><span class="mc-card__hidden">Hidden</span></div>
+          </div>
+        </div>
+
+        <div class="mc-card">
+          <div class="mc-card__head"><span class="mc-card__avatar">VK</span><span class="mc-card__name">Viktor Kuznetsov</span></div>
+          <div class="mc-card__attrs">
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🧑‍⚕️ Profession</span><span class="mc-card__attr-val">Engineer</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">❤️ Health</span><span class="mc-card__attr-val">Diabetic</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🎒 Item</span><span class="mc-card__hidden">Hidden</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🧠 Phobia</span><span class="mc-card__hidden">Hidden</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🎓 Skill</span><span class="mc-card__hidden">Hidden</span></div>
+          </div>
+        </div>
+
+        <div class="mc-card">
+          <div class="mc-card__head"><span class="mc-card__avatar">PN</span><span class="mc-card__name">Priya Nair</span></div>
+          <div class="mc-card__attrs">
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🧑‍⚕️ Profession</span><span class="mc-card__hidden">Hidden</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">❤️ Health</span><span class="mc-card__attr-val">Healthy</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🎒 Item</span><span class="mc-card__attr-val">Water Filter</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🧠 Phobia</span><span class="mc-card__hidden">Hidden</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🎓 Skill</span><span class="mc-card__hidden">Hidden</span></div>
+          </div>
+        </div>
+
+        <div class="mc-card mc-card--exiled">
+          <div class="mc-card__head"><span class="mc-card__avatar">MD</span><span class="mc-card__name">Marco Diaz</span><span class="mc-card__pill">Exiled</span></div>
+          <div class="mc-card__attrs">
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🧑‍⚕️ Profession</span><span class="mc-card__attr-val">Soldier</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">❤️ Health</span><span class="mc-card__attr-val">Insomnia</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🎒 Item</span><span class="mc-card__attr-val">Rifle</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🧠 Phobia</span><span class="mc-card__attr-val">Claustrophobia</span></div>
+            <div class="mc-card__attr"><span class="mc-card__attr-label">🎓 Skill</span><span class="mc-card__hidden">Hidden</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- .survivor-board -->
+    <div class="mc-sidebar">
+      <div class="mc-sidebar-panel">
+        <div class="mc-sidebar__title">Players</div>
+        <div class="mc-roster-item mc-roster-item--speaking"><span class="mc-roster-avatar">SC</span><span>Sara Chen</span><span class="mc-roster-status">●</span></div>
+        <div class="mc-roster-item"><span class="mc-roster-avatar">VK</span><span>Viktor Kuznetsov</span></div>
+        <div class="mc-roster-item"><span class="mc-roster-avatar">PN</span><span>Priya Nair</span></div>
+        <div class="mc-roster-item"><span class="mc-roster-avatar">AR</span><span>Alex Romero (you)</span></div>
+        <div class="mc-roster-item mc-roster-item--exiled"><span class="mc-roster-avatar">MD</span><span>Marco Diaz</span></div>
+      </div>
+    </div>
+
+    <!-- .own-card + .ability-tray -->
+    <div class="mc-hand">
+      <div class="mc-hand-wrap">
+        <div class="mc-own">
+          <div class="mc-own__header">
+            <span class="mc-own__name">Alex Romero</span>
+            <span class="mc-own__label">Your cards</span>
+          </div>
+          <div class="mc-own__attrs">
+            <div class="mc-own__attr"><span class="mc-own__attr-label">Profession</span><span class="mc-own__attr-val">Botanist</span><span class="mc-own__public">Public</span></div>
+            <div class="mc-own__attr"><span class="mc-own__attr-label">Health</span><span class="mc-own__attr-val">Asthmatic</span><button class="mc-own__reveal">Reveal</button></div>
+            <div class="mc-own__attr"><span class="mc-own__attr-label">Item</span><span class="mc-own__attr-val">Seed Vault</span><span class="mc-own__public">Public</span></div>
+            <div class="mc-own__attr"><span class="mc-own__attr-label">Phobia</span><span class="mc-own__attr-val">Heights</span><button class="mc-own__reveal">Reveal</button></div>
+            <div class="mc-own__attr"><span class="mc-own__attr-label">Skill</span><span class="mc-own__attr-val">Hydroponics</span><button class="mc-own__reveal">Reveal</button></div>
+          </div>
+        </div>
+        <div class="mc-abilities">
+          <div class="mc-abilities__label">Special abilities</div>
+          <div class="mc-ability-cards">
+            <div class="mc-ability-card">
+              <div class="mc-ability-card__icon">🔍</div>
+              <div class="mc-ability-card__name">Inspect</div>
+              <div class="mc-ability-card__desc">Reveal one hidden attribute</div>
+            </div>
+            <div class="mc-ability-card">
+              <div class="mc-ability-card__icon">🛡</div>
+              <div class="mc-ability-card__name">Immunity</div>
+              <div class="mc-ability-card__desc">Can't be exiled this round</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <b>Toggle:</b> <button onclick="showPhase('argument')">Argument phase</button> <button onclick="showPhase('voting')">Voting phase</button> —
+    <b>Map:</b> #argPanel → ArgumentPhase · #votePanel → VotingPanel · .mc-grid/.mc-card → player-cards-grid/PlayerCard (id-card) ·
+    .mc-sidebar-panel → SurvivorBoard · .mc-own → PlayerHand (own-card) · .mc-abilities → AbilityTray
+  </div>
+
+  <script>
+    function showPhase(p) {
+      document.getElementById('argPanel').style.display = p === 'argument' ? '' : 'none';
+      document.getElementById('votePanel').classList.toggle('is-active', p === 'voting');
+    }
+  </script>
+</body>
+</html>

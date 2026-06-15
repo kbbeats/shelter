@@ -1485,7 +1485,47 @@ h1, h2, h3, .display {
 .badge--you     { background: rgba(255,255,255,0.06); color: var(--c-primary); border: 1px solid rgba(255,255,255,0.12); }
 .badge--offline { background: rgba(148,163,184,0.1);  color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
 .badge--alive   { background: rgba(74,222,128,0.1);   color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
-.badge--exiled  { background: rgba(248,113,113,0.1);  color: #f87171; border: 1px solid rgba(248,113,113,0.2); }
+
+/* ── Avatar & Pill ────────────────────────────────────────────────────────── */
+/* Initial-letter avatar circles and rounded pill badges, shared by the
+   in-game player rows (ID cards, argument order, votes, survivor board,
+   own card). Sized via the surrounding component's own class, colored via
+   the active theme's tokens so every scenario stays in its own palette. */
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  background: var(--c-surface2);
+  color: var(--c-text);
+  border: 1px solid var(--c-border);
+}
+.avatar--active {
+  background: var(--c-primary);
+  color: var(--c-bg);
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px var(--c-glow);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pill--neutral { background: var(--c-surface2); color: var(--c-text-dim); }
+.pill--accent  { background: var(--c-glow); color: var(--c-primary); }
+.pill--danger  { background: rgba(248,113,113,0.12); color: #f87171; }
 
 /* ── Catastrophe Reveal ───────────────────────────────────────────────────── */
 
@@ -2089,12 +2129,12 @@ h1, h2, h3, .display {
   background: var(--c-surface2);
   color: var(--c-text);
   border: 1px solid var(--c-primary);
+  box-shadow: 0 0 0 3px var(--c-glow);
   animation: spotlight-pulse 2s ease infinite;
 }
-.arg-order-item--done               { opacity: 0.45; }
-.arg-order-item__dot                { width: 8px; height: 8px; border-radius: 50%; background: var(--c-text-dim); flex-shrink: 0; }
-.arg-order-item--active .arg-order-item__dot { background: var(--c-primary); box-shadow: 0 0 8px var(--c-glow); }
-.arg-order-item--done .arg-order-item__dot   { background: transparent; border: 1px solid var(--c-text-dim); }
+.arg-order-item--done                  { opacity: 0.45; }
+.arg-order-item__avatar                { width: 22px; height: 22px; font-size: 0.58rem; }
+.arg-order-item__check                 { margin-left: auto; }
 
 /* ── Voting Panel ─────────────────────────────────────────────────────────── */
 
@@ -2118,9 +2158,10 @@ h1, h2, h3, .display {
   transition: all var(--transition);
 }
 .vote-option:last-child { margin-bottom: 0; }
+.vote-option__avatar { width: 26px; height: 26px; font-size: 0.62rem; margin-right: 10px; }
 .vote-option__name  { font-family: var(--font-mono); font-size: 0.85rem; }
-.vote-bar-wrap      { flex: 1; margin: 0 12px; background: var(--c-surface); border-radius: 4px; height: 6px; overflow: hidden; }
-.vote-bar           { height: 100%; background: var(--c-primary); border-radius: 4px; transition: width 0.4s ease; box-shadow: 0 0 8px var(--c-glow); }
+.vote-bar-wrap      { flex: 1; margin: 0 12px; background: var(--c-surface); border-radius: 999px; height: 6px; overflow: hidden; }
+.vote-bar           { height: 100%; background: var(--c-primary); border-radius: 999px; transition: width 0.4s ease; box-shadow: 0 0 8px var(--c-glow); }
 .vote-count         { font-family: var(--font-mono); font-size: 0.8rem; color: var(--c-primary); min-width: 20px; text-align: right; }
 
 /* ── Player Cards Grid ────────────────────────────────────────────────────── */
@@ -2145,11 +2186,17 @@ h1, h2, h3, .display {
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
   box-shadow: inset 0 3px 0 0 var(--c-primary);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+.id-card:hover {
+  transform: translateY(-2px);
 }
 .id-card--highlighted {
   border-color: var(--c-primary);
   box-shadow: inset 0 3px 0 0 var(--c-primary), 0 0 20px var(--c-glow);
+}
+.id-card--exiled {
+  filter: saturate(0.55);
 }
 .id-card__header {
   display: flex;
@@ -2158,6 +2205,11 @@ h1, h2, h3, .display {
   gap: 8px;
   padding: 9px 12px 7px;
   border-bottom: 1px solid var(--c-border);
+}
+.id-card__avatar {
+  width: 26px;
+  height: 26px;
+  font-size: 0.62rem;
 }
 .id-card__name {
   flex: 1;
@@ -2211,38 +2263,8 @@ h1, h2, h3, .display {
 .id-card__attr:last-child .id-card__attr-val {
   border-bottom: none;
 }
-.id-card__attr-val--hidden {
-  align-self: center;
-  width: 2.4em;
-  height: 0.65em;
-  border-radius: 2px;
-  background: repeating-linear-gradient(135deg, var(--c-text-dim) 0 3px, transparent 3px 6px);
-  opacity: 0.4;
-  color: transparent;
-  letter-spacing: 0;
-}
-
-/* Exiled players get a stamped-over file marker instead of an inline badge */
-.id-card .badge--exiled {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 3px 9px;
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  background: transparent;
-  border: 1.5px solid #f87171;
-  border-radius: 3px;
-  color: #f87171;
-  transform: rotate(-8deg);
-  pointer-events: none;
-  z-index: 1;
-}
-.id-card:has(.badge--exiled) {
-  filter: saturate(0.55);
+.id-card__attr .pill {
+  justify-self: end;
 }
 
 /* ── Own Card (my card panel) ─────────────────────────────────────────────── */
@@ -2324,19 +2346,7 @@ h1, h2, h3, .display {
   color: var(--c-bg);
   box-shadow: 0 0 8px var(--c-glow);
 }
-.own-card__public-badge {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--c-primary);
-  opacity: 0.65;
-  flex-shrink: 0;
-}
-.own-card__public-badge--hidden {
-  color: var(--c-text);
-  opacity: 0.35;
-}
+.own-card__avatar { width: 28px; height: 28px; font-size: 0.65rem; margin-right: 10px; }
 
 /* ── Card Slot ────────────────────────────────────────────────────────────── */
 
@@ -2393,10 +2403,7 @@ h1, h2, h3, .display {
 .survivor-item--alive   { border-color: rgba(74,222,128,0.2); }
 .survivor-item--exiled  { opacity: 0.4; text-decoration: line-through; }
 .survivor-item--speaking { border-color: var(--c-primary); box-shadow: 0 0 8px var(--c-glow); animation: spotlight-pulse 2s ease infinite; }
-.survivor-dot           { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.survivor-dot--alive    { background: #4ade80; }
-.survivor-dot--exiled   { background: #f87171; }
-.survivor-dot--speaking { background: var(--c-primary); box-shadow: 0 0 6px var(--c-glow); }
+.survivor-item__avatar  { width: 20px; height: 20px; font-size: 0.55rem; }
 
 /* ── Exile Reveal ─────────────────────────────────────────────────────────── */
 
@@ -3024,11 +3031,18 @@ h1, h2, h3, .display {
 [data-theme="volcanic-winter"] .id-card__header {
   padding: 0 0 10px;
   border-bottom: none;
+  position: relative;
 }
 [data-theme="volcanic-winter"] .id-card__name {
   font-family: var(--font-display);
   font-size: 1.3rem;
   letter-spacing: 0.04em;
+}
+/* Exiled stamp floats over the carved nameplate instead of squeezing it */
+[data-theme="volcanic-winter"] .id-card .pill--danger {
+  position: absolute;
+  top: -4px;
+  right: 0;
 }
 [data-theme="volcanic-winter"] .id-card__attrs {
   display: flex;
@@ -3052,10 +3066,6 @@ h1, h2, h3, .display {
 [data-theme="volcanic-winter"] .id-card__attr-val {
   border-bottom: none;
   padding: 0;
-}
-[data-theme="volcanic-winter"] .id-card__attr-val--hidden {
-  background: repeating-linear-gradient(135deg, rgba(0,0,0,0.35) 0 3px, transparent 3px 6px);
-  opacity: 0.5;
 }
 /* Each piece rests at a slight carved-wood tilt, straightens and lifts on hover */
 [data-theme="volcanic-winter"] .player-cards-grid > .id-card:nth-child(4n+1) { transform: rotate(-1.4deg); }
