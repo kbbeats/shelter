@@ -1,11 +1,21 @@
 import type { Server, Socket } from 'socket.io'
 import { EVENTS } from '@shelter/shared'
 import { roomRegistry } from '../../rooms/RoomRegistry'
+import type { GameRoom } from '../../game/GameRoom'
 
 const interruptTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
 function findRoomBySocket(socketId: string) {
   return roomRegistry.all().find(r => r.players.has(socketId)) ?? null
+}
+
+function emitArgumentTurn(io: Server, room: GameRoom) {
+  io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, {
+    phase: 'ROUND_ARGUMENT',
+    round: room.currentRound,
+    currentArgumentPlayerId: room.getCurrentArgumentPlayerId(),
+  })
+  io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
 }
 
 function scheduleInterruptResolve(io: Server, roomCode: string) {
@@ -70,27 +80,24 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
       // Auto-start first round after brief delay
       setTimeout(() => {
         room.startRound()
-        io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, {
-          phase: 'ROUND_ARGUMENT',
-          round: room.currentRound,
-          currentArgumentPlayerId: room.getCurrentArgumentPlayerId(),
-        })
-        io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+        emitArgumentTurn(io, room)
       }, 2000)
     } else if (room.phase === 'EXILE_REVEAL') {
       if (room.checkWin()) {
         room.endGame()
         io.to(room.code).emit(EVENTS.GAME_ENDED, { survivors: room.survivors })
         io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+      } else if (room.shouldTriggerBunkerEvent()) {
+        room.triggerBunkerEvent()
+        io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, { phase: 'BUNKER_EVENT' })
+        io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
       } else {
         room.startRound()
-        io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, {
-          phase: 'ROUND_ARGUMENT',
-          round: room.currentRound,
-          currentArgumentPlayerId: room.getCurrentArgumentPlayerId(),
-        })
-        io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+        emitArgumentTurn(io, room)
       }
+    } else if (room.phase === 'BUNKER_EVENT') {
+      room.startRound()
+      emitArgumentTurn(io, room)
     }
   })
 
@@ -99,6 +106,7 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
     if (!room) return
     if (room.phase !== 'ROUND_ARGUMENT') return
     if (room.getCurrentArgumentPlayerId() !== socket.id) return
+    if (room.currentRound === 1) return // round 1 is forced occupation reveal only
 
     const card = room.revealCard(socket.id, categoryId)
     if (!card) return
@@ -128,17 +136,20 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
         return
       }
 
+      if (room.currentRound === 1) {
+        // Round 1 has no voting — go straight into round 2
+        room.startRound()
+        emitArgumentTurn(io, room)
+        return
+      }
+
       const { summary, eligibleVoterIds } = room.openVoting()
       io.to(room.code).emit(EVENTS.VOTE_OPENED, { eligibleVoterIds })
       io.to(room.code).emit(EVENTS.VOTE_UPDATED, summary)
       io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
     } else {
-      io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, {
-        phase: 'ROUND_ARGUMENT',
-        round: room.currentRound,
-        currentArgumentPlayerId: room.getCurrentArgumentPlayerId(),
-      })
-      io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+      if (room.currentRound === 1) room.maybeAutoRevealOccupation()
+      emitArgumentTurn(io, room)
     }
   })
 

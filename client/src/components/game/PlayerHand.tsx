@@ -1,6 +1,8 @@
 import { useGameStore } from '../../store/gameStore'
+import { useT } from '../../i18n'
 
 export function PlayerHand() {
+  const t = useT()
   const roomState = useGameStore(s => s.roomState)
   const myCards = useGameStore(s => s.myCards)
   const mySocketId = useGameStore(s => s.mySocketId)
@@ -15,6 +17,8 @@ export function PlayerHand() {
   const isMyTurn =
     roomState.phase === 'ROUND_ARGUMENT' &&
     roomState.currentArgumentPlayerId === mySocketId
+
+  const allowFreeChoiceReveal = roomState.currentRound >= 2
 
   return (
     <div className="own-card">
@@ -31,14 +35,18 @@ export function PlayerHand() {
               <span className="own-card__attr-label">{cat.icon} {cat.name[lang]}</span>
               <span className="own-card__attr-val">{card ? card.label[lang] : '—'}</span>
               {!isRevealed ? (
-                <button
-                  className={`own-card__reveal-btn${isMyTurn ? ' own-card__reveal-btn--active' : ''}`}
-                  onClick={() => isMyTurn && revealCard(cat.id)}
-                  disabled={!isMyTurn}
-                  title={isMyTurn ? '' : 'Not your turn'}
-                >
-                  Reveal
-                </button>
+                allowFreeChoiceReveal ? (
+                  <button
+                    className={`own-card__reveal-btn${isMyTurn ? ' own-card__reveal-btn--active' : ''}`}
+                    onClick={() => isMyTurn && revealCard(cat.id)}
+                    disabled={!isMyTurn}
+                    title={isMyTurn ? '' : 'Not your turn'}
+                  >
+                    Reveal
+                  </button>
+                ) : (
+                  <span className="own-card__public-badge own-card__public-badge--hidden">{t('game.hidden')}</span>
+                )
               ) : (
                 <span className="own-card__public-badge">Public</span>
               )}

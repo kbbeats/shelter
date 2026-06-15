@@ -29,15 +29,6 @@ interface Player {
   cards: PlayerCards
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
-
 export class GameRoom {
   code: string
   phase: GamePhase = 'LOBBY'
@@ -50,6 +41,8 @@ export class GameRoom {
   currentArgumentIndex = 0
   voteManager: VoteManager | null = null
   survivors: string[] = []
+  exiledCount = 0
+  bunkerEventShown = false
   lastActivity = Date.now()
 
   playerAbilities = new Map<string, SpecialAbilityCard[]>()
@@ -214,9 +207,17 @@ export class GameRoom {
     this.currentRound++
     const alive = this.getAlivePlayers().filter(p => !this.silencedPlayers.has(p.id))
     this.silencedPlayers.clear()
-    this.argumentOrder = shuffle(alive.map(p => p.id))
+
+    const allIds = [...this.players.keys()]
+    const hostId = [...this.players.values()].find(p => p.isHost)?.id
+    const hostIndex = hostId ? Math.max(allIds.indexOf(hostId), 0) : 0
+    const hostFirstOrder = [...allIds.slice(hostIndex), ...allIds.slice(0, hostIndex)]
+    const aliveIds = new Set(alive.map(p => p.id))
+    this.argumentOrder = hostFirstOrder.filter(id => aliveIds.has(id))
+
     this.currentArgumentIndex = 0
     this.phase = 'ROUND_ARGUMENT'
+    this.maybeAutoRevealOccupation()
     this.touch()
   }
 
@@ -224,6 +225,13 @@ export class GameRoom {
     this.currentArgumentIndex++
     this.touch()
     return this.currentArgumentIndex >= this.argumentOrder.length
+  }
+
+  maybeAutoRevealOccupation(): void {
+    if (this.currentRound !== 1) return
+    const playerId = this.getCurrentArgumentPlayerId()
+    if (!playerId) return
+    this.revealCard(playerId, 'occupation')
   }
 
   openVoting(): { summary: VoteSummary; eligibleVoterIds: string[] } {
@@ -253,9 +261,20 @@ export class GameRoom {
 
     exiledPlayer.isAlive = false
     const finalCards = exiledPlayer.cards
+    this.exiledCount++
     this.phase = 'EXILE_REVEAL'
     this.touch()
     return { exiledPlayerId: exiledId, finalCards }
+  }
+
+  shouldTriggerBunkerEvent(): boolean {
+    return this.exiledCount === 2 && !this.bunkerEventShown
+  }
+
+  triggerBunkerEvent(): void {
+    this.bunkerEventShown = true
+    this.phase = 'BUNKER_EVENT'
+    this.touch()
   }
 
   checkWin(): boolean {

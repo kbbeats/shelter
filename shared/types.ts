@@ -33,6 +33,7 @@ export type GamePhase =
   | 'ROUND_ARGUMENT'
   | 'ROUND_VOTING'
   | 'EXILE_REVEAL'
+  | 'BUNKER_EVENT'
   | 'ABILITY_INTERRUPT'
   | 'GAME_ENDED'
 
@@ -86,6 +87,7 @@ export interface ScenarioPublic {
   title: BilingualText
   catastropheDescription: BilingualText
   story: BilingualText
+  bunkerEvent: BilingualText
   theme: ScenarioTheme
   cardCategories: CardCategory[]
   isPremium: boolean

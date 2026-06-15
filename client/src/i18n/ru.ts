@@ -16,6 +16,12 @@ export const ru: Record<string, string> = {
   'howToPlay.step.survive.body': 'Раунды продолжаются, пока не останется ровно столько игроков, сколько вмещает бункер. Доберитесь до финала — и вы выживете.',
   'howToPlay.close': 'Понятно',
 
+  'agegate.title': 'Предупреждение о контенте 18+',
+  'agegate.body': 'Эта игра содержит юмор для взрослых и взрослые темы (сексуальность, провокационный контент). Игрокам должно быть 21 год или больше.',
+  'agegate.confirm': 'Мне есть 21 год — Войти',
+  'agegate.deny': 'Мне меньше 21',
+  'agegate.denied_message': 'Извините, это приложение доступно только пользователям от 21 года. Вы не можете продолжить.',
+
   'landing.create': 'Создать комнату',
   'landing.join': 'Войти в комнату',
   'landing.tutorial': 'Как играть',
@@ -96,6 +102,10 @@ export const ru: Record<string, string> = {
   'exile.subtitle': 'Его секреты раскрыты',
   'exile.continue': 'Следующий раунд',
   'exile.to_bunker': 'Завершить игру — войти в бункер',
+
+  'bunkerEvent.title': 'НАХОДКА',
+  'bunkerEvent.subtitle': 'В бункере что-то изменилось',
+  'bunkerEvent.continue': 'Следующий раунд',
 
   'results.title': 'ВЫЖИВШИЕ',
   'results.subtitle': 'Они попали в бункер',

@@ -5,6 +5,7 @@ import { CatastropheReveal } from '../components/game/CatastropheReveal'
 import { ArgumentPhase } from '../components/game/ArgumentPhase'
 import { VotingPanel } from '../components/game/VotingPanel'
 import { ExileReveal } from '../components/game/ExileReveal'
+import { BunkerEventReveal } from '../components/game/BunkerEventReveal'
 import { PlayerHand } from '../components/game/PlayerHand'
 import { SurvivorBoard } from '../components/game/SurvivorBoard'
 import { PlayerCard } from '../components/game/PlayerCard'
@@ -59,6 +60,7 @@ export default function Game() {
   // Fullscreen overlays take priority
   if (phase === 'CATASTROPHE_REVEAL' || phase === 'BUNKER_REVEAL') return <CatastropheReveal />
   if (phase === 'EXILE_REVEAL') return <ExileReveal />
+  if (phase === 'BUNKER_EVENT') return <BunkerEventReveal />
   if (phase === 'ABILITY_INTERRUPT') return <AbilityInterruptScreen />
   if (phase === 'DEALING') {
     return (
