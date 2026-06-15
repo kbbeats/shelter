@@ -1,2 +1,3 @@
 export * from './types'
-export * from './events'
+export { EVENTS } from './events'
+export type { EventKey, EventValue } from './events'
