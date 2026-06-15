@@ -15,10 +15,12 @@ export function ScenarioStoryModal({ scenario, lang, onClose }: Props) {
   return (
     <Modal
       title={t('game.story.title')}
+      className="story-modal"
       actions={
         <Button size="sm" onClick={onClose}>{t('game.story.close')}</Button>
       }
     >
+      <div className="story-modal__chapter">{scenario.title[lang]}</div>
       {scenario.story[lang].split('\n\n').map((paragraph, i) => (
         <p key={i}>{paragraph}</p>
       ))}

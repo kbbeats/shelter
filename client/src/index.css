@@ -2477,6 +2477,131 @@ h1, h2, h3, .display {
 .modal__body    { color: var(--c-text-dim); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.6; }
 .modal__actions { display: flex; gap: 10px; justify-content: flex-end; }
 
+/* ── Scenario Story Modal ─────────────────────────────────────────────────
+   A "lore reveal" moment, distinct from generic dialogs: the scenario's
+   own title becomes a chapter heading, the body reads like a short story
+   (drop cap, generous leading), and the card carries the active theme's
+   wash/glow/radius. Scoped entirely under .story-modal so other Modal
+   usages (CardRevealModal, AbilityTargetModal, confirmations, etc.) are
+   untouched.
+── */
+
+.story-modal.modal-overlay {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.story-modal.modal {
+  max-width: 640px;
+  width: 92%;
+  max-height: 82vh;
+  padding: 40px 44px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--c-surface);
+  background-image: var(--c-bg-wash, none);
+  box-shadow: inset 0 3px 0 0 var(--c-primary), 0 0 60px var(--c-glow);
+  animation: story-reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.story-modal .modal__title {
+  order: -1;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--c-text-dim);
+  margin-bottom: 0;
+}
+.story-modal .modal__title::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 2px;
+  margin: 14px auto 0;
+  background: var(--c-primary);
+  opacity: 0.6;
+}
+
+.story-modal__chapter {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4.5vw, 2.25rem);
+  font-weight: 700;
+  text-align: center;
+  color: var(--c-text);
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+  margin: 18px 0 22px;
+}
+
+.story-modal .modal__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin-bottom: 28px;
+  padding-right: 6px;
+  color: var(--c-text);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.85;
+}
+.story-modal .modal__body p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+.story-modal .modal__body p:last-child {
+  margin-bottom: 0;
+}
+.story-modal .modal__body p:first-of-type::first-letter {
+  float: left;
+  font-size: 2.6em;
+  line-height: 0.85;
+  font-weight: 700;
+  padding: 0.05em 0.08em 0 0;
+  color: var(--c-primary);
+}
+.story-modal .modal__body::-webkit-scrollbar {
+  width: 6px;
+}
+.story-modal .modal__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.story-modal .modal__body::-webkit-scrollbar-thumb {
+  background: var(--c-primary);
+  opacity: 0.4;
+  border-radius: 3px;
+}
+
+.story-modal .modal__actions {
+  justify-content: center;
+}
+.story-modal .modal__actions .btn {
+  min-width: 180px;
+}
+
+@keyframes story-reveal {
+  from { opacity: 0; transform: translateY(36px) scale(0.96); filter: blur(6px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-modal.modal {
+    animation: fade-in 0.15s ease;
+    filter: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .story-modal.modal {
+    padding: 28px 22px;
+    max-height: 88vh;
+  }
+  .story-modal__chapter {
+    margin: 14px 0 16px;
+  }
+}
+
 /* ── Timer ────────────────────────────────────────────────────────────────── */
 
 .timer { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 1.2rem; font-weight: 600; color: var(--c-text); transition: color 0.3s ease; }
@@ -2669,6 +2794,12 @@ h1, h2, h3, .display {
 [data-theme="nuclear-war"] .ability-interrupt__card {
   border-width: 2px;
 }
+[data-theme="nuclear-war"] .story-modal.modal {
+  box-shadow: inset 0 5px 0 0 var(--c-primary), 0 0 60px var(--c-glow);
+}
+[data-theme="nuclear-war"] .story-modal .modal__title {
+  letter-spacing: 0.4em;
+}
 
 /* ── PANDEMIC: Biocontainment Lab ─────────────────────────────────────────
    IBM Plex Mono replaces Bebas Neue for all display type — readouts, not posters.
@@ -2716,6 +2847,27 @@ h1, h2, h3, .display {
 }
 [data-theme="pandemic"] .bunker-stat__label {
   color: var(--c-primary);
+}
+[data-theme="pandemic"] .story-modal.modal {
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="pandemic"] .story-modal.modal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(110, 143, 92, 0.05) 0px,
+    rgba(110, 143, 92, 0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+[data-theme="pandemic"] .story-modal__chapter {
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--c-border);
 }
 
 /* ── AI TAKEOVER: Surveillance Grid ──────────────────────────────────────
