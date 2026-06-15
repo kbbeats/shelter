@@ -1584,6 +1584,7 @@ h1, h2, h3, .display {
 .catastrophe-reveal__title {
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 8vw, 5.5rem);
+  line-height: 1.05;
   color: var(--c-primary);
   text-shadow: 0 0 40px var(--c-glow);
   letter-spacing: 0.08em;
@@ -1592,6 +1593,10 @@ h1, h2, h3, .display {
 }
 .catastrophe-reveal__title--quick {
   animation: catastrophe-drop 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) 0.25s forwards;
+}
+.catastrophe-reveal__title-line {
+  display: inline-block;
+  white-space: nowrap;
 }
 .catastrophe-reveal__actions {
   opacity: 0;
@@ -1638,7 +1643,12 @@ h1, h2, h3, .display {
     gap: 64px;
   }
   .catastrophe-reveal__layout--bunker .catastrophe-reveal__hero {
-    transform: translateX(-12vw);
+    transform: translateX(-2vw);
+    max-width: 34vw;
+  }
+  .catastrophe-reveal__layout--bunker .catastrophe-reveal__title {
+    max-width: 100%;
+    align-self: stretch;
   }
   .catastrophe-reveal__bunker-card {
     --bunker-card-from-x: 40px;

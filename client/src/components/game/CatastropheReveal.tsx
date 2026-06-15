@@ -285,7 +285,20 @@ export function CatastropheReveal() {
                 <ScenarioIcon id={scenario.id} />
               </div>
               <h1 className={`catastrophe-reveal__title${cameFromWheel ? ' catastrophe-reveal__title--quick' : ''}`}>
-                {scenario.title[lang]}
+                {(() => {
+                  const words = scenario.title[lang].split(' ');
+                  const [firstWord, ...restWords] = words;
+                  const secondLine = restWords.join(' ');
+                  return secondLine ? (
+                    <>
+                      <span className="catastrophe-reveal__title-line">{firstWord}</span>
+                      <br />
+                      <span className="catastrophe-reveal__title-line">{secondLine}</span>
+                    </>
+                  ) : (
+                    <span className="catastrophe-reveal__title-line">{firstWord}</span>
+                  );
+                })()}
               </h1>
             </div>
 
