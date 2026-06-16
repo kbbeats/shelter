@@ -1,6 +1,11 @@
-import type { ScenarioPublic, BilingualText } from '@shelter/shared'
+import type { ScenarioPublic, BilingualText, SpecialAbilityEffectType } from '@shelter/shared'
 
-interface CardTemplate { label: BilingualText; description: BilingualText }
+interface CardTemplate {
+  label: BilingualText
+  description: BilingualText
+  effectType?: SpecialAbilityEffectType
+  targetType?: 'self' | 'other' | 'none'
+}
 export interface ScenarioFull extends ScenarioPublic {
   cardPool: Record<string, CardTemplate[]>
 }

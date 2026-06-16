@@ -1,6 +1,6 @@
-import type { ScenarioPublic, BilingualText } from '@shelter/shared'
+import type { ScenarioPublic, BilingualText, SpecialAbilityEffectType } from '@shelter/shared'
 
-interface CardTemplate { label: BilingualText; description: BilingualText }
+interface CardTemplate { label: BilingualText; description: BilingualText; effectType?: SpecialAbilityEffectType; targetType?: 'self' | 'other' | 'none' }
 interface ScenarioFull extends ScenarioPublic { cardPool: Record<string, CardTemplate[]> }
 
 const scenario: ScenarioFull = {
@@ -135,17 +135,17 @@ const scenario: ScenarioFull = {
       { label: { en: 'Recovering from minor surgery', ru: 'Восстанавливается после небольшой операции' }, description: { en: 'Needs rest and limited physical strain', ru: 'Нуждается в отдыхе и ограниченных нагрузках' } },
     ],
     special_action: [
-      { label: { en: 'Swap Health Cards', ru: 'Обмен карт здоровья' }, description: { en: 'If you are voted out, you may swap your revealed Health card with another revealed Health card before leaving', ru: 'Если вас изгоняют, вы можете перед уходом обменять свою открытую карту здоровья на чужую открытую карту здоровья' } },
-      { label: { en: 'Dust Mask', ru: 'Пылевая маска' }, description: { en: 'Once per game, refuse to reveal a card during the argument phase without penalty', ru: 'Раз за игру вы можете отказаться раскрывать карту во время фазы споров без штрафа' } },
-      { label: { en: 'Seismic Insight', ru: 'Сейсмическое чутьё' }, description: { en: 'Before the first vote, secretly view one unrevealed card of another player', ru: 'Перед первым голосованием вы можете тайно посмотреть одну закрытую карту другого игрока' } },
-      { label: { en: 'Stockpile Share', ru: 'Поделиться запасами' }, description: { en: 'If voted out, you may give one of your unrevealed Baggage cards to a remaining player', ru: 'Если вас изгоняют, вы можете отдать одну свою закрытую карту багажа оставшемуся игроку' } },
-      { label: { en: 'Last Words', ru: 'Последнее слово' }, description: { en: 'If voted out, you get one final uninterrupted statement before leaving the bunker', ru: 'Если вас изгоняют, вы получаете последнее непрерывное слово перед уходом из бункера' } },
-      { label: { en: 'Cold Resistance', ru: 'Стойкость к холоду' }, description: { en: 'Immune to the effects of one negative Health card revealed against you', ru: 'Вы невосприимчивы к эффекту одной негативной карты здоровья, раскрытой против вас' } },
-      { label: { en: 'Underground Network', ru: 'Подземная сеть' }, description: { en: 'Once per game, force one other player to reveal one extra card of your choice', ru: 'Раз за игру вы можете заставить другого игрока раскрыть одну дополнительную карту по вашему выбору' } },
-      { label: { en: 'Vote Shield', ru: 'Щит от голосования' }, description: { en: 'The first time you receive votes, cancel one vote against you', ru: 'В первый раз, когда против вас проголосуют, вы можете аннулировать один голос' } },
-      { label: { en: 'Quiet Observer', ru: 'Тихий наблюдатель' }, description: { en: 'Once per round, you may abstain from voting without revealing this to the group', ru: 'Раз за раунд вы можете не голосовать, не раскрывая это остальным' } },
-      { label: { en: 'Emergency Reserve', ru: 'Аварийный запас' }, description: { en: 'If voted out, reveal one previously hidden card that may change the group\'s decision before it is finalized', ru: 'Если вас изгоняют, вы можете раскрыть одну скрытую карту, которая может изменить решение группы до его окончательного утверждения' } },
-      { label: { en: 'Aftershock Warning', ru: 'Предупреждение о толчках' }, description: { en: 'Once per game, delay the vote by skipping the current round\'s voting phase entirely', ru: 'Раз за игру вы можете отложить голосование, полностью пропустив фазу голосования текущего раунда' } },
+      { label: { en: 'Swap Health Cards', ru: 'Обмен карт здоровья' }, description: { en: 'If you are voted out, you may swap your revealed Health card with another revealed Health card before leaving', ru: 'Если вас изгоняют, вы можете перед уходом обменять свою открытую карту здоровья на чужую открытую карту здоровья' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Dust Mask', ru: 'Пылевая маска' }, description: { en: 'Once per game, refuse to reveal a card during the argument phase without penalty', ru: 'Раз за игру вы можете отказаться раскрывать карту во время фазы споров без штрафа' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Seismic Insight', ru: 'Сейсмическое чутьё' }, description: { en: 'Before the first vote, secretly view one unrevealed card of another player', ru: 'Перед первым голосованием вы можете тайно посмотреть одну закрытую карту другого игрока' }, effectType: 'inspect', targetType: 'other' },
+      { label: { en: 'Stockpile Share', ru: 'Поделиться запасами' }, description: { en: 'If voted out, you may give one of your unrevealed Baggage cards to a remaining player', ru: 'Если вас изгоняют, вы можете отдать одну свою закрытую карту багажа оставшемуся игроку' }, effectType: 'double_vote', targetType: 'none' },
+      { label: { en: 'Last Words', ru: 'Последнее слово' }, description: { en: 'If voted out, you get one final uninterrupted statement before leaving the bunker', ru: 'Если вас изгоняют, вы получаете последнее непрерывное слово перед уходом из бункера' }, effectType: 'double_vote', targetType: 'none' },
+      { label: { en: 'Cold Resistance', ru: 'Стойкость к холоду' }, description: { en: 'Immune to the effects of one negative Health card revealed against you', ru: 'Вы невосприимчивы к эффекту одной негативной карты здоровья, раскрытой против вас' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Underground Network', ru: 'Подземная сеть' }, description: { en: 'Once per game, force one other player to reveal one extra card of your choice', ru: 'Раз за игру вы можете заставить другого игрока раскрыть одну дополнительную карту по вашему выбору' }, effectType: 'reveal_card', targetType: 'other' },
+      { label: { en: 'Vote Shield', ru: 'Щит от голосования' }, description: { en: 'The first time you receive votes, cancel one vote against you', ru: 'В первый раз, когда против вас проголосуют, вы можете аннулировать один голос' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Quiet Observer', ru: 'Тихий наблюдатель' }, description: { en: 'Once per round, you may abstain from voting without revealing this to the group', ru: 'Раз за раунд вы можете не голосовать, не раскрывая это остальным' }, effectType: 'silence', targetType: 'other' },
+      { label: { en: 'Emergency Reserve', ru: 'Аварийный запас' }, description: { en: 'If voted out, reveal one previously hidden card that may change the group\'s decision before it is finalized', ru: 'Если вас изгоняют, вы можете раскрыть одну скрытую карту, которая может изменить решение группы до его окончательного утверждения' }, effectType: 'double_vote', targetType: 'none' },
+      { label: { en: 'Aftershock Warning', ru: 'Предупреждение о толчках' }, description: { en: 'Once per game, delay the vote by skipping the current round\'s voting phase entirely', ru: 'Раз за игру вы можете отложить голосование, полностью пропустив фазу голосования текущего раунда' }, effectType: 'silence', targetType: 'other' },
     ],
   },
 }

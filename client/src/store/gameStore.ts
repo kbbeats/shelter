@@ -1,13 +1,12 @@
 import { create } from 'zustand'
 import { EVENTS } from '@shelter/shared'
-import type { RoomState, PlayerCards, ScenarioPublic, SpecialAbilityCard, AbilityAnnouncement } from '@shelter/shared'
+import type { RoomState, PlayerCards, ScenarioPublic, AbilityAnnouncement } from '@shelter/shared'
 import { getSocket } from '../socket/socket'
 
 interface GameStore {
   connected: boolean
   roomState: RoomState | null
   myCards: PlayerCards | null
-  myAbilities: SpecialAbilityCard[]
   mySocketId: string | null
   language: 'en' | 'ru'
   pendingReveal: string | null
@@ -31,7 +30,7 @@ interface GameStore {
   setLanguage: (lang: 'en' | 'ru') => void
   setPendingReveal: (categoryId: string | null) => void
   clearError: () => void
-  useAbility: (abilityId: string, targetPlayerId?: string) => void
+  useAbility: (targetPlayerId?: string) => void
   clearAbilityAnnouncement: () => void
   skipInterrupt: () => void
   setScenarioMode: (mode: 'host' | 'vote' | 'random') => void
@@ -56,12 +55,12 @@ export const useGameStore = create<GameStore>((set, get) => {
     set({ error: message })
   })
 
-  socket.on(EVENTS.GAME_DEALT_CARDS, ({ cards, abilities }: { cards: PlayerCards; abilities?: SpecialAbilityCard[] }) => {
-    set({ myCards: cards, myAbilities: abilities ?? [] })
+  socket.on(EVENTS.GAME_DEALT_CARDS, ({ cards }: { cards: PlayerCards }) => {
+    set({ myCards: cards })
   })
 
   socket.on(EVENTS.ROOM_EXPIRED, () => {
-    set({ roomState: null, myCards: null, myAbilities: [] })
+    set({ roomState: null, myCards: null })
     window.location.href = '/'
   })
 
@@ -82,19 +81,6 @@ export const useGameStore = create<GameStore>((set, get) => {
 
   socket.on(EVENTS.ABILITY_USED, ({ announcement }: { announcement: AbilityAnnouncement }) => {
     set({ abilityAnnouncement: announcement })
-    // Also remove used ability from local list if it was mine
-    const mySocketId = get().mySocketId
-    const myAbilities = get().myAbilities
-    if (announcement.playerName && mySocketId) {
-      const roomState = get().roomState
-      const me = roomState?.players.find(p => p.id === mySocketId)
-      if (me && me.name === announcement.playerName) {
-        // The server's ROOM_STATE will reflect the updated count, but we also
-        // optimistically remove from local array so UI updates immediately
-        const updatedAbilities = myAbilities.filter((_, i) => i !== 0)
-        void updatedAbilities // server ROOM_STATE is authoritative; local myAbilities updated via GAME_DEALT_CARDS
-      }
-    }
   })
 
   socket.on(
@@ -106,11 +92,12 @@ export const useGameStore = create<GameStore>((set, get) => {
     }
   )
 
+  void get
+
   return {
     connected: false,
     roomState: null,
     myCards: null,
-    myAbilities: [],
     mySocketId: null,
     language: 'en',
     pendingReveal: null,
@@ -134,7 +121,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     leaveRoom: () => {
       socket.emit(EVENTS.ROOM_LEAVE)
-      set({ roomState: null, myCards: null, lastExile: null, myAbilities: [], inspectedCards: {} })
+      set({ roomState: null, myCards: null, lastExile: null, inspectedCards: {} })
     },
 
     startGame: () => {
@@ -166,19 +153,8 @@ export const useGameStore = create<GameStore>((set, get) => {
       socket.emit(EVENTS.GET_SCENARIOS)
     },
 
-    useAbility: (abilityId, targetPlayerId) => {
-      socket.emit(EVENTS.ABILITY_USE, { abilityId, targetPlayerId })
-      // Optimistically remove used ability from local list
-      set(s => ({
-        myAbilities: s.myAbilities.filter(a => {
-          if (a.id === abilityId) {
-            // Remove the first occurrence only
-            abilityId = ''
-            return false
-          }
-          return true
-        }),
-      }))
+    useAbility: (targetPlayerId) => {
+      socket.emit(EVENTS.ABILITY_USE, { targetPlayerId })
     },
 
     setScenarioMode: (mode) => { socket.emit(EVENTS.SET_SCENARIO_MODE, { mode }) },

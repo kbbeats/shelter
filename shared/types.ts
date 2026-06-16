@@ -61,6 +61,8 @@ export interface Card {
   categoryId: string
   label: BilingualText
   description: BilingualText
+  effectType?: SpecialAbilityEffectType
+  targetType?: 'self' | 'other' | 'none'
 }
 
 export type PlayerCards = Record<string, Card>

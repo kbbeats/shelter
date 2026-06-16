@@ -118,10 +118,11 @@ export const ru: Record<string, string> = {
   'error.dismiss': 'Закрыть',
   'connection.lost': 'Соединение потеряно. Переподключение...',
 
-  'ability.label': 'Особые способности',
-  'ability.only_during_argument': 'Способности можно использовать только во время аргументации',
   'ability.choose_target': 'Выберите цель',
   'ability.cancel': 'Отмена',
+
+  'special_action.use': 'ПРИМЕНИТЬ',
+  'special_action.used': 'Использовано',
 
   'ability.interrupt.label': 'ПРЕРЫВАНИЕ',
   'ability.interrupt.revealed': 'Карта раскрыта',

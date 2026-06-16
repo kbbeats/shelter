@@ -9,7 +9,7 @@ import type {
   BunkerConfig,
   VoteSummary,
   Card,
-  SpecialAbilityCard,
+  SpecialAbilityEffectType,
   AbilityAnnouncement,
   AbilityInterrupt,
 } from '@shelter/shared'
@@ -17,7 +17,6 @@ import { CardDealer } from './CardDealer'
 import { VoteManager } from './VoteManager'
 import { generateBunker } from './bunkerGenerator'
 import { scenarioMap } from '../data/scenarios/index'
-import { dealAbilities } from '../data/abilities'
 
 interface Player {
   id: string
@@ -45,7 +44,7 @@ export class GameRoom {
   bunkerEventShown = false
   lastActivity = Date.now()
 
-  playerAbilities = new Map<string, SpecialAbilityCard[]>()
+  abilityUsed = new Set<string>()
   immunePlayers = new Set<string>()
   silencedPlayers = new Set<string>()
   doubleVoters = new Set<string>()
@@ -93,10 +92,9 @@ export class GameRoom {
       this.argumentOrder = this.argumentOrder.map(id => (id === oldSocketId ? socketId : id))
     }
     this.survivors = this.survivors.map(id => (id === oldSocketId ? socketId : id))
-    const abilities = this.playerAbilities.get(oldSocketId)
-    if (abilities) {
-      this.playerAbilities.delete(oldSocketId)
-      this.playerAbilities.set(socketId, abilities)
+    if (this.abilityUsed.has(oldSocketId)) {
+      this.abilityUsed.delete(oldSocketId)
+      this.abilityUsed.add(socketId)
     }
     this.touch()
     return player
@@ -172,12 +170,12 @@ export class GameRoom {
     return true
   }
 
-  startGame(): { scenario: ScenarioPublic; bunker: BunkerConfig; dealtCards: Map<string, PlayerCards>; dealtAbilities: Map<string, SpecialAbilityCard[]> } {
+  startGame(): { scenario: ScenarioPublic; bunker: BunkerConfig; dealtCards: Map<string, PlayerCards> } {
     const scenarioId = this.selectedScenarioId || 'nuclear-war'
     const fullScenario = scenarioMap.get(scenarioId)!
     const { cardPool, ...publicScenario } = fullScenario
-    void cardPool
     this.scenario = publicScenario
+    this.abilityUsed = new Set()
 
     const alivePlayers = this.getAlivePlayers()
     this.bunker = generateBunker(alivePlayers.length)
@@ -185,17 +183,26 @@ export class GameRoom {
 
     const playerIds = alivePlayers.map(p => p.id)
     const dealtCards = CardDealer.deal(fullScenario, playerIds)
+
+    // Patch special_action cards with effectType/targetType from scenario pool
+    const specialPool = cardPool['special_action'] ?? []
+    for (const cards of dealtCards.values()) {
+      const specialCard = cards['special_action']
+      if (specialCard && specialPool.length > 0) {
+        const template = specialPool.find(t => t.label.en === specialCard.label.en)
+        if (template?.effectType) {
+          specialCard.effectType = template.effectType
+          specialCard.targetType = template.targetType ?? 'none'
+        }
+      }
+    }
+
     for (const player of alivePlayers) {
       player.cards = dealtCards.get(player.id) || {}
     }
 
-    const dealtAbilities = dealAbilities(playerIds)
-    for (const [id, abilities] of dealtAbilities) {
-      this.playerAbilities.set(id, abilities)
-    }
-
     this.touch()
-    return { scenario: this.scenario, bunker: this.bunker, dealtCards, dealtAbilities }
+    return { scenario: this.scenario, bunker: this.bunker, dealtCards }
   }
 
   advanceToDealing(): void {
@@ -309,36 +316,35 @@ export class GameRoom {
 
   useAbility(
     playerId: string,
-    abilityId: string,
     targetPlayerId?: string,
   ): {
     success: boolean
-    effect: string | null
+    effect: SpecialAbilityEffectType | null
     announcement: AbilityAnnouncement | null
     revealedCard?: { categoryId: string; card: Card }
     inspectedCards?: PlayerCards
     interrupt?: AbilityInterrupt
   } {
-    if (this.phase !== 'ROUND_ARGUMENT') return { success: false, effect: null, announcement: null }
-
     const player = this.players.get(playerId)
     if (!player) return { success: false, effect: null, announcement: null }
 
-    const abilities = this.playerAbilities.get(playerId) ?? []
-    const abilityIndex = abilities.findIndex(a => a.id === abilityId)
-    if (abilityIndex === -1) return { success: false, effect: null, announcement: null }
+    if (this.abilityUsed.has(playerId)) return { success: false, effect: null, announcement: null }
 
-    const ability = abilities[abilityIndex]
-    const remaining = [...abilities]
-    remaining.splice(abilityIndex, 1)
-    this.playerAbilities.set(playerId, remaining)
+    const specialCard = player.cards['special_action']
+    if (!specialCard) return { success: false, effect: null, announcement: null }
+
+    const effectType = specialCard.effectType
+    if (!effectType) return { success: false, effect: null, announcement: null }
+
+    this.abilityUsed.add(playerId)
+    this.revealCard(playerId, 'special_action')
 
     const targetPlayer = targetPlayerId ? this.players.get(targetPlayerId) : null
     const targetName = targetPlayer?.name ?? null
 
     const announcement: AbilityAnnouncement = {
       playerName: player.name,
-      abilityName: ability.name,
+      abilityName: specialCard.label,
       targetName,
       timestamp: Date.now(),
     }
@@ -347,7 +353,7 @@ export class GameRoom {
     let revealedCard: { categoryId: string; card: Card } | undefined
     let inspectedCards: PlayerCards | undefined
 
-    switch (ability.effectType) {
+    switch (effectType) {
       case 'reveal_card': {
         if (targetPlayer && this.scenario) {
           const hidden = this.scenario.cardCategories.filter(
@@ -381,9 +387,9 @@ export class GameRoom {
     const interrupt: AbilityInterrupt = {
       usedBySocketId: playerId,
       usedByName: player.name,
-      abilityName: ability.name,
-      abilityIcon: GameRoom.ABILITY_ICONS[ability.effectType] ?? '✨',
-      effectType: ability.effectType,
+      abilityName: specialCard.label,
+      abilityIcon: GameRoom.ABILITY_ICONS[effectType] ?? '✨',
+      effectType,
       targetSocketId: targetPlayerId ?? null,
       targetName,
       revealedCard: revealedCard ?? null,
@@ -395,7 +401,7 @@ export class GameRoom {
     this.phase = 'ABILITY_INTERRUPT'
     this.touch()
 
-    return { success: true, effect: ability.effectType, announcement, revealedCard, inspectedCards, interrupt }
+    return { success: true, effect: effectType, announcement, revealedCard, inspectedCards, interrupt }
   }
 
   resolveInterrupt(): void {
@@ -454,7 +460,7 @@ export class GameRoom {
       isConnected: player.isConnected,
       revealedCategoryIds: player.revealedCategoryIds,
       maskedCards,
-      specialAbilityCount: (this.playerAbilities.get(player.id) ?? []).length,
+      specialAbilityCount: player.cards['special_action'] && !this.abilityUsed.has(player.id) ? 1 : 0,
     }
   }
 

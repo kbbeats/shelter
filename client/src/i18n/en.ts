@@ -118,10 +118,11 @@ export const en: Record<string, string> = {
   'error.dismiss': 'Dismiss',
   'connection.lost': 'Connection lost. Reconnecting...',
 
-  'ability.label': 'Special Abilities',
-  'ability.only_during_argument': 'Abilities can only be used during argument phase',
   'ability.choose_target': 'Choose a target',
   'ability.cancel': 'Cancel',
+
+  'special_action.use': 'USE',
+  'special_action.used': 'Used',
 
   'ability.interrupt.label': 'ABILITY INTERRUPT',
   'ability.interrupt.revealed': 'Card Revealed',

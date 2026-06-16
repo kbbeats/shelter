@@ -1,6 +1,6 @@
-import type { ScenarioPublic, BilingualText } from '@shelter/shared'
+import type { ScenarioPublic, BilingualText, SpecialAbilityEffectType } from '@shelter/shared'
 
-interface CardTemplate { label: BilingualText; description: BilingualText }
+interface CardTemplate { label: BilingualText; description: BilingualText; effectType?: SpecialAbilityEffectType; targetType?: 'self' | 'other' | 'none' }
 interface ScenarioFull extends ScenarioPublic {
   cardPool: Record<string, CardTemplate[]>
 }
@@ -139,17 +139,17 @@ const scenario: ScenarioFull = {
       { label: { en: 'Recovering from a recent injury', ru: 'Восстанавливается после недавней травмы' }, description: { en: 'Limited physical capacity for now', ru: 'Пока ограничены физические возможности' } },
     ],
     special_action: [
-      { label: { en: 'Swap Health Cards', ru: 'Поменяться картами здоровья' }, description: { en: 'If you are voted out, you may swap your revealed Health card with another revealed Health card before leaving', ru: 'Если вас исключили голосованием, вы можете поменять свою открытую карту здоровья с другой открытой картой здоровья перед уходом' } },
-      { label: { en: 'Quarantine Override', ru: 'Отмена карантина' }, description: { en: 'Once per game, you may reveal one of your own cards out of turn during an argument round', ru: 'Раз за игру вы можете раскрыть одну из своих карт вне очереди во время раунда обсуждения' } },
-      { label: { en: 'Antidote Reserve', ru: 'Запас антидота' }, description: { en: 'If you are voted out, your Health card stays hidden instead of being revealed', ru: 'Если вас исключили голосованием, ваша карта здоровья остаётся скрытой вместо того, чтобы быть раскрытой' } },
-      { label: { en: 'Field Diagnosis', ru: 'Полевая диагностика' }, description: { en: 'Once per game, you may privately view one unrevealed card of any other player', ru: 'Раз за игру вы можете тайно посмотреть одну нераскрытую карту любого другого игрока' } },
-      { label: { en: 'Decon Shield', ru: 'Щит деконтаминации' }, description: { en: 'The first time you are voted out, you survive and remain in the bunker — this protection is used once', ru: 'Первый раз, когда вас исключают голосованием, вы остаётесь в бункере — эта защита срабатывает один раз' } },
-      { label: { en: 'Resource Trade', ru: 'Обмен ресурсами' }, description: { en: 'Once per game, you may force a swap of one revealed Baggage card between two other players', ru: 'Раз за игру вы можете заставить двух других игроков обменяться одной открытой картой багажа' } },
-      { label: { en: 'Silent Vote', ru: 'Тайный голос' }, description: { en: 'Once per game, your vote is not revealed to the group, even after the round ends', ru: 'Раз за игру ваш голос не раскрывается группе, даже после окончания раунда' } },
-      { label: { en: 'Last Word', ru: 'Последнее слово' }, description: { en: 'If you are voted out, you get to reveal one additional unrevealed card of your choice before leaving', ru: 'Если вас исключили голосованием, вы можете раскрыть ещё одну карту по своему выбору перед уходом' } },
-      { label: { en: 'Immunity Boost', ru: 'Усиление иммунитета' }, description: { en: 'Once per game, you may cancel the effect of one Special Action used against you', ru: 'Раз за игру вы можете отменить эффект одного особого действия, использованного против вас' } },
-      { label: { en: 'Stockpile Peek', ru: 'Проверка запасов' }, description: { en: 'Once per game, you may privately view the unrevealed Baggage card of one other player', ru: 'Раз за игру вы можете тайно посмотреть нераскрытую карту багажа одного другого игрока' } },
-      { label: { en: 'Re-Vote', ru: 'Повторное голосование' }, description: { en: 'Once per game, you may force the group to redo the current vote', ru: 'Раз за игру вы можете заставить группу провести текущее голосование повторно' } },
+      { label: { en: 'Swap Health Cards', ru: 'Поменяться картами здоровья' }, description: { en: 'If you are voted out, you may swap your revealed Health card with another revealed Health card before leaving', ru: 'Если вас исключили голосованием, вы можете поменять свою открытую карту здоровья с другой открытой картой здоровья перед уходом' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Quarantine Override', ru: 'Отмена карантина' }, description: { en: 'Once per game, you may reveal one of your own cards out of turn during an argument round', ru: 'Раз за игру вы можете раскрыть одну из своих карт вне очереди во время раунда обсуждения' }, effectType: 'silence', targetType: 'other' },
+      { label: { en: 'Antidote Reserve', ru: 'Запас антидота' }, description: { en: 'If you are voted out, your Health card stays hidden instead of being revealed', ru: 'Если вас исключили голосованием, ваша карта здоровья остаётся скрытой вместо того, чтобы быть раскрытой' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Field Diagnosis', ru: 'Полевая диагностика' }, description: { en: 'Once per game, you may privately view one unrevealed card of any other player', ru: 'Раз за игру вы можете тайно посмотреть одну нераскрытую карту любого другого игрока' }, effectType: 'inspect', targetType: 'other' },
+      { label: { en: 'Decon Shield', ru: 'Щит деконтаминации' }, description: { en: 'The first time you are voted out, you survive and remain in the bunker — this protection is used once', ru: 'Первый раз, когда вас исключают голосованием, вы остаётесь в бункере — эта защита срабатывает один раз' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Resource Trade', ru: 'Обмен ресурсами' }, description: { en: 'Once per game, you may force a swap of one revealed Baggage card between two other players', ru: 'Раз за игру вы можете заставить двух других игроков обменяться одной открытой картой багажа' }, effectType: 'reveal_card', targetType: 'other' },
+      { label: { en: 'Silent Vote', ru: 'Тайный голос' }, description: { en: 'Once per game, your vote is not revealed to the group, even after the round ends', ru: 'Раз за игру ваш голос не раскрывается группе, даже после окончания раунда' }, effectType: 'double_vote', targetType: 'none' },
+      { label: { en: 'Last Word', ru: 'Последнее слово' }, description: { en: 'If you are voted out, you get to reveal one additional unrevealed card of your choice before leaving', ru: 'Если вас исключили голосованием, вы можете раскрыть ещё одну карту по своему выбору перед уходом' }, effectType: 'double_vote', targetType: 'none' },
+      { label: { en: 'Immunity Boost', ru: 'Усиление иммунитета' }, description: { en: 'Once per game, you may cancel the effect of one Special Action used against you', ru: 'Раз за игру вы можете отменить эффект одного особого действия, использованного против вас' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Stockpile Peek', ru: 'Проверка запасов' }, description: { en: 'Once per game, you may privately view the unrevealed Baggage card of one other player', ru: 'Раз за игру вы можете тайно посмотреть нераскрытую карту багажа одного другого игрока' }, effectType: 'inspect', targetType: 'other' },
+      { label: { en: 'Re-Vote', ru: 'Повторное голосование' }, description: { en: 'Once per game, you may force the group to redo the current vote', ru: 'Раз за игру вы можете заставить группу провести текущее голосование повторно' }, effectType: 'double_vote', targetType: 'none' },
     ],
   },
 }

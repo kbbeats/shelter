@@ -43,20 +43,17 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
       return
     }
 
-    const { scenario, bunker, dealtCards, dealtAbilities } = room.startGame()
+    const { scenario, bunker, dealtCards } = room.startGame()
 
     // Broadcast scenario and bunker to all
     io.to(room.code).emit(EVENTS.GAME_PHASE_CHANGED, { phase: 'CATASTROPHE_REVEAL' })
     io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
 
-    // Send private cards + abilities to each player
+    // Send private cards to each player
     for (const [playerId, cards] of dealtCards.entries()) {
       const playerSocket = io.sockets.sockets.get(playerId)
       if (playerSocket) {
-        playerSocket.emit(EVENTS.GAME_DEALT_CARDS, {
-          cards,
-          abilities: dealtAbilities.get(playerId) ?? [],
-        })
+        playerSocket.emit(EVENTS.GAME_DEALT_CARDS, { cards })
       }
     }
 
@@ -155,15 +152,11 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
 
   socket.on(
     EVENTS.ABILITY_USE,
-    ({ abilityId, targetPlayerId }: { abilityId: string; targetPlayerId?: string }) => {
+    ({ targetPlayerId }: { targetPlayerId?: string }) => {
       const room = findRoomBySocket(socket.id)
       if (!room) return
-      if (room.phase !== 'ROUND_ARGUMENT') {
-        socket.emit(EVENTS.ROOM_ERROR, { message: 'Abilities can only be used during argument phase' })
-        return
-      }
 
-      const result = room.useAbility(socket.id, abilityId, targetPlayerId)
+      const result = room.useAbility(socket.id, targetPlayerId)
       if (!result.success) return
 
       io.to(room.code).emit(EVENTS.ABILITY_USED, { announcement: result.announcement })

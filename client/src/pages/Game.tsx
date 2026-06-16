@@ -9,7 +9,6 @@ import { BunkerEventReveal } from '../components/game/BunkerEventReveal'
 import { PlayerHand } from '../components/game/PlayerHand'
 import { SurvivorBoard } from '../components/game/SurvivorBoard'
 import { PlayerCard } from '../components/game/PlayerCard'
-import { AbilityTray } from '../components/game/AbilityTray'
 import { AbilityAnnouncement } from '../components/game/AbilityAnnouncement'
 import { AbilityInterruptScreen } from '../components/game/AbilityInterruptScreen'
 import { ScenarioStoryModal } from '../components/game/ScenarioStoryModal'
@@ -97,10 +96,9 @@ export default function Game() {
         <SurvivorBoard />
       </div>
 
-      {/* My hand + abilities */}
+      {/* My hand */}
       <div className="game-layout__hand">
         <PlayerHand />
-        <AbilityTray />
       </div>
 
       <AbilityAnnouncement />

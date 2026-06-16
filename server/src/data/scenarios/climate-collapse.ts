@@ -1,6 +1,6 @@
-import type { ScenarioPublic, BilingualText } from '@shelter/shared'
+import type { ScenarioPublic, BilingualText, SpecialAbilityEffectType } from '@shelter/shared'
 
-interface CardTemplate { label: BilingualText; description: BilingualText }
+interface CardTemplate { label: BilingualText; description: BilingualText; effectType?: SpecialAbilityEffectType; targetType?: 'self' | 'other' | 'none' }
 interface ScenarioFull extends ScenarioPublic { cardPool: Record<string, CardTemplate[]> }
 
 const scenario: ScenarioFull = {
@@ -137,13 +137,13 @@ const scenario: ScenarioFull = {
       { label: { en: 'Swap Health Cards', ru: 'Обмен карт здоровья' }, description: { en: 'If you are voted out, you may swap your revealed Health card with another revealed Health card before leaving', ru: 'Если вас изгоняют, вы можете обменять свою открытую карту здоровья с другой открытой картой здоровья перед уходом' } },
       { label: { en: 'Storm Forecast', ru: 'Прогноз штормов' }, description: { en: 'Once per game, you may peek at one face-down card of another player before the vote', ru: 'Раз за игру вы можете заглянуть в одну закрытую карту другого игрока перед голосованием' } },
       { label: { en: 'High Ground Veto', ru: 'Вето высокой земли' }, description: { en: 'Once per game, you may cancel one vote cast against you', ru: 'Раз за игру вы можете отменить один голос, поданный против вас' } },
-      { label: { en: 'Salvage Run', ru: 'Вылазка за припасами' }, description: { en: 'If exiled, you may reveal one extra hidden card of your choice as a parting gift to the group', ru: 'Если вас изгоняют, вы можете открыть одну дополнительную скрытую карту по своему выбору как прощальный подарок группе' } },
-      { label: { en: 'Cooling System Whisperer', ru: 'Заклинатель системы охлаждения' }, description: { en: 'Once per game, you may force a re-vote if the result is a tie', ru: 'Раз за игру вы можете назначить повторное голосование при равенстве голосов' } },
-      { label: { en: 'Last Lifeboat Seat', ru: 'Последнее место в шлюпке' }, description: { en: 'If you would be exiled, you may instead trade places with the player who has the fewest votes', ru: 'Если вас должны изгнать, вы можете вместо этого поменяться местами с игроком, набравшим наименьшее количество голосов' } },
-      { label: { en: 'Waterproof Alibi', ru: 'Водонепроницаемое алиби' }, description: { en: 'Once per game, you may protect one of your own cards from being targeted by another player\'s ability', ru: 'Раз за игру вы можете защитить одну из своих карт от воздействия способности другого игрока' } },
-      { label: { en: 'Tidal Insight', ru: 'Предчувствие прилива' }, description: { en: 'Before the first vote, you may look at the category (but not the value) of one random hidden card', ru: 'Перед первым голосованием вы можете увидеть категорию (но не значение) одной случайной скрытой карты' } },
-      { label: { en: 'Emergency Reserves', ru: 'Аварийный запас' }, description: { en: 'If you are the first player exiled, the next vote is delayed by one extra discussion round', ru: 'Если вас изгоняют первым, следующее голосование откладывается на один дополнительный раунд обсуждения' } },
-      { label: { en: 'Reluctant Hero', ru: 'Неохотный герой' }, description: { en: 'Once per game, you may reveal one of your hidden cards voluntarily to gain immunity from the next vote', ru: 'Раз за игру вы можете добровольно открыть одну из своих скрытых карт, чтобы получить иммунитет на следующем голосовании' } },
+      { label: { en: 'Salvage Run', ru: 'Вылазка за припасами' }, description: { en: 'If exiled, you may reveal one extra hidden card of your choice as a parting gift to the group', ru: 'Если вас изгоняют, вы можете открыть одну дополнительную скрытую карту по своему выбору как прощальный подарок группе' }, effectType: 'reveal_card', targetType: 'other' },
+      { label: { en: 'Cooling System Whisperer', ru: 'Заклинатель системы охлаждения' }, description: { en: 'Once per game, you may force a re-vote if the result is a tie', ru: 'Раз за игру вы можете назначить повторное голосование при равенстве голосов' }, effectType: 'silence', targetType: 'other' },
+      { label: { en: 'Last Lifeboat Seat', ru: 'Последнее место в шлюпке' }, description: { en: 'If you would be exiled, you may instead trade places with the player who has the fewest votes', ru: 'Если вас должны изгнать, вы можете вместо этого поменяться местами с игроком, набравшим наименьшее количество голосов' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Waterproof Alibi', ru: 'Водонепроницаемое алиби' }, description: { en: 'Once per game, you may protect one of your own cards from being targeted by another player\'s ability', ru: 'Раз за игру вы можете защитить одну из своих карт от воздействия способности другого игрока' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Tidal Insight', ru: 'Предчувствие прилива' }, description: { en: 'Before the first vote, you may look at the category (but not the value) of one random hidden card', ru: 'Перед первым голосованием вы можете увидеть категорию (но не значение) одной случайной скрытой карты' }, effectType: 'inspect', targetType: 'other' },
+      { label: { en: 'Emergency Reserves', ru: 'Аварийный запас' }, description: { en: 'If you are the first player exiled, the next vote is delayed by one extra discussion round', ru: 'Если вас изгоняют первым, следующее голосование откладывается на один дополнительный раунд обсуждения' }, effectType: 'double_vote', targetType: 'none' },
+      { label: { en: 'Reluctant Hero', ru: 'Неохотный герой' }, description: { en: 'Once per game, you may reveal one of your hidden cards voluntarily to gain immunity from the next vote', ru: 'Раз за игру вы можете добровольно открыть одну из своих скрытых карт, чтобы получить иммунитет на следующем голосовании' }, effectType: 'double_vote', targetType: 'none' },
     ],
   },
 }

@@ -1,6 +1,6 @@
-import type { ScenarioPublic, BilingualText } from '@shelter/shared'
+import type { ScenarioPublic, BilingualText, SpecialAbilityEffectType } from '@shelter/shared'
 
-interface CardTemplate { label: BilingualText; description: BilingualText }
+interface CardTemplate { label: BilingualText; description: BilingualText; effectType?: SpecialAbilityEffectType; targetType?: 'self' | 'other' | 'none' }
 interface ScenarioFull extends ScenarioPublic {
   cardPool: Record<string, CardTemplate[]>
 }
@@ -142,17 +142,17 @@ const scenario: ScenarioFull = {
       { label: { en: 'Mild insomnia', ru: 'Лёгкая бессонница' }, description: { en: 'Often awake during the "night" shift', ru: 'Часто не спит во время "ночной" смены' } },
     ],
     special_action: [
-      { label: { en: 'Swap Health Cards', ru: 'Обмен карт здоровья' }, description: { en: 'If you are voted out, you may swap your revealed Health card with another revealed Health card before leaving', ru: 'Если вас исключают, перед уходом вы можете поменять свою раскрытую карту здоровья с другой раскрытой картой здоровья' } },
-      { label: { en: 'Cradle Override', ru: 'Перенастройка колыбели' }, description: { en: 'Once per game, force a re-roll of your own Biology card', ru: 'Один раз за игру можно заново разыграть свою карту биологии' } },
-      { label: { en: 'Decontamination Pass', ru: 'Допуск на дезактивацию' }, description: { en: 'Once per game, reveal one of your hidden cards to a single chosen player privately', ru: 'Один раз за игру можно приватно показать одну свою скрытую карту одному выбранному игроку' } },
-      { label: { en: 'Last Word', ru: 'Последнее слово' }, description: { en: 'If you are voted out, you get one extra minute to speak before leaving the bunker', ru: 'Если вас исключают, у вас есть ещё одна минута на слово перед уходом из бункера' } },
-      { label: { en: 'Geiger Counter', ru: 'Счётчик Гейгера' }, description: { en: 'Before a vote, you may secretly check whether one revealed card belongs to the player with the highest radiation exposure (decided by the host)', ru: 'Перед голосованием можно тайно узнать, принадлежит ли одна раскрытая карта игроку с наибольшим уровнем радиации (решает ведущий)' } },
-      { label: { en: 'Bunker Veto', ru: 'Вето бункера' }, description: { en: 'Once per game, cancel one vote against you — that vote does not count', ru: 'Один раз за игру можно отменить один голос против себя — он не учитывается' } },
-      { label: { en: 'Supply Cache', ru: 'Тайник с припасами' }, description: { en: 'If you are voted out, the remaining player gains an extra revealed Baggage card from the unused pool', ru: 'Если вас исключают, оставшийся игрок получает дополнительную раскрытую карту багажа из неиспользованного пула' } },
-      { label: { en: 'Forced Reveal', ru: 'Принудительное раскрытие' }, description: { en: 'Once per game, force any one player to reveal one of their hidden cards immediately', ru: 'Один раз за игру можно заставить любого игрока немедленно раскрыть одну скрытую карту' } },
-      { label: { en: 'Quiet Exit', ru: 'Тихий уход' }, description: { en: 'If you are voted out, none of your remaining hidden cards are revealed to the group', ru: 'Если вас исключают, ваши оставшиеся скрытые карты не показываются группе' } },
-      { label: { en: 'Second Chance', ru: 'Второй шанс' }, description: { en: 'The first time you are voted out, you may stay instead — this can only happen once per game', ru: 'В первый раз, когда вас исключают, вы можете остаться вместо этого — но только один раз за игру' } },
-      { label: { en: 'Cradle Priority', ru: 'Приоритет колыбели' }, description: { en: 'If the game ends with you in the bunker, your Biology card is revealed last, after all voting is complete', ru: 'Если игра заканчивается с вами в бункере, ваша карта биологии раскрывается последней, после завершения всех голосований' } },
+      { label: { en: 'Swap Health Cards', ru: 'Обмен карт здоровья' }, description: { en: 'If you are voted out, you may swap your revealed Health card with another revealed Health card before leaving', ru: 'Если вас исключают, перед уходом вы можете поменять свою раскрытую карту здоровья с другой раскрытой картой здоровья' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Cradle Override', ru: 'Перенастройка колыбели' }, description: { en: 'Once per game, force a re-roll of your own Biology card', ru: 'Один раз за игру можно заново разыграть свою карту биологии' }, effectType: 'double_vote', targetType: 'none' },
+      { label: { en: 'Decontamination Pass', ru: 'Допуск на дезактивацию' }, description: { en: 'Once per game, reveal one of your hidden cards to a single chosen player privately', ru: 'Один раз за игру можно приватно показать одну свою скрытую карту одному выбранному игроку' }, effectType: 'inspect', targetType: 'other' },
+      { label: { en: 'Last Word', ru: 'Последнее слово' }, description: { en: 'If you are voted out, you get one extra minute to speak before leaving the bunker', ru: 'Если вас исключают, у вас есть ещё одна минута на слово перед уходом из бункера' }, effectType: 'silence', targetType: 'other' },
+      { label: { en: 'Geiger Counter', ru: 'Счётчик Гейгера' }, description: { en: 'Before a vote, you may secretly check whether one revealed card belongs to the player with the highest radiation exposure (decided by the host)', ru: 'Перед голосованием можно тайно узнать, принадлежит ли одна раскрытая карта игроку с наибольшим уровнем радиации (решает ведущий)' }, effectType: 'inspect', targetType: 'other' },
+      { label: { en: 'Bunker Veto', ru: 'Вето бункера' }, description: { en: 'Once per game, cancel one vote against you — that vote does not count', ru: 'Один раз за игру можно отменить один голос против себя — он не учитывается' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Supply Cache', ru: 'Тайник с припасами' }, description: { en: 'If you are voted out, the remaining player gains an extra revealed Baggage card from the unused pool', ru: 'Если вас исключают, оставшийся игрок получает дополнительную раскрытую карту багажа из неиспользованного пула' }, effectType: 'double_vote', targetType: 'none' },
+      { label: { en: 'Forced Reveal', ru: 'Принудительное раскрытие' }, description: { en: 'Once per game, force any one player to reveal one of their hidden cards immediately', ru: 'Один раз за игру можно заставить любого игрока немедленно раскрыть одну скрытую карту' }, effectType: 'reveal_card', targetType: 'other' },
+      { label: { en: 'Quiet Exit', ru: 'Тихий уход' }, description: { en: 'If you are voted out, none of your remaining hidden cards are revealed to the group', ru: 'Если вас исключают, ваши оставшиеся скрытые карты не показываются группе' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Second Chance', ru: 'Второй шанс' }, description: { en: 'The first time you are voted out, you may stay instead — this can only happen once per game', ru: 'В первый раз, когда вас исключают, вы можете остаться вместо этого — но только один раз за игру' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Cradle Priority', ru: 'Приоритет колыбели' }, description: { en: 'If the game ends with you in the bunker, your Biology card is revealed last, after all voting is complete', ru: 'Если игра заканчивается с вами в бункере, ваша карта биологии раскрывается последней, после завершения всех голосований' }, effectType: 'double_vote', targetType: 'none' },
     ],
   },
 }

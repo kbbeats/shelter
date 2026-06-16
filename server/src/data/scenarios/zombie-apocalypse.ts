@@ -1,6 +1,6 @@
-import type { ScenarioPublic, BilingualText } from '@shelter/shared'
+import type { ScenarioPublic, BilingualText, SpecialAbilityEffectType } from '@shelter/shared'
 
-interface CardTemplate { label: BilingualText; description: BilingualText }
+interface CardTemplate { label: BilingualText; description: BilingualText; effectType?: SpecialAbilityEffectType; targetType?: 'self' | 'other' | 'none' }
 interface ScenarioFull extends ScenarioPublic { cardPool: Record<string, CardTemplate[]> }
 
 const scenario: ScenarioFull = {
@@ -140,17 +140,17 @@ const scenario: ScenarioFull = {
       { label: { en: 'High pain tolerance', ru: 'Высокий болевой порог' }, description: { en: 'Can push through injuries others couldn\'t handle', ru: 'Может продолжать действовать с травмами, которые свалили бы других' } },
     ],
     special_action: [
-      { label: { en: 'Swap Health Cards', ru: 'Обмен карт здоровья' }, description: { en: 'If you are voted out, you may swap your revealed Health card with another revealed Health card before leaving', ru: 'Если вас исключили, перед уходом вы можете обменять свою открытую карту здоровья с другой открытой картой здоровья' } },
-      { label: { en: 'Decoy Noise', ru: 'Шумовая ловушка' }, description: { en: 'Once per game, force one other player to reveal a random card of your choice instead of their own pick', ru: 'Один раз за игру заставьте другого игрока открыть случайную карту по вашему выбору вместо своей' } },
-      { label: { en: 'Sealed Door', ru: 'Запертая дверь' }, description: { en: 'Once per game, block one vote against you — that vote is discarded', ru: 'Один раз за игру заблокируйте один голос против себя — этот голос отбрасывается' } },
-      { label: { en: 'Scavenger\'s Luck', ru: 'Удача мародёра' }, description: { en: 'At the start of the next round, you may reveal one extra card of your choice for free', ru: 'В начале следующего раунда вы можете дополнительно бесплатно открыть одну карту по своему выбору' } },
-      { label: { en: 'Silent Retreat', ru: 'Тихий отход' }, description: { en: 'If you are voted out, your last revealed card is hidden again before the others see the final tally', ru: 'Если вас исключили, ваша последняя открытая карта снова скрывается до того, как остальные увидят итог' } },
-      { label: { en: 'Borrowed Time', ru: 'Взятое время' }, description: { en: 'Once per game, delay the next vote by skipping straight to another argument round', ru: 'Один раз за игру отложите следующее голосование, перейдя сразу к ещё одному раунду споров' } },
-      { label: { en: 'Trade Secret', ru: 'Секрет на обмен' }, description: { en: 'Once per game, privately view one unrevealed card belonging to another player', ru: 'Один раз за игру вы можете тайно посмотреть одну закрытую карту другого игрока' } },
-      { label: { en: 'Barricade Veto', ru: 'Вето на баррикаду' }, description: { en: 'If you are about to be voted out on a tie, you survive this round instead', ru: 'Если при равенстве голосов вас должны исключить, в этом раунде вы остаётесь' } },
-      { label: { en: 'Last Word', ru: 'Последнее слово' }, description: { en: 'If you are voted out, you may reveal one of your remaining hidden cards to the group before leaving', ru: 'Если вас исключили, перед уходом вы можете открыть группе одну из своих оставшихся скрытых карт' } },
-      { label: { en: 'Quiet Alliance', ru: 'Тихий союз' }, description: { en: 'Once per game, secretly agree with one other player to both skip revealing a card this round', ru: 'Один раз за игру тайно договоритесь с другим игроком, что вы оба не открываете карту в этом раунде' } },
-      { label: { en: 'Foraging Trip', ru: 'Поход за припасами' }, description: { en: 'Once per game, swap one of your unrevealed Baggage cards with the discard pile', ru: 'Один раз за игру обменяйте одну из своих закрытых карт багажа на карту из отбоя' } },
+      { label: { en: 'Swap Health Cards', ru: 'Обмен карт здоровья' }, description: { en: 'If you are voted out, you may swap your revealed Health card with another revealed Health card before leaving', ru: 'Если вас исключили, перед уходом вы можете обменять свою открытую карту здоровья с другой открытой картой здоровья' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Decoy Noise', ru: 'Шумовая ловушка' }, description: { en: 'Once per game, force one other player to reveal a random card of your choice instead of their own pick', ru: 'Один раз за игру заставьте другого игрока открыть случайную карту по вашему выбору вместо своей' }, effectType: 'silence', targetType: 'other' },
+      { label: { en: 'Sealed Door', ru: 'Запертая дверь' }, description: { en: 'Once per game, block one vote against you — that vote is discarded', ru: 'Один раз за игру заблокируйте один голос против себя — этот голос отбрасывается' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Scavenger\'s Luck', ru: 'Удача мародёра' }, description: { en: 'At the start of the next round, you may reveal one extra card of your choice for free', ru: 'В начале следующего раунда вы можете дополнительно бесплатно открыть одну карту по своему выбору' }, effectType: 'reveal_card', targetType: 'other' },
+      { label: { en: 'Silent Retreat', ru: 'Тихий отход' }, description: { en: 'If you are voted out, your last revealed card is hidden again before the others see the final tally', ru: 'Если вас исключили, ваша последняя открытая карта снова скрывается до того, как остальные увидят итог' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Borrowed Time', ru: 'Взятое время' }, description: { en: 'Once per game, delay the next vote by skipping straight to another argument round', ru: 'Один раз за игру отложите следующее голосование, перейдя сразу к ещё одному раунду споров' }, effectType: 'double_vote', targetType: 'none' },
+      { label: { en: 'Trade Secret', ru: 'Секрет на обмен' }, description: { en: 'Once per game, privately view one unrevealed card belonging to another player', ru: 'Один раз за игру вы можете тайно посмотреть одну закрытую карту другого игрока' }, effectType: 'inspect', targetType: 'other' },
+      { label: { en: 'Barricade Veto', ru: 'Вето на баррикаду' }, description: { en: 'If you are about to be voted out on a tie, you survive this round instead', ru: 'Если при равенстве голосов вас должны исключить, в этом раунде вы остаётесь' }, effectType: 'immunity', targetType: 'self' },
+      { label: { en: 'Last Word', ru: 'Последнее слово' }, description: { en: 'If you are voted out, you may reveal one of your remaining hidden cards to the group before leaving', ru: 'Если вас исключили, перед уходом вы можете открыть группе одну из своих оставшихся скрытых карт' }, effectType: 'double_vote', targetType: 'none' },
+      { label: { en: 'Quiet Alliance', ru: 'Тихий союз' }, description: { en: 'Once per game, secretly agree with one other player to both skip revealing a card this round', ru: 'Один раз за игру тайно договоритесь с другим игроком, что вы оба не открываете карту в этом раунде' }, effectType: 'inspect', targetType: 'other' },
+      { label: { en: 'Foraging Trip', ru: 'Поход за припасами' }, description: { en: 'Once per game, swap one of your unrevealed Baggage cards with the discard pile', ru: 'Один раз за игру обменяйте одну из своих закрытых карт багажа на карту из отбоя' }, effectType: 'double_vote', targetType: 'none' },
     ],
   },
 }
