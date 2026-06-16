@@ -1,7 +1,6 @@
 import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
-import { getInitials } from '../../utils/avatar'
 
 export function ArgumentPhase() {
   const t = useT()
@@ -11,7 +10,7 @@ export function ArgumentPhase() {
 
   if (!roomState || roomState.phase !== 'ROUND_ARGUMENT') return null
 
-  const { currentArgumentPlayerId, argumentOrder, players, currentRound } = roomState
+  const { currentArgumentPlayerId, players, currentRound } = roomState
   const isMyTurn = currentArgumentPlayerId === mySocketId
 
   const getPlayerName = (id: string) =>
@@ -37,24 +36,6 @@ export function ArgumentPhase() {
           <div className="argument-phase__hint">⏳</div>
         </>
       )}
-
-      <div className="argument-phase__order" style={{ marginTop: 16 }}>
-        {argumentOrder.map((id, i) => {
-          const currentIdx = roomState.currentArgumentIndex
-          const done = i < currentIdx
-          const active = i === currentIdx
-          return (
-            <div
-              key={id}
-              className={`arg-order-item${active ? ' arg-order-item--active' : done ? ' arg-order-item--done' : ''}`}
-            >
-              <span className={`avatar arg-order-item__avatar${active ? ' avatar--active' : ''}`}>{getInitials(getPlayerName(id))}</span>
-              <span>{getPlayerName(id)}</span>
-              {done && <span className="arg-order-item__check">✓</span>}
-            </div>
-          )
-        })}
-      </div>
     </div>
   )
 }

@@ -83,6 +83,7 @@ export const ru: Record<string, string> = {
   'game.their_turn': 'аргументирует...',
   'game.reveal_hint': 'Откройте карту, затем нажмите Готово',
   'game.done_arguing': 'Готово',
+  'game.next': 'СЛЕД',
   'game.hidden': 'Скрыто',
   'game.card.collapse': 'Свернуть',
   'game.card.expand': 'Развернуть',

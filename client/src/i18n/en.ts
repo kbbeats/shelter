@@ -83,6 +83,7 @@ export const en: Record<string, string> = {
   'game.their_turn': 'is arguing...',
   'game.reveal_hint': 'Reveal a card, then press Done',
   'game.done_arguing': 'Done Arguing',
+  'game.next': 'NEXT',
   'game.hidden': 'Hidden',
   'game.card.collapse': 'Collapse card',
   'game.card.expand': 'Expand card',

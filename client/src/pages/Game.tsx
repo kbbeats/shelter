@@ -9,6 +9,7 @@ import { BunkerEventReveal } from '../components/game/BunkerEventReveal'
 import { PlayerHand } from '../components/game/PlayerHand'
 import { SurvivorBoard } from '../components/game/SurvivorBoard'
 import { PlayerCard } from '../components/game/PlayerCard'
+import { PlayerDetailDrawer } from '../components/game/PlayerDetailDrawer'
 import { AbilityAnnouncement } from '../components/game/AbilityAnnouncement'
 import { AbilityInterruptScreen } from '../components/game/AbilityInterruptScreen'
 import { ScenarioStoryModal } from '../components/game/ScenarioStoryModal'
@@ -26,6 +27,8 @@ export default function Game() {
     if (roomState?.phase === 'LOBBY') navigate(`/lobby/${roomState.code}`)
     if (roomState?.phase === 'GAME_ENDED') navigate(`/results/${roomState?.code}`)
   }, [roomState, navigate])
+
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null)
 
   const prevPhaseRef = useRef<string | null>(null)
   const storyShownRef = useRef(false)
@@ -53,8 +56,9 @@ export default function Game() {
     )
   }
 
-  const { phase, scenario, players, currentArgumentPlayerId } = roomState
+  const { phase, scenario, players, currentArgumentPlayerId, argumentOrder, currentArgumentIndex } = roomState
   const otherPlayers = players.filter(p => p.id !== mySocketId)
+  const selectedPlayer = selectedPlayerId ? players.find(p => p.id === selectedPlayerId) ?? null : null
 
   // Fullscreen overlays take priority
   if (phase === 'CATASTROPHE_REVEAL' || phase === 'BUNKER_REVEAL') return <CatastropheReveal />
@@ -79,15 +83,23 @@ export default function Game() {
 
         {/* Other players' cards */}
         <div className="player-cards-grid" style={{ marginTop: 16 }}>
-          {otherPlayers.map(player => (
-            <PlayerCard
-              key={player.id}
-              player={player}
-              categories={scenario.cardCategories}
-              lang={lang}
-              isHighlighted={player.id === currentArgumentPlayerId}
-            />
-          ))}
+          {otherPlayers.map(player => {
+            const argIdx = argumentOrder.indexOf(player.id)
+            const isDone = argIdx !== -1 && argIdx < currentArgumentIndex
+            const isSpeakingNext = argIdx !== -1 && argIdx === currentArgumentIndex + 1
+            return (
+              <PlayerCard
+                key={player.id}
+                player={player}
+                categories={scenario.cardCategories}
+                lang={lang}
+                isHighlighted={player.id === currentArgumentPlayerId}
+                isDone={isDone}
+                isSpeakingNext={isSpeakingNext}
+                onClick={() => setSelectedPlayerId(player.id)}
+              />
+            )
+          })}
         </div>
       </div>
 
@@ -102,6 +114,13 @@ export default function Game() {
       </div>
 
       <AbilityAnnouncement />
+
+      <PlayerDetailDrawer
+        player={selectedPlayer}
+        categories={scenario.cardCategories}
+        lang={lang}
+        onClose={() => setSelectedPlayerId(null)}
+      />
 
       {showStory && (
         <ScenarioStoryModal scenario={scenario} lang={lang} onClose={() => setShowStory(false)} />
