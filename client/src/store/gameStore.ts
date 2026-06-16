@@ -35,6 +35,7 @@ interface GameStore {
   skipInterrupt: () => void
   setScenarioMode: (mode: 'host' | 'vote' | 'random') => void
   castScenarioVote: (scenarioId: string) => void
+  resetGame: () => void
 }
 
 export const useGameStore = create<GameStore>((set, get) => {
@@ -159,6 +160,7 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     setScenarioMode: (mode) => { socket.emit(EVENTS.SET_SCENARIO_MODE, { mode }) },
     castScenarioVote: (scenarioId) => { socket.emit(EVENTS.SCENARIO_VOTE, { scenarioId }) },
+    resetGame: () => { socket.emit(EVENTS.HOST_RESET_GAME) },
 
     setLanguage: (lang) => set({ language: lang }),
     setPendingReveal: (categoryId) => set({ pendingReveal: categoryId }),

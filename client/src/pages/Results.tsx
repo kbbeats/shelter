@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../store/gameStore'
 import { LanguageToggle } from '../components/layout/LanguageToggle'
@@ -9,8 +10,15 @@ export default function Results() {
   const navigate = useNavigate()
   const roomState = useGameStore(s => s.roomState)
   const myCards = useGameStore(s => s.myCards)
+  const mySocketId = useGameStore(s => s.mySocketId)
   const lang = useGameStore(s => s.language)
-  const { leaveRoom } = useGameStore()
+  const { leaveRoom, resetGame } = useGameStore()
+
+  useEffect(() => {
+    if (roomState?.phase === 'LOBBY') {
+      navigate('/lobby/' + roomState.code)
+    }
+  }, [roomState?.phase, roomState?.code, navigate])
 
   if (!roomState || !roomState.scenario) {
     return (
@@ -25,6 +33,7 @@ export default function Results() {
 
   const { scenario, players, survivors } = roomState
   const survivorPlayers = players.filter(p => survivors.includes(p.id))
+  const isHost = players.find(p => p.id === mySocketId)?.isHost ?? false
 
   const handleLeave = () => {
     leaveRoom()
@@ -71,7 +80,16 @@ export default function Results() {
         })}
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3" style={{ flexDirection: 'column', alignItems: 'center' }}>
+        {isHost ? (
+          <button className="btn btn--primary" onClick={resetGame}>
+            {t('results.play_again')}
+          </button>
+        ) : (
+          <p className="dim mono" style={{ fontSize: '0.75rem', letterSpacing: '0.1em' }}>
+            {t('results.waiting_host')}
+          </p>
+        )}
         <button className="btn btn--outline" onClick={handleLeave}>
           {t('results.leave')}
         </button>

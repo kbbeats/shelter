@@ -198,6 +198,14 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
     }
   })
 
+  socket.on(EVENTS.HOST_RESET_GAME, () => {
+    const room = findRoomBySocket(socket.id)
+    if (!room || !room.isHost(socket.id)) return
+    if (room.phase !== 'GAME_ENDED') return
+    room.resetGame()
+    io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+  })
+
   socket.on(EVENTS.ABILITY_INTERRUPT_SKIP, () => {
     const room = findRoomBySocket(socket.id)
     if (!room) return

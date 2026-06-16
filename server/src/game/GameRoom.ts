@@ -295,6 +295,33 @@ export class GameRoom {
     this.touch()
   }
 
+  resetGame(): void {
+    this.phase = 'LOBBY'
+    this.scenario = null
+    this.selectedScenarioId = null
+    this.bunker = null
+    this.currentRound = 0
+    this.argumentOrder = []
+    this.currentArgumentIndex = 0
+    this.voteManager = null
+    this.survivors = []
+    this.exiledCount = 0
+    this.bunkerEventShown = false
+    this.scenarioVotes = new Map()
+    this.abilityUsed = new Set()
+    this.immunePlayers = new Set()
+    this.silencedPlayers = new Set()
+    this.doubleVoters = new Set()
+    this.lastAbilityAnnouncement = null
+    this.activeInterrupt = null
+    for (const player of this.players.values()) {
+      player.isAlive = true
+      player.revealedCategoryIds = []
+      player.cards = {}
+    }
+    this.touch()
+  }
+
   revealCard(socketId: string, categoryId: string): Card | null {
     const player = this.players.get(socketId)
     if (!player) return null

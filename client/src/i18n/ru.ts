@@ -107,6 +107,7 @@ export const ru: Record<string, string> = {
   'results.subtitle': 'Они попали в бункер',
   'results.scenario': 'Они пережили',
   'results.play_again': 'Играть снова',
+  'results.waiting_host': 'Ожидание хоста для новой игры…',
   'results.leave': 'Выйти',
 
   'card.face_down': '?',

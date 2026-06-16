@@ -107,6 +107,7 @@ export const en: Record<string, string> = {
   'results.subtitle': 'They made it into the bunker',
   'results.scenario': 'They survived',
   'results.play_again': 'Play Again',
+  'results.waiting_host': 'Waiting for host to start a new game…',
   'results.leave': 'Leave',
 
   'card.face_down': '?',

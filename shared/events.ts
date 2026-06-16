@@ -13,6 +13,7 @@ export const EVENTS = {
   ABILITY_USE: 'ability:use',
   SET_SCENARIO_MODE: 'scenario:setMode',
   SCENARIO_VOTE: 'scenario:vote',
+  HOST_RESET_GAME: 'host:reset_game',
 
   // Server → Client
   ROOM_STATE: 'room:state',
