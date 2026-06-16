@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useGameStore } from '../../store/gameStore'
 import { useT } from '../../i18n'
 import { getInitials } from '../../utils/avatar'
+import { CARD_ICON_MAP } from '../../assets/card-icons'
 
 export function PlayerHand() {
   const t = useT()
@@ -67,7 +68,7 @@ export function PlayerHand() {
               if (cat.id === 'special_action') {
                 return (
                   <div key={cat.id} className="own-card__attr">
-                    <span className="own-card__attr-label">{cat.icon} {cat.name[lang]}</span>
+                    <span className="own-card__attr-label">{CARD_ICON_MAP[cat.id] ? <img src={CARD_ICON_MAP[cat.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : cat.icon} {cat.name[lang]}</span>
                     <span
                       className="own-card__attr-val"
                       title={card ? card.description[lang] : ''}
@@ -90,7 +91,7 @@ export function PlayerHand() {
 
               return (
                 <div key={cat.id} className="own-card__attr">
-                  <span className="own-card__attr-label">{cat.icon} {cat.name[lang]}</span>
+                  <span className="own-card__attr-label">{CARD_ICON_MAP[cat.id] ? <img src={CARD_ICON_MAP[cat.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : cat.icon} {cat.name[lang]}</span>
                   <span className="own-card__attr-val">{card ? card.label[lang] : '—'}</span>
                   {!isRevealed ? (
                     allowFreeChoiceReveal ? (

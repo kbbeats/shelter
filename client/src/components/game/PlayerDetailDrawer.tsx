@@ -1,6 +1,7 @@
 import type { PublicPlayer, CardCategory } from '@shelter/shared'
 import { getInitials } from '../../utils/avatar'
 import { useT } from '../../i18n'
+import { CARD_ICON_MAP } from '../../assets/card-icons'
 
 interface Props {
   player: PublicPlayer | null
@@ -44,7 +45,7 @@ export function PlayerDetailDrawer({ player, categories, lang, onClose }: Props)
                 const value = isRevealed && masked?.card ? masked.card.label[lang] : null
                 return (
                   <div key={cat.id} className="player-drawer__attr">
-                    <span className="player-drawer__attr-label">{cat.icon} {cat.name[lang]}</span>
+                    <span className="player-drawer__attr-label">{CARD_ICON_MAP[cat.id] ? <img src={CARD_ICON_MAP[cat.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : cat.icon} {cat.name[lang]}</span>
                     {isRevealed ? (
                       <span className="player-drawer__attr-val">{value}</span>
                     ) : (

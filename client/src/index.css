@@ -2373,6 +2373,14 @@ h1, h2, h3, .display {
   border-bottom: 1px solid var(--c-border);
 }
 .own-card__attr:last-child { border-bottom: none; }
+.card-cat-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  margin-right: 6px;
+  object-fit: contain;
+}
 .own-card__attr-label {
   font-family: var(--font-mono);
   font-size: 0.72rem;
