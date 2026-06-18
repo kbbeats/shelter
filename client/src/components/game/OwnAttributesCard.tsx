@@ -1,4 +1,5 @@
 import { useGameStore } from '../../store/gameStore'
+import { CARD_ICON_MAP } from '../../assets/card-icons'
 
 export function OwnAttributesCard({ lang }: { lang: 'en' | 'ru' }) {
   const roomState = useGameStore(s => s.roomState)
@@ -21,7 +22,12 @@ export function OwnAttributesCard({ lang }: { lang: 'en' | 'ru' }) {
           const card = myCards[cat.id] ?? null
           return (
             <div key={cat.id} className="own-card__attr">
-              <span className="own-card__attr-label">{cat.icon} {cat.name[lang]}</span>
+              <span className="own-card__attr-label">
+                {CARD_ICON_MAP[cat.id]
+                  ? <img src={CARD_ICON_MAP[cat.id]} alt="" aria-hidden="true" className="card-cat-icon" />
+                  : cat.icon}{' '}
+                {cat.name[lang]}
+              </span>
               <span className="own-card__attr-val">{card ? card.label[lang] : '—'}</span>
             </div>
           )

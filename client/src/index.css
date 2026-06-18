@@ -2380,6 +2380,7 @@ h1, h2, h3, .display {
   vertical-align: middle;
   margin-right: 6px;
   object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 .own-card__attr-label {
   font-family: var(--font-mono);
@@ -2516,6 +2517,7 @@ h1, h2, h3, .display {
   max-width: 90vw;
   background: var(--c-surface);
   border-left: 1px solid var(--c-border);
+  border-top: 3px solid var(--c-primary);
   box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
   z-index: 41;
   transform: translateX(100%);
@@ -2533,7 +2535,7 @@ h1, h2, h3, .display {
 }
 .player-drawer__close {
   position: absolute;
-  top: 12px;
+  top: 14px;
   right: 16px;
   background: none;
   border: none;
@@ -2547,19 +2549,22 @@ h1, h2, h3, .display {
 }
 .player-drawer__close:hover { color: var(--c-text); }
 .player-drawer__header {
-  padding: 24px 20px 16px;
+  padding: 28px 20px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   border-bottom: 1px solid var(--c-border);
   text-align: center;
+  background: var(--c-surface2);
 }
 .player-drawer__avatar {
-  width: 64px;
-  height: 64px;
-  font-size: 1.4rem;
+  width: 70px;
+  height: 70px;
+  font-size: 1.5rem;
   font-weight: 700;
+  border: 2px solid var(--c-primary);
+  box-shadow: 0 0 18px var(--c-glow);
 }
 .player-drawer__name {
   font-family: var(--font-display);
@@ -2570,7 +2575,7 @@ h1, h2, h3, .display {
 .player-drawer__attrs {
   display: flex;
   flex-direction: column;
-  padding: 8px 20px;
+  padding: 4px 20px;
   gap: 0;
 }
 .player-drawer__attr {
@@ -2578,7 +2583,7 @@ h1, h2, h3, .display {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 9px 0;
+  padding: 11px 0;
   border-bottom: 1px solid var(--c-border);
 }
 .player-drawer__attr:last-child { border-bottom: none; }
@@ -2589,11 +2594,12 @@ h1, h2, h3, .display {
   text-transform: uppercase;
   color: var(--c-text-dim);
   flex-shrink: 0;
+  opacity: 0.8;
 }
 .player-drawer__attr-val {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--c-text);
   text-align: right;
   min-width: 0;
@@ -2750,7 +2756,9 @@ h1, h2, h3, .display {
   color: var(--c-text);
   letter-spacing: 0.01em;
   text-wrap: balance;
-  margin: 18px 0 22px;
+  margin: 18px 0 0;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .story-modal .modal__body {
@@ -2760,24 +2768,20 @@ h1, h2, h3, .display {
   margin-bottom: 28px;
   padding-right: 6px;
   color: var(--c-text);
-  font-family: var(--font-display);
-  font-size: 1rem;
-  line-height: 1.85;
 }
 .story-modal .modal__body p {
-  margin: 0 0 1em;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.85;
+  margin: 0 auto 1.1em;
+  max-width: 58ch;
   text-wrap: pretty;
+}
+.story-modal .modal__body p:first-of-type {
+  margin-top: 1.4em;
 }
 .story-modal .modal__body p:last-child {
   margin-bottom: 0;
-}
-.story-modal .modal__body p:first-of-type::first-letter {
-  float: left;
-  font-size: 2.6em;
-  line-height: 0.85;
-  font-weight: 700;
-  padding: 0.05em 0.08em 0 0;
-  color: var(--c-primary);
 }
 .story-modal .modal__body::-webkit-scrollbar {
   width: 6px;
@@ -2816,7 +2820,7 @@ h1, h2, h3, .display {
     max-height: 88vh;
   }
   .story-modal__chapter {
-    margin: 14px 0 16px;
+    margin: 14px 0 0;
   }
 }
 
@@ -3078,8 +3082,7 @@ h1, h2, h3, .display {
   );
 }
 [data-theme="pandemic"] .story-modal__chapter {
-  padding-bottom: 16px;
-  border-bottom: 1px dashed var(--c-border);
+  border-bottom-style: dashed;
 }
 
 /* ── AI TAKEOVER: Surveillance Grid ──────────────────────────────────────
