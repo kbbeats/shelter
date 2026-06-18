@@ -14,6 +14,7 @@ export const EVENTS = {
   SET_SCENARIO_MODE: 'scenario:setMode',
   SCENARIO_VOTE: 'scenario:vote',
   HOST_RESET_GAME: 'host:reset_game',
+  HOST_CLOSE_STORY: 'host:close_story',
 
   // Server → Client
   ROOM_STATE: 'room:state',
@@ -32,6 +33,7 @@ export const EVENTS = {
   ABILITY_USED: 'ability:used',
   ABILITY_INSPECT_RESULT: 'ability:inspectResult',
   ABILITY_INTERRUPT_SKIP: 'ability:interruptSkip',
+  STORY_CLOSED: 'story:closed',
 } as const
 
 export type EventKey = keyof typeof EVENTS

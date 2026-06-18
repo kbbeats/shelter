@@ -21,6 +21,8 @@ export default function Game() {
   const roomState = useGameStore(s => s.roomState)
   const mySocketId = useGameStore(s => s.mySocketId)
   const lang = useGameStore(s => s.language)
+  const storyClosed = useGameStore(s => s.storyClosed)
+  const closeStory = useGameStore(s => s.closeStory)
 
   useEffect(() => {
     if (!roomState) navigate('/')
@@ -47,6 +49,10 @@ export default function Game() {
     prevPhaseRef.current = phase
   }, [roomState?.phase])
 
+  useEffect(() => {
+    if (storyClosed) setShowStory(false)
+  }, [storyClosed])
+
   if (!roomState || !roomState.scenario) {
     return (
       <div className="dealing-screen">
@@ -58,6 +64,7 @@ export default function Game() {
 
   const { phase, scenario, players, currentArgumentPlayerId, argumentOrder, currentArgumentIndex } = roomState
   const otherPlayers = players.filter(p => p.id !== mySocketId)
+  const isHost = players.find(p => p.id === mySocketId)?.isHost ?? false
   const selectedPlayer = selectedPlayerId ? players.find(p => p.id === selectedPlayerId) ?? null : null
 
   // Fullscreen overlays take priority
@@ -123,7 +130,7 @@ export default function Game() {
       />
 
       {showStory && (
-        <ScenarioStoryModal scenario={scenario} lang={lang} onClose={() => setShowStory(false)} />
+        <ScenarioStoryModal scenario={scenario} lang={lang} isHost={isHost} onHostClose={closeStory} />
       )}
     </div>
   )

@@ -77,6 +77,7 @@ export const ru: Record<string, string> = {
   'game.bunker.continue': 'Начать дебаты',
   'game.story.title': 'ИСТОРИЯ',
   'game.story.close': 'Понятно',
+  'game.story.waiting_host': 'Ждём ведущего...',
   'game.dealing.title': 'Раздача карт...',
   'game.round': 'Раунд',
   'game.your_turn': 'Ваш ход — аргументируйте!',

@@ -77,6 +77,7 @@ export const en: Record<string, string> = {
   'game.bunker.continue': 'Begin the Debate',
   'game.story.title': 'THE STORY',
   'game.story.close': 'Got it',
+  'game.story.waiting_host': 'Waiting for host...',
   'game.dealing.title': 'Dealing Cards...',
   'game.round': 'Round',
   'game.your_turn': "It's your turn to argue!",

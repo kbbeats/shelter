@@ -2701,126 +2701,148 @@ h1, h2, h3, .display {
 .modal__body    { color: var(--c-text-dim); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.6; }
 .modal__actions { display: flex; gap: 10px; justify-content: flex-end; }
 
-/* ── Scenario Story Modal ─────────────────────────────────────────────────
-   A "lore reveal" moment, distinct from generic dialogs: the scenario's
-   own title becomes a chapter heading, the body reads like a short story
-   (drop cap, generous leading), and the card carries the active theme's
-   wash/glow/radius. Scoped entirely under .story-modal so other Modal
-   usages (CardRevealModal, AbilityTargetModal, confirmations, etc.) are
-   untouched.
-── */
+/* ── Scenario Story Screen ───────────────────────────────────────────────── */
 
-.story-modal.modal-overlay {
-  background: rgba(0, 0, 0, 0.8);
+.story-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: story-screen-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.story-modal.modal {
-  max-width: 640px;
-  width: 92%;
-  max-height: 82vh;
-  padding: 40px 44px;
+.story-screen__panel {
+  max-width: 780px;
+  width: 100%;
+  max-height: 88vh;
+  background: var(--c-surface);
+  border-top: 3px solid var(--c-primary);
+  box-shadow: 0 0 80px var(--c-glow);
   display: flex;
   flex-direction: column;
-  background-color: var(--c-surface);
-  background-image: var(--c-bg-wash, none);
-  box-shadow: inset 0 3px 0 0 var(--c-primary), 0 0 60px var(--c-glow);
-  animation: story-reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  overflow: hidden;
 }
 
-.story-modal .modal__title {
-  order: -1;
-  text-align: center;
+.story-screen__eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 600;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--c-text-dim);
-  margin-bottom: 0;
-}
-.story-modal .modal__title::after {
-  content: '';
-  display: block;
-  width: 48px;
-  height: 2px;
-  margin: 14px auto 0;
-  background: var(--c-primary);
-  opacity: 0.6;
+  text-align: center;
+  padding: 24px 40px 0;
+  flex-shrink: 0;
 }
 
-.story-modal__chapter {
+.story-screen__title {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 4.5vw, 2.25rem);
+  font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 700;
   text-align: center;
-  color: var(--c-text);
-  letter-spacing: 0.01em;
-  text-wrap: balance;
-  margin: 18px 0 0;
-  padding-bottom: 22px;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  padding: 12px 40px 24px;
   border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
 }
 
-.story-modal .modal__body {
+.story-screen__title-char--revealed {
+  color: var(--c-text);
+}
+
+.story-screen__title-char--encrypted {
+  color: var(--c-primary);
+  opacity: 0.5;
+}
+
+.story-screen__body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  margin-bottom: 28px;
-  padding-right: 6px;
+  padding: 0 40px;
   color: var(--c-text);
 }
-.story-modal .modal__body p {
+
+.story-screen__body p {
   font-family: var(--font-sans);
-  font-size: 0.95rem;
-  line-height: 1.85;
+  font-size: 1.05rem;
+  line-height: 1.9;
   margin: 0 auto 1.1em;
-  max-width: 58ch;
+  max-width: 65ch;
   text-wrap: pretty;
 }
-.story-modal .modal__body p:first-of-type {
-  margin-top: 1.4em;
+
+.story-screen__body p:first-of-type {
+  margin-top: 1.6em;
 }
-.story-modal .modal__body p:last-child {
-  margin-bottom: 0;
+
+.story-screen__body p:last-child {
+  margin-bottom: 1.6em;
 }
-.story-modal .modal__body::-webkit-scrollbar {
-  width: 6px;
+
+.story-screen__body::-webkit-scrollbar {
+  width: 4px;
 }
-.story-modal .modal__body::-webkit-scrollbar-track {
+
+.story-screen__body::-webkit-scrollbar-track {
   background: transparent;
 }
-.story-modal .modal__body::-webkit-scrollbar-thumb {
+
+.story-screen__body::-webkit-scrollbar-thumb {
   background: var(--c-primary);
   opacity: 0.4;
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
-.story-modal .modal__actions {
+.story-screen__footer {
+  padding: 20px 40px;
+  background: var(--c-surface2);
+  border-top: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
   justify-content: center;
-}
-.story-modal .modal__actions .btn {
-  min-width: 180px;
+  flex-shrink: 0;
 }
 
-@keyframes story-reveal {
-  from { opacity: 0; transform: translateY(36px) scale(0.96); filter: blur(6px); }
-  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+.story-screen__waiting {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-text-dim);
+  opacity: 0.7;
+}
+
+@keyframes story-screen-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .story-modal.modal {
-    animation: fade-in 0.15s ease;
-    filter: none;
+  .story-screen {
+    animation: none;
   }
 }
 
 @media (max-width: 640px) {
-  .story-modal.modal {
-    padding: 28px 22px;
-    max-height: 88vh;
+  .story-screen__panel {
+    max-height: 96vh;
   }
-  .story-modal__chapter {
-    margin: 14px 0 0;
+  .story-screen__eyebrow,
+  .story-screen__title {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .story-screen__body {
+    padding: 0 20px;
+  }
+  .story-screen__footer {
+    padding: 16px 20px;
   }
 }
 
@@ -3010,13 +3032,6 @@ h1, h2, h3, .display {
 [data-theme="nuclear-war"] .ability-interrupt__card {
   border-width: 2px;
 }
-[data-theme="nuclear-war"] .story-modal.modal {
-  box-shadow: inset 0 5px 0 0 var(--c-primary), 0 0 60px var(--c-glow);
-}
-[data-theme="nuclear-war"] .story-modal .modal__title {
-  letter-spacing: 0.4em;
-}
-
 /* ── PANDEMIC: Biocontainment Lab ─────────────────────────────────────────
    IBM Plex Mono replaces Bebas Neue for all display type — readouts, not posters.
    ID cards look like medical charts: dashed separators, category labels in primary.
@@ -3064,27 +3079,6 @@ h1, h2, h3, .display {
 [data-theme="pandemic"] .bunker-stat__label {
   color: var(--c-primary);
 }
-[data-theme="pandemic"] .story-modal.modal {
-  position: relative;
-  overflow: hidden;
-}
-[data-theme="pandemic"] .story-modal.modal::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(110, 143, 92, 0.05) 0px,
-    rgba(110, 143, 92, 0.05) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-}
-[data-theme="pandemic"] .story-modal__chapter {
-  border-bottom-style: dashed;
-}
-
 /* ── AI TAKEOVER: Surveillance Grid ──────────────────────────────────────
    IBM Plex Mono everywhere. Zero radius. Cold, machine-generated output.
    ID cards look like surveillance files. Buttons are system commands.

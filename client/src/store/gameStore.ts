@@ -15,6 +15,7 @@ interface GameStore {
   error: string | null
   abilityAnnouncement: AbilityAnnouncement | null
   inspectedCards: Record<string, PlayerCards>
+  storyClosed: boolean
 
   connect: () => void
   createRoom: (playerName: string) => void
@@ -36,6 +37,7 @@ interface GameStore {
   setScenarioMode: (mode: 'host' | 'vote' | 'random') => void
   castScenarioVote: (scenarioId: string) => void
   resetGame: () => void
+  closeStory: () => void
 }
 
 export const useGameStore = create<GameStore>((set, get) => {
@@ -49,7 +51,13 @@ export const useGameStore = create<GameStore>((set, get) => {
   })
 
   socket.on(EVENTS.ROOM_STATE, (state: RoomState) => {
-    set({ roomState: state })
+    set(state.phase === 'CATASTROPHE_REVEAL'
+      ? { roomState: state, storyClosed: false }
+      : { roomState: state })
+  })
+
+  socket.on(EVENTS.STORY_CLOSED, () => {
+    set({ storyClosed: true })
   })
 
   socket.on(EVENTS.ROOM_ERROR, ({ message }: { message: string }) => {
@@ -107,6 +115,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     error: null,
     abilityAnnouncement: null,
     inspectedCards: {},
+    storyClosed: false,
 
     connect: () => {
       if (!socket.connected) socket.connect()
@@ -161,6 +170,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     setScenarioMode: (mode) => { socket.emit(EVENTS.SET_SCENARIO_MODE, { mode }) },
     castScenarioVote: (scenarioId) => { socket.emit(EVENTS.SCENARIO_VOTE, { scenarioId }) },
     resetGame: () => { socket.emit(EVENTS.HOST_RESET_GAME) },
+    closeStory: () => { socket.emit(EVENTS.HOST_CLOSE_STORY) },
 
     setLanguage: (lang) => set({ language: lang }),
     setPendingReveal: (categoryId) => set({ pendingReveal: categoryId }),

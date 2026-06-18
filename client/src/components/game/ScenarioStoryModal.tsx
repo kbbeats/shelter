@@ -1,29 +1,47 @@
 import type { ScenarioPublic } from '@shelter/shared'
-import { Modal } from '../ui/Modal'
+import DecryptedText from '../ui/DecryptedText'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
 
 interface Props {
   scenario: ScenarioPublic
   lang: 'en' | 'ru'
-  onClose: () => void
+  isHost: boolean
+  onHostClose: () => void
 }
 
-export function ScenarioStoryModal({ scenario, lang, onClose }: Props) {
+export function ScenarioStoryModal({ scenario, lang, isHost, onHostClose }: Props) {
   const t = useT()
 
   return (
-    <Modal
-      title={t('game.story.title')}
-      className="story-modal"
-      actions={
-        <Button size="sm" onClick={onClose}>{t('game.story.close')}</Button>
-      }
-    >
-      <div className="story-modal__chapter">{scenario.title[lang]}</div>
-      {scenario.story[lang].split('\n\n').map((paragraph, i) => (
-        <p key={i}>{paragraph}</p>
-      ))}
-    </Modal>
+    <div className="story-screen">
+      <div className="story-screen__panel">
+        <div className="story-screen__eyebrow">{t('game.story.title')}</div>
+        <div className="story-screen__title">
+          <DecryptedText
+            text={scenario.title[lang]}
+            animateOn="view"
+            sequential={true}
+            revealDirection="center"
+            speed={35}
+            characters="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@!%"
+            className="story-screen__title-char--revealed"
+            encryptedClassName="story-screen__title-char--encrypted"
+          />
+        </div>
+        <div className="story-screen__body">
+          {scenario.story[lang].split('\n\n').map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
+          ))}
+        </div>
+        <div className="story-screen__footer">
+          {isHost ? (
+            <Button size="sm" onClick={onHostClose}>{t('game.story.close')}</Button>
+          ) : (
+            <span className="story-screen__waiting">{t('game.story.waiting_host')}</span>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }

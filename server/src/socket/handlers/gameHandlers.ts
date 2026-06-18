@@ -221,4 +221,10 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
     room.resolveInterrupt()
     io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
   })
+
+  socket.on(EVENTS.HOST_CLOSE_STORY, () => {
+    const room = findRoomBySocket(socket.id)
+    if (!room || !room.isHost(socket.id)) return
+    io.to(room.code).emit(EVENTS.STORY_CLOSED)
+  })
 }
