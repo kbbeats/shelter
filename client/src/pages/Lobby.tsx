@@ -38,7 +38,7 @@ export default function Lobby() {
   const isHost = roomState.players.find(p => p.id === mySocketId)?.isHost
   const myPlayerName = roomState.players.find(p => p.id === mySocketId)?.name ?? null
   const hostName = roomState.players.find(p => p.isHost)?.name ?? ''
-  const hasEnoughPlayers = roomState.players.filter(p => p.isConnected).length >= 1
+  const hasEnoughPlayers = roomState.players.filter(p => p.isConnected).length >= 6
   const canStart = hasEnoughPlayers && !!roomState.selectedScenarioId
 
   return (

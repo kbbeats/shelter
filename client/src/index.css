@@ -1668,7 +1668,7 @@ h1, h2, h3, .display {
 }
 .catastrophe-reveal__bunker-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 540px;
   opacity: 0;
   animation: bunker-card-in 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.15s forwards;
 }
@@ -2450,6 +2450,26 @@ h1, h2, h3, .display {
   border-color: var(--c-primary);
 }
 
+/* Scenario-selection "your cards" preview (BUNKER_REVEAL) — wider, non-
+   truncating variant of .own-card scoped to this screen only. The shared
+   in-game hand card (PlayerHand.tsx, ROUND_ARGUMENT) is untouched since it
+   only matches the base .own-card rules above. */
+.catastrophe-reveal__bunker-card .own-card {
+  width: 100%;
+  max-width: 540px;
+}
+.catastrophe-reveal__bunker-card .own-card__attr {
+  align-items: flex-start;
+}
+.catastrophe-reveal__bunker-card .own-card__attr-label {
+  padding-top: 2px;
+}
+.catastrophe-reveal__bunker-card .own-card__attr-val {
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+}
+
 /* ── Card Slot ────────────────────────────────────────────────────────────── */
 
 .card-slot          { perspective: 800px; aspect-ratio: 2/3; min-height: 90px; }
@@ -2785,6 +2805,11 @@ h1, h2, h3, .display {
   margin-bottom: 1.6em;
 }
 
+.story-screen__body .char {
+  will-change: transform;
+  display: inline-block;
+}
+
 .story-screen__body::-webkit-scrollbar {
   width: 4px;
 }
@@ -2797,6 +2822,16 @@ h1, h2, h3, .display {
   background: var(--c-primary);
   opacity: 0.4;
   border-radius: 2px;
+}
+
+.story-screen__capacity {
+  padding: 12px 40px 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--c-accent);
+  flex-shrink: 0;
 }
 
 .story-screen__footer {

@@ -130,7 +130,13 @@ export default function Game() {
       />
 
       {showStory && (
-        <ScenarioStoryModal scenario={scenario} lang={lang} isHost={isHost} onHostClose={closeStory} />
+        <ScenarioStoryModal
+          scenario={scenario}
+          lang={lang}
+          isHost={isHost}
+          onHostClose={closeStory}
+          capacity={roomState.bunker?.capacity ?? 0}
+        />
       )}
     </div>
   )

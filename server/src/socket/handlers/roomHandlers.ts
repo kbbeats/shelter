@@ -47,8 +47,8 @@ export function registerRoomHandlers(io: Server, socket: Socket): void {
       return
     }
 
-    if (room.players.size >= 12) {
-      socket.emit(EVENTS.ROOM_ERROR, { message: 'Room is full (max 12 players)' })
+    if (room.players.size >= 16) {
+      socket.emit(EVENTS.ROOM_ERROR, { message: 'Room is full (max 16 players)' })
       return
     }
 

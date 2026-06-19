@@ -38,8 +38,8 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
     const room = findRoomBySocket(socket.id)
     if (!room || !room.isHost(socket.id)) return
     if (room.phase !== 'LOBBY') return
-    if (room.players.size < 1) {
-      socket.emit(EVENTS.ROOM_ERROR, { message: 'Need at least 1 player to start' })
+    if (room.players.size < 6) {
+      socket.emit(EVENTS.ROOM_ERROR, { message: 'Need at least 6 players to start' })
       return
     }
 

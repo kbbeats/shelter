@@ -8,9 +8,10 @@ interface Props {
   lang: 'en' | 'ru'
   isHost: boolean
   onHostClose: () => void
+  capacity: number
 }
 
-export function ScenarioStoryModal({ scenario, lang, isHost, onHostClose }: Props) {
+export function ScenarioStoryModal({ scenario, lang, isHost, onHostClose, capacity }: Props) {
   const t = useT()
 
   return (
@@ -33,6 +34,9 @@ export function ScenarioStoryModal({ scenario, lang, isHost, onHostClose }: Prop
           {scenario.story[lang].split('\n\n').map((paragraph, i) => (
             <p key={i}>{paragraph}</p>
           ))}
+        </div>
+        <div className="story-screen__capacity">
+          {t('game.story.capacity_line').replace('{count}', String(capacity))}
         </div>
         <div className="story-screen__footer">
           {isHost ? (
