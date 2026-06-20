@@ -2805,9 +2805,13 @@ h1, h2, h3, .display {
   margin-bottom: 1.6em;
 }
 
-.story-screen__body .char {
-  will-change: transform;
-  display: inline-block;
+.story-screen__body-char--revealed {
+  color: var(--c-text);
+}
+
+.story-screen__body-char--encrypted {
+  color: var(--c-primary);
+  opacity: 0.5;
 }
 
 .story-screen__body::-webkit-scrollbar {

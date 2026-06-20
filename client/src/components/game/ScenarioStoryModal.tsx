@@ -32,7 +32,18 @@ export function ScenarioStoryModal({ scenario, lang, isHost, onHostClose, capaci
         </div>
         <div className="story-screen__body">
           {scenario.story[lang].split('\n\n').map((paragraph, i) => (
-            <p key={i}>{paragraph}</p>
+            <p key={i}>
+              <DecryptedText
+                text={paragraph}
+                animateOn="view"
+                sequential={true}
+                revealDirection="center"
+                speed={4}
+                characters="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@!%"
+                className="story-screen__body-char--revealed"
+                encryptedClassName="story-screen__body-char--encrypted"
+              />
+            </p>
           ))}
         </div>
         <div className="story-screen__capacity">
