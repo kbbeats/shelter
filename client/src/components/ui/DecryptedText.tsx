@@ -9,6 +9,7 @@ const srOnlyStyle: React.CSSProperties = {
 interface DecryptedTextProps {
   text: string
   speed?: number
+  charsPerTick?: number
   maxIterations?: number
   sequential?: boolean
   revealDirection?: 'start' | 'end' | 'center'
@@ -22,7 +23,7 @@ interface DecryptedTextProps {
 }
 
 export default function DecryptedText({
-  text, speed = 50, maxIterations = 10, sequential = false,
+  text, speed = 50, charsPerTick = 1, maxIterations = 10, sequential = false,
   revealDirection = 'start', useOriginalCharsOnly = false,
   characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+',
   className = '', parentClassName = '', encryptedClassName = '',
@@ -100,7 +101,12 @@ export default function DecryptedText({
       setRevealedIndices(prev => {
         if (sequential) {
           if (direction === 'forward') {
-            if (prev.size < text.length) { const ni = getNext(prev); const nr = new Set(prev); nr.add(ni); setDisplayText(shuffleText(text, nr)); return nr }
+            if (prev.size < text.length) {
+              const nr = new Set(prev)
+              for (let i = 0; i < charsPerTick && nr.size < text.length; i++) nr.add(getNext(nr))
+              setDisplayText(shuffleText(text, nr))
+              return nr
+            }
             clearInterval(intervalRef.current!); setIsAnimating(false); setIsDecrypted(true); return prev
           }
           if (direction === 'reverse') {
@@ -129,7 +135,7 @@ export default function DecryptedText({
       })
     }, speed)
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [isAnimating, text, speed, maxIterations, sequential, revealDirection, shuffleText, direction, fillAllIndices, removeRandomIndices])
+  }, [isAnimating, text, speed, charsPerTick, maxIterations, sequential, revealDirection, shuffleText, direction, fillAllIndices, removeRandomIndices])
 
   const handleClick = () => {
     if (animateOn !== 'click') return

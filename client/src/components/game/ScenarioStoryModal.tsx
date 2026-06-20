@@ -11,6 +11,12 @@ interface Props {
   capacity: number
 }
 
+// Target total reveal time for a body paragraph, regardless of its length. A fixed tick rate
+// (rather than a sub-frame-rate `speed`) keeps each tick's re-render cost reasonable — a few ms
+// per character at very short speeds was pegging the main thread for the whole reveal.
+const BODY_TARGET_MS = 1000
+const BODY_TICK_MS = 20
+
 export function ScenarioStoryModal({ scenario, lang, isHost, onHostClose, capacity }: Props) {
   const t = useT()
 
@@ -38,7 +44,8 @@ export function ScenarioStoryModal({ scenario, lang, isHost, onHostClose, capaci
                 animateOn="view"
                 sequential={true}
                 revealDirection="center"
-                speed={Math.max(1, Math.round(1000 / paragraph.length))}
+                speed={BODY_TICK_MS}
+                charsPerTick={Math.max(1, Math.ceil(paragraph.length / (BODY_TARGET_MS / BODY_TICK_MS)))}
                 characters="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@!%"
                 className="story-screen__body-char--revealed"
                 encryptedClassName="story-screen__body-char--encrypted"
