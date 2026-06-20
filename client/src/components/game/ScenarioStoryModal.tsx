@@ -38,7 +38,7 @@ export function ScenarioStoryModal({ scenario, lang, isHost, onHostClose, capaci
                 animateOn="view"
                 sequential={true}
                 revealDirection="center"
-                speed={2}
+                speed={Math.max(1, Math.round(1000 / paragraph.length))}
                 characters="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@!%"
                 className="story-screen__body-char--revealed"
                 encryptedClassName="story-screen__body-char--encrypted"
