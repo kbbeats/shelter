@@ -89,6 +89,9 @@ export const ru: Record<string, string> = {
   'game.hidden': 'Скрыто',
   'game.card.collapse': 'Свернуть',
   'game.card.expand': 'Развернуть',
+  'game.status.speaking': 'ГОВОРИТ',
+  'game.status.done': 'ГОТОВО',
+  'game.status.wait': 'ЖДЁТ',
 
   'vote.title': 'Проголосуйте',
   'vote.cast': 'Изгнать',

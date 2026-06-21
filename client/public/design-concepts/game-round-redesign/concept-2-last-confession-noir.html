@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Concept 2 — Last Confession (Noir Dossier)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root{
+  --bg:#020617;
+  --surface:#0B0F1A;
+  --card:#10141F;
+  --line:#1E2532;
+  --text:#E8EAED;
+  --text-dim:#7A8194;
+  --lamp:#D97706;
+  --lamp-soft:rgba(217,119,6,0.16);
+  --danger:#9B2C2C;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+
+body{
+  background-image: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(217,119,6,0.06), transparent 60%);
+}
+
+.layout{
+  display:grid; grid-template-columns:1fr 280px; min-height:100vh;
+}
+
+/* ── TOP STATUS BAR ─────────────────────────── */
+.topbar{
+  grid-column:1/3;
+  padding:20px 36px; display:flex; align-items:baseline; gap:18px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, var(--surface), var(--bg));
+}
+.topbar__round{ font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--text-dim); }
+.topbar__round b{ color:var(--text); font-weight:700; }
+.topbar__speaker{ flex:1; font-size:1.05rem; font-weight:300; }
+.topbar__speaker b{ font-weight:700; color:var(--lamp); }
+.topbar__hint{ font-size:0.7rem; color:var(--text-dim); font-style:italic; }
+.btn{
+  font-family:'Inter',sans-serif; font-weight:600; font-size:0.78rem; padding:11px 22px; border-radius:2px;
+  border:1px solid var(--line); color:var(--text-dim); background:transparent; letter-spacing:0.02em;
+}
+
+/* ── MAIN ─────────────────────────────────────── */
+.main{ padding:32px 36px 240px; }
+.section-label{ font-size:0.62rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--text-dim); margin-bottom:18px; border-bottom:1px solid var(--line); padding-bottom:10px; }
+
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(168px, 1fr)); gap:16px 18px; }
+
+.mug{
+  background:var(--card); border:1px solid var(--line); padding:0; position:relative; filter:grayscale(0.9) contrast(1.05);
+  transition:filter .25s ease, transform .25s ease;
+}
+.mug--speaking{
+  filter:none; transform:translateY(-2px);
+  box-shadow:0 0 0 1px var(--lamp), 0 18px 40px -10px rgba(217,119,6,0.35);
+}
+.mug--speaking::before{
+  content:''; position:absolute; inset:0; background:radial-gradient(ellipse 140% 100% at 50% -20%, var(--lamp-soft), transparent 70%); pointer-events:none;
+}
+.mug--exiled{ filter:grayscale(1) brightness(0.45) contrast(0.9); }
+
+.mug__photo{
+  height:86px; display:flex; align-items:center; justify-content:center;
+  background:repeating-linear-gradient(135deg, #181c26 0 2px, #14171f 2px 4px);
+  font-family:'Inter',sans-serif; font-weight:800; font-size:1.6rem; color:rgba(255,255,255,0.18); letter-spacing:0.02em;
+}
+.mug--speaking .mug__photo{ color:var(--lamp); }
+.mug__strip{ border-top:1px solid var(--line); padding:10px 12px; }
+.mug__name{ font-size:0.8rem; font-weight:600; display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.tag{ font-size:0.55rem; letter-spacing:0.1em; text-transform:uppercase; padding:2px 6px; border:1px solid currentColor; }
+.tag--exiled{ color:var(--danger); }
+.tag--next{ color:var(--lamp); }
+.tag--done{ color:#4B7B53; }
+.dots{ display:flex; gap:3px; margin-top:8px; }
+.dot{ width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.1); }
+.dot--on{ background:var(--text-dim); }
+.mug--speaking .dot--on{ background:var(--lamp); }
+
+/* ── SIDEBAR: witness list ─────────────────────── */
+.sidebar{ border-left:1px solid var(--line); background:var(--surface); padding:24px 0; }
+.sidebar__title{ font-size:0.62rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--text-dim); padding:0 24px 14px; border-bottom:1px solid var(--line); margin-bottom:6px; }
+.witness{ display:flex; align-items:center; gap:12px; padding:11px 24px; border-bottom:1px solid rgba(255,255,255,0.03); }
+.witness__num{ font-size:0.68rem; color:var(--text-dim); width:16px; }
+.witness__name{ font-size:0.82rem; flex:1; color:var(--text-dim); }
+.witness--speaking .witness__name{ color:var(--lamp); font-weight:600; }
+.witness--speaking .witness__num{ color:var(--lamp); }
+.witness--exiled .witness__name{ text-decoration:line-through; opacity:0.4; }
+
+/* ── BOTTOM: case file ─────────────────────────── */
+.casefile{
+  position:fixed; left:36px; bottom:24px; width:420px; z-index:10;
+  background:var(--card); border:1px solid var(--line);
+  box-shadow:0 30px 60px -20px rgba(0,0,0,0.7);
+}
+.casefile__tab{
+  position:absolute; top:-13px; left:20px; background:var(--lamp); color:#1A0F02;
+  font-size:0.6rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; padding:4px 12px;
+}
+.casefile__head{ display:flex; align-items:center; gap:12px; padding:22px 20px 14px; border-bottom:1px solid var(--line); }
+.avatar{ width:38px; height:38px; border-radius:50%; background:#1A1F2B; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.75rem; color:var(--lamp); border:1px solid var(--line); }
+.casefile__head b{ font-size:0.92rem; font-weight:600; }
+.casefile__attrs{ padding:6px 20px 18px; max-height:280px; overflow-y:auto; }
+.attr{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.attr__label{ font-size:0.66rem; letter-spacing:0.04em; color:var(--text-dim); width:96px; flex-shrink:0; }
+.attr__val{ font-size:0.82rem; flex:1; }
+.redacted{ background:repeating-linear-gradient(135deg, #2A2014 0, #2A2014 4px, #1E1810 4px, #1E1810 8px); height:14px; flex:1; border-radius:1px; }
+.pill{ font-size:0.6rem; letter-spacing:0.06em; text-transform:uppercase; padding:4px 9px; border-radius:1px; flex-shrink:0; }
+.pill--public{ border:1px solid #3A5A40; color:#7DAE85; }
+.pill--reveal{ border:1px dashed var(--line); color:var(--text-dim); }
+.pill--use{ background:var(--lamp); color:#1A0F02; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <div class="topbar">
+    <div class="topbar__round">Round <b>03</b></div>
+    <div class="topbar__speaker"><b>Dmitri Volkov</b> is making their case</div>
+    <div class="topbar__hint">awaiting confession…</div>
+    <button class="btn" disabled>Done Arguing</button>
+  </div>
+
+  <div class="main">
+    <div class="section-label">Persons of Interest — 7 Remaining</div>
+    <div class="grid">
+      <div class="mug mug--speaking">
+        <div class="mug__photo">DV</div>
+        <div class="mug__strip">
+          <div class="mug__name">Dmitri Volkov</div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+      </div>
+      <div class="mug mug--exiled">
+        <div class="mug__photo">AO</div>
+        <div class="mug__strip">
+          <div class="mug__name">Aisha Okafor <span class="tag tag--exiled">Exiled</span></div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span></div>
+        </div>
+      </div>
+      <div class="mug">
+        <div class="mug__photo">MC</div>
+        <div class="mug__strip">
+          <div class="mug__name">Marcus Chen <span class="tag tag--done">✓ Testified</span></div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+      </div>
+      <div class="mug">
+        <div class="mug__photo">SM</div>
+        <div class="mug__strip">
+          <div class="mug__name">Sarah Mbeki <span class="tag tag--next">Next</span></div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+      </div>
+      <div class="mug">
+        <div class="mug__photo">TR</div>
+        <div class="mug__strip">
+          <div class="mug__name">Tomás Rivera</div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+      </div>
+      <div class="mug">
+        <div class="mug__photo">YT</div>
+        <div class="mug__strip">
+          <div class="mug__name">Yuki Tanaka</div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+      </div>
+      <div class="mug">
+        <div class="mug__photo">EK</div>
+        <div class="mug__strip">
+          <div class="mug__name">Elena Kowalski</div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar__title">Witness List</div>
+    <div class="witness witness--speaking"><span class="witness__num">01</span><span class="witness__name">Dmitri Volkov</span></div>
+    <div class="witness witness--exiled"><span class="witness__num">02</span><span class="witness__name">Aisha Okafor</span></div>
+    <div class="witness"><span class="witness__num">03</span><span class="witness__name">Marcus Chen</span></div>
+    <div class="witness"><span class="witness__num">04</span><span class="witness__name">Sarah Mbeki</span></div>
+    <div class="witness"><span class="witness__num">05</span><span class="witness__name">Tomás Rivera</span></div>
+    <div class="witness"><span class="witness__num">06</span><span class="witness__name">Yuki Tanaka</span></div>
+    <div class="witness"><span class="witness__num">07</span><span class="witness__name">Elena Kowalski</span></div>
+    <div class="witness"><span class="witness__num">08</span><span class="witness__name">Jordan Reyes (You)</span></div>
+  </div>
+
+  <div class="casefile">
+    <div class="casefile__tab">Case File</div>
+    <div class="casefile__head">
+      <span class="avatar">JR</span>
+      <b>Jordan Reyes</b>
+    </div>
+    <div class="casefile__attrs">
+      <div class="attr"><span class="attr__label">Biology</span><span class="attr__val">29, Female</span><span class="pill pill--public">Public</span></div>
+      <div class="attr"><span class="attr__label">Occupation</span><span class="attr__val">Structural Engineer</span><span class="pill pill--public">Public</span></div>
+      <div class="attr"><span class="attr__label">Baggage</span><div class="redacted"></div><span class="pill pill--reveal">Reveal</span></div>
+      <div class="attr"><span class="attr__label">Hobby</span><div class="redacted"></div><span class="pill pill--reveal">Reveal</span></div>
+      <div class="attr"><span class="attr__label">Fun Fact #1</span><div class="redacted"></div><span class="pill pill--reveal">Reveal</span></div>
+      <div class="attr"><span class="attr__label">Fun Fact #2</span><span class="attr__val">Bisexual, recently came out</span><span class="pill pill--public">Public</span></div>
+      <div class="attr"><span class="attr__label">Phobia</span><div class="redacted"></div><span class="pill pill--reveal">Reveal</span></div>
+      <div class="attr"><span class="attr__label">Health</span><div class="redacted"></div><span class="pill pill--reveal">Reveal</span></div>
+      <div class="attr"><span class="attr__label">Special</span><span class="attr__val">Swap Health Cards</span><span class="pill pill--use">Use</span></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { useGameStore } from '../../store/gameStore'
 import { useT } from '../../i18n'
-import { getInitials } from '../../utils/avatar'
 import { CARD_ICON_MAP } from '../../assets/card-icons'
 
-export function PlayerHand() {
+interface Props {
+  collapsed: boolean
+  onToggleCollapsed: () => void
+}
+
+export function PlayerHand({ collapsed, onToggleCollapsed }: Props) {
   const t = useT()
-  const [expanded, setExpanded] = useState(true)
   const [pendingAbilityTarget, setPendingAbilityTarget] = useState(false)
   const roomState = useGameStore(s => s.roomState)
   const myCards = useGameStore(s => s.myCards)
@@ -43,23 +46,20 @@ export function PlayerHand() {
 
   return (
     <>
-      <div className={`own-card${!expanded ? ' own-card--collapsed' : ''}`}>
-        <div className="own-card__header">
-          <span style={{ display: 'flex', alignItems: 'center' }}>
-            <span className="avatar own-card__avatar avatar--active">{getInitials(me.name)}</span>
+      <div className={`own-card${collapsed ? ' own-card--collapsed' : ''}`}>
+        <button
+          className="own-card__collapse-btn"
+          onClick={onToggleCollapsed}
+          aria-label={collapsed ? t('game.card.expand') : t('game.card.collapse')}
+          aria-expanded={!collapsed}
+        >
+          {collapsed ? '»' : '«'}
+        </button>
+        <div className="own-card__content">
+          <div className="own-card__header">
             <span className="own-card__name">{me.name}</span>
-          </span>
-          <span className="section-label" style={{ marginBottom: 0 }}>Your cards</span>
-          <button
-            className="own-card__collapse-btn"
-            onClick={() => setExpanded(v => !v)}
-            aria-label={expanded ? t('game.card.collapse') : t('game.card.expand')}
-            aria-expanded={expanded}
-          >
-            {expanded ? '▾' : '▴'}
-          </button>
-        </div>
-        {expanded && (
+            <span className="section-label" style={{ marginBottom: 0 }}>Your cards</span>
+          </div>
           <div className="own-card__attrs">
             {roomState.scenario.cardCategories.map(cat => {
               const card = myCards[cat.id] ?? null
@@ -68,52 +68,56 @@ export function PlayerHand() {
               if (cat.id === 'special_action') {
                 return (
                   <div key={cat.id} className="own-card__attr">
-                    <span className="own-card__attr-label">{CARD_ICON_MAP[cat.id] ? <img src={CARD_ICON_MAP[cat.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : cat.icon} {cat.name[lang]}</span>
+                    <div className="own-card__attr-top">
+                      <span className="own-card__attr-label">{CARD_ICON_MAP[cat.id] ? <img src={CARD_ICON_MAP[cat.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : cat.icon} {cat.name[lang]}</span>
+                      {isRevealed ? (
+                        <span className="pill pill--accent">{t('special_action.used')}</span>
+                      ) : (
+                        <button
+                          className="special-action-use-btn"
+                          onClick={handleUseSpecialAction}
+                        >
+                          {t('special_action.use')}
+                        </button>
+                      )}
+                    </div>
                     <span
                       className="own-card__attr-val"
                       title={card ? card.description[lang] : ''}
                     >
                       {card ? card.label[lang] : '—'}
                     </span>
-                    {isRevealed ? (
-                      <span className="pill pill--accent">{t('special_action.used')}</span>
-                    ) : (
-                      <button
-                        className="special-action-use-btn"
-                        onClick={handleUseSpecialAction}
-                      >
-                        {t('special_action.use')}
-                      </button>
-                    )}
                   </div>
                 )
               }
 
               return (
                 <div key={cat.id} className="own-card__attr">
-                  <span className="own-card__attr-label">{CARD_ICON_MAP[cat.id] ? <img src={CARD_ICON_MAP[cat.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : cat.icon} {cat.name[lang]}</span>
-                  <span className="own-card__attr-val">{card ? card.label[lang] : '—'}</span>
-                  {!isRevealed ? (
-                    allowFreeChoiceReveal ? (
-                      <button
-                        className={`own-card__reveal-btn${isMyTurn ? ' own-card__reveal-btn--active' : ''}`}
-                        onClick={() => isMyTurn && revealCard(cat.id)}
-                        disabled={!isMyTurn}
-                        title={isMyTurn ? '' : 'Not your turn'}
-                      >
-                        Reveal
-                      </button>
+                  <div className="own-card__attr-top">
+                    <span className="own-card__attr-label">{CARD_ICON_MAP[cat.id] ? <img src={CARD_ICON_MAP[cat.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : cat.icon} {cat.name[lang]}</span>
+                    {!isRevealed ? (
+                      allowFreeChoiceReveal ? (
+                        <button
+                          className={`own-card__reveal-btn${isMyTurn ? ' own-card__reveal-btn--active' : ''}`}
+                          onClick={() => isMyTurn && revealCard(cat.id)}
+                          disabled={!isMyTurn}
+                          title={isMyTurn ? '' : 'Not your turn'}
+                        >
+                          Reveal
+                        </button>
+                      ) : (
+                        <span className="pill pill--neutral">{t('game.hidden')}</span>
+                      )
                     ) : (
-                      <span className="pill pill--neutral">{t('game.hidden')}</span>
-                    )
-                  ) : (
-                    <span className="pill pill--accent">Public</span>
-                  )}
+                      <span className="pill pill--accent">Public</span>
+                    )}
+                  </div>
+                  <span className="own-card__attr-val">{card ? card.label[lang] : '—'}</span>
                 </div>
               )
             })}
           </div>
-        )}
+        </div>
       </div>
 
       {pendingAbilityTarget && (

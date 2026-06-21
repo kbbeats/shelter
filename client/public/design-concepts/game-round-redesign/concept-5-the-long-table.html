@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Concept 5 — The Long Table (Premium Tabletop)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+
+:root{
+  --bg:#0F172A;
+  --felt:#10241A;
+  --felt-2:#142C1F;
+  --card:#FBF6EC;
+  --card-text:#2A2113;
+  --gold:#D9A441;
+  --gold-deep:#B9842A;
+  --text:#F3EFE3;
+  --text-dim:#9CA89F;
+  --danger:#B3503B;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+
+body{
+  background-image:
+    radial-gradient(circle at 50% 0%, var(--felt-2), var(--felt) 60%, #081109 100%);
+}
+
+.layout{ min-height:100vh; display:flex; flex-direction:column; }
+
+/* ── TOP BAR ─────────────────────────────────── */
+.topbar{
+  display:flex; align-items:center; gap:22px; padding:18px 32px;
+  background:linear-gradient(180deg, rgba(0,0,0,0.25), transparent);
+  border-bottom:1px solid rgba(217,164,65,0.25);
+}
+.topbar__round{ font-family:'Calistoga',serif; font-size:1.3rem; color:var(--gold); }
+.topbar__round span{ color:var(--text); font-family:'Inter',sans-serif; font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; display:block; margin-top:2px; }
+.topbar__speaker{ flex:1; font-size:1rem; }
+.topbar__speaker b{ color:var(--gold); font-weight:700; }
+.topbar__hint{ font-size:0.74rem; color:var(--text-dim); font-style:italic; }
+.btn{ font-family:'Inter',sans-serif; font-weight:700; font-size:0.78rem; padding:11px 24px; border-radius:20px; border:1px solid var(--gold); color:var(--gold); background:rgba(217,164,65,0.08); }
+
+/* ── MAIN: table of cards ───────────────────── */
+.table-area{ flex:1; display:flex; gap:28px; padding:28px 32px 240px; }
+.felt-zone{ flex:1; }
+.section-label{ font-family:'Calistoga',serif; font-size:0.95rem; color:var(--gold); margin-bottom:16px; letter-spacing:0.01em; }
+
+.fan{ display:flex; flex-wrap:wrap; gap:18px 14px; }
+.playcard{
+  width:148px; height:200px; background:var(--card); color:var(--card-text);
+  border-radius:12px; border:3px solid var(--gold-deep);
+  box-shadow:0 10px 24px -8px rgba(0,0,0,0.6);
+  padding:12px; display:flex; flex-direction:column; position:relative;
+  transition:transform .2s ease;
+}
+.playcard:nth-child(2n){ transform:rotate(2deg); }
+.playcard:nth-child(3n){ transform:rotate(-1.5deg); }
+.playcard--speaking{ border-color:var(--gold); box-shadow:0 0 0 3px var(--gold), 0 16px 32px -8px rgba(217,164,65,0.5); transform:translateY(-8px) rotate(0deg) !important; z-index:2; }
+.playcard--exiled{ filter:grayscale(0.7) brightness(0.55); transform:rotate(8deg) !important; }
+.playcard__corner{ font-family:'Calistoga',serif; font-size:1.1rem; }
+.playcard__avatar{
+  width:56px; height:56px; border-radius:50%; margin:8px auto; background:linear-gradient(135deg, var(--felt-2), var(--felt)); color:var(--gold);
+  display:flex; align-items:center; justify-content:center; font-family:'Calistoga',serif; font-size:1.1rem; border:2px solid var(--gold-deep);
+}
+.playcard__name{ text-align:center; font-weight:700; font-size:0.85rem; }
+.playcard__pip{
+  margin:8px auto 0; font-family:'JetBrains Mono',monospace; font-size:0.55rem; letter-spacing:0.06em; text-transform:uppercase;
+  padding:3px 9px; border-radius:10px; text-align:center; width:fit-content;
+}
+.pip--speaking{ background:var(--gold); color:#3A2A05; }
+.pip--exiled{ background:var(--danger); color:#fff; }
+.pip--next{ border:1px solid var(--gold-deep); color:var(--gold-deep); }
+.pip--done{ border:1px solid #4B7B53; color:#4B7B53; }
+.dots{ display:flex; gap:3px; justify-content:center; margin-top:auto; padding-top:8px; }
+.dot{ width:6px; height:6px; border-radius:50%; background:rgba(42,33,19,0.18); }
+.dot--on{ background:var(--gold-deep); }
+
+/* ── SIDEBAR: wooden scoreboard ──────────────── */
+.scoreboard{
+  width:230px; background:linear-gradient(180deg, #2A1D10, #1C130A); border:4px solid var(--gold-deep); border-radius:8px;
+  padding:18px 16px; height:fit-content; box-shadow:0 12px 28px -10px rgba(0,0,0,0.6);
+}
+.scoreboard__title{ font-family:'Calistoga',serif; color:var(--gold); font-size:1rem; margin-bottom:14px; text-align:center; border-bottom:1px solid rgba(217,164,65,0.3); padding-bottom:10px; }
+.score-row{ display:flex; align-items:center; gap:10px; padding:7px 0; font-size:0.85rem; color:#E8DEC8; }
+.score-row__avatar{ width:26px; height:26px; border-radius:50%; background:#3A2A14; display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; color:var(--gold); flex-shrink:0; }
+.score-row--speaking{ color:var(--gold); font-weight:700; }
+.score-row--exiled{ opacity:0.4; text-decoration:line-through; }
+
+/* ── BOTTOM: hand of cards ───────────────────── */
+.hand-zone{
+  position:fixed; left:0; right:0; bottom:0; z-index:10; padding:18px 32px 22px;
+  background:linear-gradient(180deg, transparent, rgba(0,0,0,0.55) 30%, rgba(0,0,0,0.7));
+}
+.hand-zone__label{ font-family:'Calistoga',serif; color:var(--gold); font-size:0.95rem; margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+.hand-zone__label .name{ color:var(--text); font-family:'Inter',sans-serif; font-weight:700; font-size:0.9rem; }
+.hand{ display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+.chip{
+  flex-shrink:0; width:140px; background:var(--card); color:var(--card-text); border-radius:10px; border:2px solid var(--gold-deep);
+  padding:10px 12px; box-shadow:0 8px 18px -6px rgba(0,0,0,0.5);
+}
+.chip__label{ font-size:0.6rem; letter-spacing:0.06em; text-transform:uppercase; color:#6B5A3A; margin-bottom:4px; }
+.chip__val{ font-size:0.78rem; font-weight:600; min-height:2.2em; }
+.chip__pip{ font-family:'JetBrains Mono',monospace; font-size:0.55rem; text-transform:uppercase; letter-spacing:0.04em; margin-top:8px; padding:3px 0; text-align:center; border-radius:8px; }
+.chip__pip--public{ background:#E4EFE3; color:#2E5234; }
+.chip__pip--reveal{ background:#EFE7D6; color:#8A6E3A; border:1px dashed var(--gold-deep); }
+.chip__pip--use{ background:var(--gold); color:#3A2A05; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <div class="topbar">
+    <div class="topbar__round">III<span>Round</span></div>
+    <div class="topbar__speaker"><b>Dmitri Volkov</b> is making their case at the table</div>
+    <div class="topbar__hint">the table waits…</div>
+    <button class="btn" disabled>Done Arguing</button>
+  </div>
+
+  <div class="table-area">
+    <div class="felt-zone">
+      <div class="section-label">Seated at the Table</div>
+      <div class="fan">
+        <div class="playcard playcard--speaking">
+          <div class="playcard__corner">D</div>
+          <div class="playcard__avatar">DV</div>
+          <div class="playcard__name">Dmitri Volkov</div>
+          <div class="playcard__pip pip--speaking" style="margin:6px auto 0;">Speaking</div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="playcard playcard--exiled">
+          <div class="playcard__corner">A</div>
+          <div class="playcard__avatar">AO</div>
+          <div class="playcard__name">Aisha Okafor</div>
+          <div class="playcard__pip pip--exiled" style="margin:6px auto 0;">Exiled</div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot dot--on"></span></div>
+        </div>
+        <div class="playcard">
+          <div class="playcard__corner">M</div>
+          <div class="playcard__avatar">MC</div>
+          <div class="playcard__name">Marcus Chen</div>
+          <div class="playcard__pip pip--done" style="margin:6px auto 0;">✓ Done</div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="playcard">
+          <div class="playcard__corner">S</div>
+          <div class="playcard__avatar">SM</div>
+          <div class="playcard__name">Sarah Mbeki</div>
+          <div class="playcard__pip pip--next" style="margin:6px auto 0;">Next</div>
+          <div class="dots"><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="playcard">
+          <div class="playcard__corner">T</div>
+          <div class="playcard__avatar">TR</div>
+          <div class="playcard__name">Tomás Rivera</div>
+          <div class="dots" style="margin-top:18px;"><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="playcard">
+          <div class="playcard__corner">Y</div>
+          <div class="playcard__avatar">YT</div>
+          <div class="playcard__name">Yuki Tanaka</div>
+          <div class="dots" style="margin-top:18px;"><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+        <div class="playcard">
+          <div class="playcard__corner">E</div>
+          <div class="playcard__avatar">EK</div>
+          <div class="playcard__name">Elena Kowalski</div>
+          <div class="dots" style="margin-top:18px;"><span class="dot dot--on"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scoreboard">
+      <div class="scoreboard__title">The Table</div>
+      <div class="score-row score-row--speaking"><span class="score-row__avatar">DV</span>Dmitri Volkov</div>
+      <div class="score-row score-row--exiled"><span class="score-row__avatar">AO</span>Aisha Okafor</div>
+      <div class="score-row"><span class="score-row__avatar">MC</span>Marcus Chen</div>
+      <div class="score-row"><span class="score-row__avatar">SM</span>Sarah Mbeki</div>
+      <div class="score-row"><span class="score-row__avatar">TR</span>Tomás Rivera</div>
+      <div class="score-row"><span class="score-row__avatar">YT</span>Yuki Tanaka</div>
+      <div class="score-row"><span class="score-row__avatar">EK</span>Elena Kowalski</div>
+      <div class="score-row" style="color:var(--gold); font-weight:700;"><span class="score-row__avatar">JR</span>Jordan Reyes (You)</div>
+    </div>
+  </div>
+
+  <div class="hand-zone">
+    <div class="hand-zone__label">Your Hand — <span class="name">Jordan Reyes</span></div>
+    <div class="hand">
+      <div class="chip"><div class="chip__label">Biology</div><div class="chip__val">29, Female</div><div class="chip__pip chip__pip--public">Public</div></div>
+      <div class="chip"><div class="chip__label">Occupation</div><div class="chip__val">Structural Engineer</div><div class="chip__pip chip__pip--public">Public</div></div>
+      <div class="chip"><div class="chip__label">Baggage</div><div class="chip__val">Water purification kit</div><div class="chip__pip chip__pip--reveal">Reveal</div></div>
+      <div class="chip"><div class="chip__label">Hobby</div><div class="chip__val">Amateur radio operator</div><div class="chip__pip chip__pip--reveal">Reveal</div></div>
+      <div class="chip"><div class="chip__label">Fun Fact #1</div><div class="chip__val">Talks in their sleep</div><div class="chip__pip chip__pip--reveal">Reveal</div></div>
+      <div class="chip"><div class="chip__label">Fun Fact #2</div><div class="chip__val">Bisexual, recently came out</div><div class="chip__pip chip__pip--public">Public</div></div>
+      <div class="chip"><div class="chip__label">Phobia</div><div class="chip__val">Confined spaces</div><div class="chip__pip chip__pip--reveal">Reveal</div></div>
+      <div class="chip"><div class="chip__label">Health</div><div class="chip__val">Mild asthma</div><div class="chip__pip chip__pip--reveal">Reveal</div></div>
+      <div class="chip"><div class="chip__label">Special</div><div class="chip__val">Swap Health Cards</div><div class="chip__pip chip__pip--use">Use</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

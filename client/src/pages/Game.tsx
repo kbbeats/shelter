@@ -7,7 +7,6 @@ import { VotingPanel } from '../components/game/VotingPanel'
 import { ExileReveal } from '../components/game/ExileReveal'
 import { BunkerEventReveal } from '../components/game/BunkerEventReveal'
 import { PlayerHand } from '../components/game/PlayerHand'
-import { SurvivorBoard } from '../components/game/SurvivorBoard'
 import { PlayerCard } from '../components/game/PlayerCard'
 import { PlayerDetailDrawer } from '../components/game/PlayerDetailDrawer'
 import { AbilityAnnouncement } from '../components/game/AbilityAnnouncement'
@@ -31,6 +30,7 @@ export default function Game() {
   }, [roomState, navigate])
 
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null)
+  const [handCollapsed, setHandCollapsed] = useState(false)
 
   const prevPhaseRef = useRef<string | null>(null)
   const storyShownRef = useRef(false)
@@ -82,14 +82,19 @@ export default function Game() {
   }
 
   return (
-    <div className="game-layout">
-      {/* Main area */}
+    <div className={`game-layout${handCollapsed ? ' game-layout--collapsed' : ''}`}>
+      {/* My hand — left sidebar column */}
+      <div className="game-layout__hand">
+        <PlayerHand collapsed={handCollapsed} onToggleCollapsed={() => setHandCollapsed(v => !v)} />
+      </div>
+
+      {/* Main area — status bar + opponent roster */}
       <div className="game-layout__main">
         {(phase === 'ROUND_ARGUMENT') && <ArgumentPhase />}
         {(phase === 'ROUND_VOTING') && <VotingPanel />}
 
         {/* Other players' cards */}
-        <div className="player-cards-grid" style={{ marginTop: 16 }}>
+        <div className="player-cards-grid">
           {otherPlayers.map(player => {
             const argIdx = argumentOrder.indexOf(player.id)
             const isDone = argIdx !== -1 && argIdx < currentArgumentIndex
@@ -108,16 +113,6 @@ export default function Game() {
             )
           })}
         </div>
-      </div>
-
-      {/* Sidebar */}
-      <div className="game-layout__sidebar">
-        <SurvivorBoard />
-      </div>
-
-      {/* My hand */}
-      <div className="game-layout__hand">
-        <PlayerHand />
       </div>
 
       <AbilityAnnouncement />

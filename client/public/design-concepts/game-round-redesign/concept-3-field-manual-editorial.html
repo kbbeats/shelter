@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Concept 3 — Field Manual (Swiss Editorial Grid)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --bg:#121214;
+  --surface:#181819;
+  --line:#2C2C2F;
+  --text:#F2F2F0;
+  --text-dim:#8A8A8E;
+  --accent:#EC4899;
+  --mono: 'Inter', sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:15px;}
+
+.grid12{ display:grid; grid-template-columns:repeat(12, 1fr); }
+
+/* ── TOP BAR ─────────────────────────────────── */
+.topbar{
+  grid-column:1/13; display:grid; grid-template-columns:repeat(12,1fr); align-items:center;
+  border-bottom:2px solid var(--text); padding:22px 0; margin:0 28px;
+}
+.topbar__round{ grid-column:1/3; font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); }
+.topbar__round b{ display:block; font-size:1.8rem; font-weight:800; color:var(--text); letter-spacing:0; margin-top:2px; }
+.topbar__speaker{ grid-column:3/10; font-size:1rem; padding-left:24px; border-left:1px solid var(--line); }
+.topbar__speaker b{ font-weight:700; }
+.topbar__speaker small{ display:block; color:var(--text-dim); font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; margin-top:4px; }
+.topbar__action{ grid-column:10/13; text-align:right; }
+.btn{ font-family:'Inter',sans-serif; font-weight:700; font-size:0.78rem; letter-spacing:0.04em; padding:13px 22px; background:transparent; color:var(--text-dim); border:1.5px solid var(--line); }
+
+/* ── MAIN GRID ───────────────────────────────── */
+.main{ margin:0 28px; padding:28px 0 260px; }
+.section-label{ font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--text-dim); margin-bottom:16px; display:flex; justify-content:space-between; }
+
+.roster{ display:grid; grid-template-columns:repeat(12, 1fr); gap:0; border-top:1px solid var(--line); }
+.cell{
+  grid-column:span 3;
+  border-bottom:1px solid var(--line); border-right:1px solid var(--line);
+  padding:18px 18px 16px;
+}
+.cell:nth-child(4n){ border-right:none; }
+.cell__index{ font-size:0.66rem; color:var(--text-dim); margin-bottom:10px; }
+.cell__name{ font-size:1.05rem; font-weight:600; margin-bottom:4px; }
+.cell__status{ font-size:0.66rem; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; }
+.cell--speaking{ background:var(--surface); }
+.cell--speaking .cell__name{ font-weight:800; }
+.cell--speaking .cell__status{ color:var(--accent); }
+.cell--exiled .cell__name{ text-decoration:line-through; color:var(--text-dim); font-weight:400; }
+.cell--exiled .cell__status{ color:var(--text-dim); }
+.cell--done .cell__status{ color:#7DAE85; }
+.cell--next .cell__status{ color:var(--text); }
+.cell__bar{ display:flex; gap:2px; margin-top:12px; height:3px; }
+.seg{ flex:1; background:var(--line); }
+.seg--on{ background:var(--text); }
+.cell--speaking .seg--on{ background:var(--accent); }
+
+/* ── BOTTOM: own card data table ─────────────── */
+.owntable{
+  position:fixed; left:0; right:0; bottom:0; z-index:10;
+  background:var(--surface); border-top:2px solid var(--text);
+  padding:18px 28px 22px;
+}
+.owntable__head{ display:flex; align-items:baseline; gap:16px; margin-bottom:12px; }
+.owntable__head b{ font-size:1.1rem; font-weight:800; }
+.owntable__head span{ font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); }
+table{ width:100%; border-collapse:collapse; }
+td{ padding:8px 14px 8px 0; border-top:1px solid var(--line); font-size:0.86rem; vertical-align:middle; }
+.col-label{ width:140px; font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim); }
+.col-status{ width:90px; text-align:right; font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; font-weight:700; }
+.status--public{ color:#7DAE85; }
+.status--hidden{ color:var(--text-dim); }
+.status--use{ color:var(--accent); cursor:pointer; }
+tr:first-child td{ border-top:none; }
+.tcol{ display:grid; grid-template-columns:1fr 1fr 1fr; }
+</style>
+</head>
+<body>
+<div class="grid12">
+
+  <div class="topbar">
+    <div class="topbar__round">Round<b>03</b></div>
+    <div class="topbar__speaker"><b>Dmitri Volkov</b> is arguing<small>Awaiting completion</small></div>
+    <div class="topbar__action"><button class="btn" disabled>Done Arguing</button></div>
+  </div>
+
+  <div class="main">
+    <div class="section-label"><span>Survivors</span><span>07 Remaining / 08 Total</span></div>
+    <div class="roster">
+      <div class="cell cell--speaking">
+        <div class="cell__index">01</div>
+        <div class="cell__name">Dmitri Volkov</div>
+        <div class="cell__status">— Speaking</div>
+        <div class="cell__bar"><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
+      </div>
+      <div class="cell cell--exiled">
+        <div class="cell__index">02</div>
+        <div class="cell__name">Aisha Okafor</div>
+        <div class="cell__status">Exiled — Round 2</div>
+        <div class="cell__bar"><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg seg--on"></span></div>
+      </div>
+      <div class="cell cell--done">
+        <div class="cell__index">03</div>
+        <div class="cell__name">Marcus Chen</div>
+        <div class="cell__status">✓ Argued</div>
+        <div class="cell__bar"><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
+      </div>
+      <div class="cell cell--next">
+        <div class="cell__index">04</div>
+        <div class="cell__name">Sarah Mbeki</div>
+        <div class="cell__status">Up Next</div>
+        <div class="cell__bar"><span class="seg seg--on"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
+      </div>
+      <div class="cell">
+        <div class="cell__index">05</div>
+        <div class="cell__name">Tomás Rivera</div>
+        <div class="cell__status">Waiting</div>
+        <div class="cell__bar"><span class="seg seg--on"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
+      </div>
+      <div class="cell">
+        <div class="cell__index">06</div>
+        <div class="cell__name">Yuki Tanaka</div>
+        <div class="cell__status">Waiting</div>
+        <div class="cell__bar"><span class="seg seg--on"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
+      </div>
+      <div class="cell">
+        <div class="cell__index">07</div>
+        <div class="cell__name">Elena Kowalski</div>
+        <div class="cell__status">Waiting</div>
+        <div class="cell__bar"><span class="seg seg--on"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
+      </div>
+      <div class="cell">
+        <div class="cell__index">08</div>
+        <div class="cell__name">Jordan Reyes</div>
+        <div class="cell__status">You</div>
+        <div class="cell__bar"><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg seg--on"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="owntable">
+    <div class="owntable__head"><b>Jordan Reyes</b><span>Your Cards — 9 Categories</span></div>
+    <div class="tcol">
+      <table>
+        <tr><td class="col-label">Biology</td><td>29, Female</td><td class="col-status status--public">Public</td></tr>
+        <tr><td class="col-label">Occupation</td><td>Structural Engineer</td><td class="col-status status--public">Public</td></tr>
+        <tr><td class="col-label">Baggage</td><td>—</td><td class="col-status status--hidden">Reveal</td></tr>
+      </table>
+      <table>
+        <tr><td class="col-label">Hobby</td><td>—</td><td class="col-status status--hidden">Reveal</td></tr>
+        <tr><td class="col-label">Fun Fact #1</td><td>—</td><td class="col-status status--hidden">Reveal</td></tr>
+        <tr><td class="col-label">Fun Fact #2</td><td>Bisexual, recently came out</td><td class="col-status status--public">Public</td></tr>
+      </table>
+      <table>
+        <tr><td class="col-label">Phobia</td><td>—</td><td class="col-status status--hidden">Reveal</td></tr>
+        <tr><td class="col-label">Health</td><td>—</td><td class="col-status status--hidden">Reveal</td></tr>
+        <tr><td class="col-label">Special</td><td>Swap Health Cards</td><td class="col-status status--use">Use →</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

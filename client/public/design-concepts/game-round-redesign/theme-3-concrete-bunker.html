@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Theme 3 — Concrete Bunker (Brutalist Industrial)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root{
+  --bg:#1C1C1A;
+  --surface:#26261F;
+  --line:#45443C;
+  --green:#E8B339;
+  --green-dim:#9A7E33;
+  --text:#E5E2D6;
+  --text-dim:#8C887A;
+  --red:#A33B20;
+  --amber:#C9A227;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;font-size:14px;}
+
+/* raw poured-concrete grain */
+body{
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.025) 0, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,0.02) 0, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(0,0,0,0.18) 0, transparent 3px);
+  background-size:5px 5px, 7px 7px, 9px 9px;
+}
+
+.layout{ display:grid; grid-template-columns:280px 1fr; min-height:100vh; transition:grid-template-columns 0.25s ease; }
+.layout--collapsed{ grid-template-columns:36px 1fr; }
+
+/* ── LEFT: own card "loadout" panel — different anchor point ── */
+.loadout{
+  position:relative; overflow:hidden;
+  border-right:3px solid var(--line); background:var(--surface);
+  padding:20px 18px; display:flex; flex-direction:column;
+  transition:padding 0.25s ease;
+}
+.layout--collapsed .loadout{ padding-left:0; padding-right:0; }
+.loadout__toggle{
+  position:absolute; top:18px; right:-14px; width:28px; height:28px; border-radius:2px; z-index:5;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Oswald',sans-serif; font-weight:700; font-size:0.9rem; line-height:1;
+  background:var(--green); color:var(--bg); border:2px solid var(--bg); cursor:pointer;
+  transition:right 0.25s ease, background-color 0.15s ease;
+}
+.loadout__toggle:hover{ background:var(--amber); }
+.layout--collapsed .loadout__toggle{ right:4px; }
+.loadout__content{ opacity:1; transition:opacity 0.15s ease; }
+.layout--collapsed .loadout__content{ opacity:0; pointer-events:none; }
+.loadout__tag{ font-family:'Oswald',sans-serif; font-size:0.7rem; font-weight:600; color:var(--green); letter-spacing:0.14em; margin-bottom:4px; text-transform:uppercase; }
+.loadout__name{ font-family:'Oswald',sans-serif; font-size:1.4rem; font-weight:700; margin-bottom:18px; border-bottom:3px solid var(--line); padding-bottom:14px; text-transform:uppercase; letter-spacing:0.02em; }
+.loadout__name::before{ content:''; }
+.row{ display:flex; flex-direction:column; gap:3px; padding:9px 0; border-bottom:1px solid var(--line); }
+.row__top{ display:flex; justify-content:space-between; align-items:baseline; }
+.row__label{ font-size:0.64rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.08em; }
+.row__action{ font-size:0.6rem; letter-spacing:0.05em; font-weight:700; }
+.row__action--locked{ color:var(--text-dim); }
+.row__action--public{ color:var(--green); }
+.row__action--use{ color:var(--amber); font-weight:700; }
+.row__val{ font-size:0.82rem; }
+.row__val--hidden{ color:var(--text-dim); }
+.row__val--hidden::before{ content:'[ sealed ] '; letter-spacing:-0.01em; }
+
+/* ── RIGHT SIDE ─────────────────────────────── */
+.right{ display:flex; flex-direction:column; }
+
+.topbar{
+  padding:18px 28px; border-bottom:3px solid var(--line); display:flex; align-items:center; gap:20px;
+  background:var(--surface);
+}
+.topbar__round{ font-family:'Oswald',sans-serif; font-size:0.85rem; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.06em; }
+.topbar__round b{ color:var(--green); }
+.topbar__speaker{ flex:1; font-size:0.88rem; }
+.topbar__speaker .bracket{ color:var(--green); font-weight:700; }
+.topbar__hint{ font-size:0.7rem; color:var(--text-dim); }
+.btn{ font-family:'Oswald',sans-serif; font-weight:600; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; padding:10px 18px; background:transparent; color:var(--text-dim); border:2px solid var(--line); }
+
+.main{ flex:1; padding:24px 28px 28px; display:flex; flex-direction:column; gap:24px; overflow-y:auto; }
+.section-label{ font-family:'Oswald',sans-serif; font-size:0.72rem; font-weight:600; color:var(--text-dim); letter-spacing:0.12em; margin-bottom:2px; text-transform:uppercase; }
+.section-label::before{ content:''; }
+
+.roster{
+  flex:1; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  grid-auto-rows:minmax(170px,1fr); gap:18px;
+}
+.card{
+  display:flex; flex-direction:column;
+  border:2px solid var(--line); padding:22px 24px; background:var(--surface);
+  position:relative;
+}
+.card--speaking{
+  border-color:var(--green); box-shadow:0 0 0 1px var(--green);
+}
+.card--speaking::before{
+  content:''; position:absolute; top:-2px; left:-2px; right:-2px; height:6px;
+  background:repeating-linear-gradient(135deg, var(--green) 0 10px, var(--bg) 10px 20px);
+}
+.card--exiled{ opacity:0.4; filter:grayscale(0.6); }
+.card__top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+.card__name{ font-family:'Oswald',sans-serif; font-size:1.25rem; font-weight:700; text-transform:uppercase; letter-spacing:0.01em; }
+.card__name::before{ content:''; }
+.card--speaking .card__name::before{ content:''; }
+.card__bracket{ font-family:'Oswald',sans-serif; font-size:0.7rem; letter-spacing:0.04em; font-weight:600; }
+.bracket--speaking{ color:var(--green); }
+.bracket--exiled{ color:var(--red); }
+.bracket--next{ color:var(--amber); }
+.bracket--done{ color:var(--green-dim); }
+.card__bits{ display:flex; gap:5px; font-size:1rem; letter-spacing:0; color:var(--text-dim); margin-top:auto; padding-top:14px; }
+.bit--on{ color:var(--green); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- LEFT: own card -->
+  <div class="loadout">
+    <button class="loadout__toggle" id="loadoutToggle" type="button" aria-expanded="true" aria-label="Collapse operator file">«</button>
+    <div class="loadout__content">
+      <div class="loadout__tag">[ OPERATOR FILE ]</div>
+      <div class="loadout__name">Jordan Reyes</div>
+
+      <div class="row"><div class="row__top"><span class="row__label">Biology</span><span class="row__action row__action--public">PUBLIC</span></div><div class="row__val">29, Female</div></div>
+      <div class="row"><div class="row__top"><span class="row__label">Occupation</span><span class="row__action row__action--public">PUBLIC</span></div><div class="row__val">Structural Engineer</div></div>
+      <div class="row"><div class="row__top"><span class="row__label">Baggage</span><span class="row__action row__action--locked">LOCKED</span></div><div class="row__val row__val--hidden"></div></div>
+      <div class="row"><div class="row__top"><span class="row__label">Hobby</span><span class="row__action row__action--locked">LOCKED</span></div><div class="row__val row__val--hidden"></div></div>
+      <div class="row"><div class="row__top"><span class="row__label">Fun Fact #1</span><span class="row__action row__action--locked">LOCKED</span></div><div class="row__val row__val--hidden"></div></div>
+      <div class="row"><div class="row__top"><span class="row__label">Fun Fact #2</span><span class="row__action row__action--public">PUBLIC</span></div><div class="row__val">Bisexual, recently came out</div></div>
+      <div class="row"><div class="row__top"><span class="row__label">Phobia</span><span class="row__action row__action--locked">LOCKED</span></div><div class="row__val row__val--hidden"></div></div>
+      <div class="row"><div class="row__top"><span class="row__label">Health</span><span class="row__action row__action--locked">LOCKED</span></div><div class="row__val row__val--hidden"></div></div>
+      <div class="row"><div class="row__top"><span class="row__label">Special Action</span><span class="row__action row__action--use">[ USE ]</span></div><div class="row__val">Swap Health Cards</div></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="topbar">
+      <div class="topbar__round">ROUND <b>03</b></div>
+      <div class="topbar__speaker"><span class="bracket">[ARGUING]</span> Dmitri Volkov</div>
+      <div class="topbar__hint">standby...</div>
+      <button class="btn" disabled>DONE_ARGUING --confirm</button>
+    </div>
+
+    <div class="main">
+      <div class="section-label">ACTIVE ROSTER — 7 UNITS</div>
+      <div class="roster">
+        <div class="card card--speaking">
+          <div class="card__top"><span class="card__name">Dmitri Volkov</span><span class="card__bracket bracket--speaking">[SPEAKING]</span></div>
+          <div class="card__bits"><span class="bit--on">█</span><span class="bit--on">█</span><span class="bit--on">█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span></div>
+        </div>
+        <div class="card card--exiled">
+          <div class="card__top"><span class="card__name">Aisha Okafor</span><span class="card__bracket bracket--exiled">[EXILED]</span></div>
+          <div class="card__bits"><span class="bit--on">█</span><span class="bit--on">█</span><span class="bit--on">█</span><span class="bit--on">█</span><span class="bit--on">█</span><span class="bit--on">█</span><span class="bit--on">█</span><span class="bit--on">█</span><span class="bit--on">█</span></div>
+        </div>
+        <div class="card">
+          <div class="card__top"><span class="card__name">Marcus Chen</span><span class="card__bracket bracket--done">[DONE]</span></div>
+          <div class="card__bits"><span class="bit--on">█</span><span class="bit--on">█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span></div>
+        </div>
+        <div class="card">
+          <div class="card__top"><span class="card__name">Sarah Mbeki</span><span class="card__bracket bracket--next">[NEXT]</span></div>
+          <div class="card__bits"><span class="bit--on">█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span></div>
+        </div>
+        <div class="card">
+          <div class="card__top"><span class="card__name">Tomás Rivera</span><span class="card__bracket" style="color:var(--text-dim)">[WAIT]</span></div>
+          <div class="card__bits"><span class="bit--on">█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span></div>
+        </div>
+        <div class="card">
+          <div class="card__top"><span class="card__name">Yuki Tanaka</span><span class="card__bracket" style="color:var(--text-dim)">[WAIT]</span></div>
+          <div class="card__bits"><span class="bit--on">█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span></div>
+        </div>
+        <div class="card">
+          <div class="card__top"><span class="card__name">Elena Kowalski</span><span class="card__bracket" style="color:var(--text-dim)">[WAIT]</span></div>
+          <div class="card__bits"><span class="bit--on">█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span><span>█</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+  (function () {
+    var layoutEl = document.querySelector('.layout');
+    var toggleBtn = document.getElementById('loadoutToggle');
+    toggleBtn.addEventListener('click', function () {
+      var collapsed = layoutEl.classList.toggle('layout--collapsed');
+      toggleBtn.textContent = collapsed ? '»' : '«';
+      toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+      toggleBtn.setAttribute('aria-label', collapsed ? 'Expand operator file' : 'Collapse operator file');
+    });
+  })();
+</script>
+</body>
+</html>
