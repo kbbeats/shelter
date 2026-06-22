@@ -134,14 +134,18 @@
    3px-radius "Geological Emergency" look. Fredoka brings a chunky, hand-carved
    body type; the palette runs warm wood browns against deep felt green. */
 [data-theme="volcanic-winter"] {
-  --c-primary:  #A8462E;
+  /* --c-primary/--c-glow brightened (same hue, ~1.4x value) from the original
+     #A8462E/0.4 — against this theme's lit wood --c-bg (much brighter than every
+     other theme's near-black bg), the original was too low-contrast on the
+     round screen's dark scanline overlay. */
+  --c-primary:  #EB6240;
   --c-accent:   #C97758;
   --c-bg:       #2b1d12;
   --c-surface:  #3a2817;
   --c-surface2: #4a3420;
   --c-text:     #f3e0c8;
   --c-text-dim: #b89878;
-  --c-glow:     rgba(168, 70, 46, 0.4);
+  --c-glow:     rgba(235, 98, 64, 0.5);
   --c-border:   rgba(60, 40, 28, 0.5);
   --c-bg-wash:  linear-gradient(135deg, rgba(168,70,46,0.10), rgba(125,115,104,0.06));
   --radius:     16px;
@@ -2067,18 +2071,10 @@ h1, h2, h3, .display {
   overflow: hidden;
   transition: grid-template-columns 0.25s ease;
 
-  /* Amber CRT palette — scoped here so it supersedes every per-scenario
-     theme's tokens for the round screen only, without 8x per-theme edits.
+  /* CRT terminal identity — universal across scenarios. Colors are
+     intentionally NOT set here; they inherit from whichever [data-theme="x"]
+     is active so the round screen matches the active scenario's palette.
      VT323 is already loaded globally in client/index.html. */
-  --c-primary:    #FFB627;
-  --c-accent:     #FFD37A;
-  --c-bg:         #0D0904;
-  --c-surface:    #1A1206;
-  --c-surface2:   #241804;
-  --c-text:       #FFE8B8;
-  --c-text-dim:   #A8835A;
-  --c-glow:       rgba(255, 182, 39, 0.45);
-  --c-border:     #3D2C0F;
   --c-danger:     #C2410C;
   --font-display: 'VT323', monospace;
   --font-mono:    'VT323', monospace;
