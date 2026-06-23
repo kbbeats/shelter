@@ -8,7 +8,6 @@ import { ExileReveal } from '../components/game/ExileReveal'
 import { BunkerEventReveal } from '../components/game/BunkerEventReveal'
 import { PlayerHand } from '../components/game/PlayerHand'
 import { PlayerCard } from '../components/game/PlayerCard'
-import { PlayerDetailDrawer } from '../components/game/PlayerDetailDrawer'
 import { AbilityAnnouncement } from '../components/game/AbilityAnnouncement'
 import { AbilityInterruptScreen } from '../components/game/AbilityInterruptScreen'
 import { ScenarioStoryModal } from '../components/game/ScenarioStoryModal'
@@ -29,7 +28,6 @@ export default function Game() {
     if (roomState?.phase === 'GAME_ENDED') navigate(`/results/${roomState?.code}`)
   }, [roomState, navigate])
 
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null)
   const [handCollapsed, setHandCollapsed] = useState(false)
 
   const prevPhaseRef = useRef<string | null>(null)
@@ -65,7 +63,6 @@ export default function Game() {
   const { phase, scenario, players, currentArgumentPlayerId, argumentOrder, currentArgumentIndex } = roomState
   const otherPlayers = players.filter(p => p.id !== mySocketId)
   const isHost = players.find(p => p.id === mySocketId)?.isHost ?? false
-  const selectedPlayer = selectedPlayerId ? players.find(p => p.id === selectedPlayerId) ?? null : null
 
   // Fullscreen overlays take priority
   if (phase === 'CATASTROPHE_REVEAL' || phase === 'BUNKER_REVEAL') return <CatastropheReveal />
@@ -108,7 +105,6 @@ export default function Game() {
                 isHighlighted={player.id === currentArgumentPlayerId}
                 isDone={isDone}
                 isSpeakingNext={isSpeakingNext}
-                onClick={() => setSelectedPlayerId(player.id)}
               />
             )
           })}
@@ -116,13 +112,6 @@ export default function Game() {
       </div>
 
       <AbilityAnnouncement />
-
-      <PlayerDetailDrawer
-        player={selectedPlayer}
-        categories={scenario.cardCategories}
-        lang={lang}
-        onClose={() => setSelectedPlayerId(null)}
-      />
 
       {showStory && (
         <ScenarioStoryModal

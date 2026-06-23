@@ -2127,6 +2127,14 @@ h1, h2, h3, .display {
   }
   .game-layout__main { grid-column: 1; }
   .game-layout--collapsed .game-layout__hand { max-height: 48px; padding: 8px 18px; }
+  .game-layout__hand .own-card .own-card__collapse-btn {
+    top: 8px;
+    left: 8px;
+    right: auto;
+    width: 30px;
+    height: 30px;
+  }
+  .game-layout--collapsed .game-layout__hand .own-card .own-card__collapse-btn { left: 8px; right: auto; }
 }
 
 /* ── Argument Phase ───────────────────────────────────────────────────────── */
@@ -2210,16 +2218,15 @@ h1, h2, h3, .display {
   flex: 1;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  grid-auto-rows: minmax(170px, 1fr);
+  grid-auto-rows: auto;
   gap: 18px;
 }
 .players-list { display: flex; flex-direction: column; gap: 12px; }
 
 /* ── ID Card (opponent view) ──────────────────────────────────────────────────
    Bracket-status terminal unit card: name + [SPEAKING]/[EXILED]/[DONE]/[NEXT]/
-   [WAIT] status tag, with a revealed-attribute "bits" row anchored to the
-   bottom of the card. Clicking still opens PlayerDetailDrawer for the full
-   attribute list — this card itself only shows name, status, and reveal bits.
+   [WAIT] status tag, plus the full attribute list inline (reuses
+   .player-drawer__attr* — see below). Not interactive, no click target.
 ── */
 
 .id-card {
@@ -2230,23 +2237,19 @@ h1, h2, h3, .display {
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
   padding: 22px 24px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-  cursor: pointer;
-  user-select: none;
-}
-.id-card:hover {
-  transform: translateY(-2px);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .id-card--highlighted {
   border-color: var(--c-primary);
   box-shadow: 0 0 0 1px var(--c-primary), 0 0 18px var(--c-glow);
   z-index: 1;
 }
-.id-card--highlighted:hover {
-  transform: translateY(-2px);
-}
 .id-card--exiled {
   opacity: 0.45;
+}
+.id-card .player-drawer__attrs {
+  padding: 0;
+  margin-top: 4px;
 }
 .id-card__header {
   display: flex;
@@ -2284,20 +2287,6 @@ h1, h2, h3, .display {
 .id-card__status--next     { color: var(--c-accent); }
 .id-card__status--done     { color: var(--c-text-dim); }
 .id-card__status--wait     { color: var(--c-text-dim); }
-.id-card__dots {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  flex-shrink: 0;
-  margin-top: auto;
-  padding-top: 14px;
-  font-size: 1rem;
-  line-height: 1;
-  color: var(--c-text-dim);
-}
-.id-card__dot--revealed {
-  color: var(--c-primary);
-}
 
 /* ── Own Card (my card panel) ─────────────────────────────────────────────── */
 
@@ -2458,12 +2447,15 @@ h1, h2, h3, .display {
   border: 1px solid var(--c-primary);
   box-shadow: 0 0 6px var(--c-glow);
   font-size: 1.1rem;
-  transition: right 0.25s ease, background-color 0.15s ease;
+  transition: right 0.25s ease, background-color 0.15s ease, transform 0.1s ease;
 }
 .game-layout__hand .own-card__collapse-btn:hover {
   background: var(--c-primary);
   color: var(--c-bg);
   border-color: var(--c-primary);
+}
+.game-layout__hand .own-card__collapse-btn:active {
+  transform: scale(0.85);
 }
 .game-layout--collapsed .game-layout__hand .own-card__collapse-btn { right: 5px; }
 .game-layout__hand .own-card__content {

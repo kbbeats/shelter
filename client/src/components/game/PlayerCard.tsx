@@ -1,5 +1,6 @@
 import type { PublicPlayer, CardCategory } from '@shelter/shared'
 import { useT } from '../../i18n'
+import { CARD_ICON_MAP } from '../../assets/card-icons'
 
 interface Props {
   player: PublicPlayer
@@ -8,12 +9,11 @@ interface Props {
   isHighlighted?: boolean
   isDone?: boolean
   isSpeakingNext?: boolean
-  onClick?: () => void
 }
 
 type Status = 'speaking' | 'exiled' | 'done' | 'next' | 'wait'
 
-export function PlayerCard({ player, categories, lang, isHighlighted, isDone, isSpeakingNext, onClick }: Props) {
+export function PlayerCard({ player, categories, lang, isHighlighted, isDone, isSpeakingNext }: Props) {
   const t = useT()
 
   const status: Status =
@@ -38,24 +38,25 @@ export function PlayerCard({ player, categories, lang, isHighlighted, isDone, is
         isHighlighted ? 'id-card--highlighted' : '',
         !player.isAlive ? 'id-card--exiled' : '',
       ].filter(Boolean).join(' ')}
-      onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick?.() }}
     >
       <div className="id-card__header">
         <span className="id-card__name">{player.name}</span>
         <span className={`id-card__status id-card__status--${status}`}>[{statusLabel[status]}]</span>
       </div>
-      <div className="id-card__dots" aria-hidden="true">
+      <div className="player-drawer__attrs">
         {categories.map(cat => {
-          const isRevealed = player.maskedCards[cat.id]?.isRevealed ?? false
+          const masked = player.maskedCards[cat.id]
+          const isRevealed = masked?.isRevealed ?? false
+          const value = isRevealed && masked?.card ? masked.card.label[lang] : null
           return (
-            <span
-              key={cat.id}
-              className={`id-card__dot${isRevealed ? ' id-card__dot--revealed' : ''}`}
-              title={cat.name[lang]}
-            >█</span>
+            <div key={cat.id} className="player-drawer__attr">
+              <span className="player-drawer__attr-label">{CARD_ICON_MAP[cat.id] ? <img src={CARD_ICON_MAP[cat.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : cat.icon} {cat.name[lang]}</span>
+              {isRevealed ? (
+                <span className="player-drawer__attr-val">{value}</span>
+              ) : (
+                <span className="pill pill--neutral">{t('game.hidden')}</span>
+              )}
+            </div>
           )
         })}
       </div>
