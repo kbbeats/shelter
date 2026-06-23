@@ -2974,7 +2974,18 @@ h1, h2, h3, .display {
 
 .dealing-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 16px; }
 .dealing-screen__title { font-family: var(--font-display); font-size: 2rem; color: var(--c-primary); letter-spacing: 0.1em; animation: glow-pulse 1.5s ease infinite; }
-.spinner { width: 40px; height: 40px; border: 3px solid var(--c-border); border-top-color: var(--c-primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.dot-loader { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.dot-loader span {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--c-primary);
+  animation: dot-loader-pulse 1s ease-in-out infinite;
+}
+.dot-loader span:nth-child(2) { animation-delay: 0.2s; }
+.dot-loader span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-loader-pulse {
+  0%, 100% { transform: translateX(0) scale(1); opacity: 0.5; }
+  50% { transform: translateX(10px) scale(1.2); opacity: 1; }
+}
 
 /* ── Special Action USE button ────────────────────────────────────────────── */
 

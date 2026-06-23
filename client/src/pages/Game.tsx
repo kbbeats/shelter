@@ -54,7 +54,11 @@ export default function Game() {
   if (!roomState || !roomState.scenario) {
     return (
       <div className="dealing-screen">
-        <div className="spinner" />
+        <div className="dot-loader">
+          <span />
+          <span />
+          <span />
+        </div>
         <div className="dealing-screen__title">{t('game.dealing.title')}</div>
       </div>
     )
@@ -72,7 +76,11 @@ export default function Game() {
   if (phase === 'DEALING') {
     return (
       <div className="dealing-screen">
-        <div className="spinner" />
+        <div className="dot-loader">
+          <span />
+          <span />
+          <span />
+        </div>
         <div className="dealing-screen__title">{t('game.dealing.title')}</div>
       </div>
     )
