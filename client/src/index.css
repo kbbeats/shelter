@@ -2120,13 +2120,26 @@ h1, h2, h3, .display {
   .game-layout { grid-template-columns: 1fr; }
   .game-layout__hand {
     grid-column: 1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 60;
+    width: 100vw;
+    height: 100dvh;
     border-right: none;
-    border-bottom: 1px solid var(--c-border);
-    max-height: 70vh;
+    border-bottom: none;
     overflow-y: auto;
+    transition: width 0.3s ease, height 0.3s ease;
   }
   .game-layout__main { grid-column: 1; }
-  .game-layout--collapsed .game-layout__hand { max-height: 48px; padding: 8px 18px; }
+  .game-layout--collapsed .game-layout__hand {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius);
+  }
   .game-layout__hand .own-card .own-card__collapse-btn {
     top: 8px;
     left: 8px;
