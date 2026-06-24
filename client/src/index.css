@@ -2145,17 +2145,19 @@ h1, h2, h3, .display {
     left: 8px;
     right: auto;
     width: auto;
-    height: 30px;
-    padding: 0 10px;
-    border-radius: 999px;
-    background: var(--c-surface2);
+    height: auto;
+    padding: 6px 8px;
+    border-radius: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.75rem;
   }
   .game-layout--collapsed .game-layout__hand .own-card .own-card__collapse-btn { left: 8px; right: auto; }
-  .game-layout__hand .own-card .own-card__collapse-label {
-    display: inline;
-    margin-left: 4px;
-    font-size: 0.65rem;
-    letter-spacing: 0.04em;
+  .game-layout__hand .own-card .own-card__collapse-btn:active {
+    transform: scale(0.85);
   }
   .game-layout__hand .own-card .own-card__name::before { content: none; }
 }
@@ -2533,7 +2535,6 @@ h1, h2, h3, .display {
   color: var(--c-text);
   border-color: var(--c-primary);
 }
-.own-card__collapse-label { display: none; }
 
 /* Round-screen own-card panel (PlayerHand.tsx) — scoped override so the
    shared base .own-card* rules above (also used by OwnAttributesCard.tsx on

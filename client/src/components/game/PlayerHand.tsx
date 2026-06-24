@@ -54,7 +54,6 @@ export function PlayerHand({ collapsed, onToggleCollapsed }: Props) {
           aria-expanded={!collapsed}
         >
           {collapsed ? '»' : '«'}
-          <span className="own-card__collapse-label">{t('game.card.my_cards')}</span>
         </button>
         <div className="own-card__content">
           <div className="own-card__header">
