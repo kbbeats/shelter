@@ -2144,10 +2144,19 @@ h1, h2, h3, .display {
     top: 8px;
     left: 8px;
     right: auto;
-    width: 30px;
+    width: auto;
     height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--c-surface2);
   }
   .game-layout--collapsed .game-layout__hand .own-card .own-card__collapse-btn { left: 8px; right: auto; }
+  .game-layout__hand .own-card .own-card__collapse-label {
+    display: inline;
+    margin-left: 4px;
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+  }
 }
 
 /* Desktop has no way to re-expand the own card once collapsed (no other UI for it),
@@ -2286,6 +2295,31 @@ h1, h2, h3, .display {
   gap: 12px;
   margin-bottom: 10px;
 }
+.id-card__name-toggle {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: none;
+  border: none;
+  padding: 6px 8px;
+  margin: -6px -8px -6px -6px;
+  color: var(--c-text-dim);
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.1s ease;
+}
+.id-card__name-toggle:hover {
+  color: var(--c-text);
+}
+.id-card__name-toggle:active {
+  transform: scale(0.85);
+}
+.id-card--highlighted .id-card__name-toggle {
+  color: var(--c-primary);
+  animation: id-card-blink 1s step-end infinite;
+}
+@keyframes id-card-blink { 50% { opacity: 0.3; } }
 .id-card__name {
   flex: 1;
   min-width: 0;
@@ -2297,13 +2331,6 @@ h1, h2, h3, .display {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.id-card__name::before { content: '> '; color: var(--c-text-dim); }
-.id-card--highlighted .id-card__name::before {
-  content: '» ';
-  color: var(--c-primary);
-  animation: id-card-blink 1s step-end infinite;
-}
-@keyframes id-card-blink { 50% { opacity: 0.3; } }
 .id-card__status {
   flex-shrink: 0;
   font-family: var(--font-mono);
@@ -2315,30 +2342,6 @@ h1, h2, h3, .display {
 .id-card__status--next     { color: var(--c-accent); }
 .id-card__status--done     { color: var(--c-text-dim); }
 .id-card__status--wait     { color: var(--c-text-dim); }
-.id-card__collapse-btn {
-  flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--c-surface2);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius);
-  color: var(--c-text-dim);
-  font-size: 0.8rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
-}
-.id-card__collapse-btn:hover {
-  color: var(--c-text);
-  border-color: var(--c-primary);
-}
-.id-card__collapse-btn:active {
-  transform: scale(0.85);
-}
-
 /* Mobile: opponent cards become a full-screen, swipeable single-card carousel instead
    of a scrolling grid. .player-cards-carousel is the gesture surface + viewport
    (overflow hidden), .player-cards-grid becomes the horizontally-laid-out track (one
@@ -2379,12 +2382,17 @@ h1, h2, h3, .display {
   }
   .player-cards-grid__slide .id-card {
     flex: 1;
-    padding: 28px 24px;
+    padding: 32px 26px;
   }
-  .player-cards-grid__slide .id-card__name { font-size: 1.5rem; }
-  .player-cards-grid__slide .id-card__status { font-size: 0.9rem; }
-  .player-cards-grid__slide .id-card .player-drawer__attr-label { font-size: 0.8rem; }
-  .player-cards-grid__slide .id-card .player-drawer__attr-val { font-size: 1.1rem; }
+  .player-cards-grid__slide .id-card__header { margin-bottom: 18px; }
+  .player-cards-grid__slide .id-card__name { font-size: 1.75rem; }
+  .player-cards-grid__slide .id-card__name-toggle { font-size: 1.75rem; padding: 10px 12px; margin: -10px -12px -10px -8px; }
+  .player-cards-grid__slide .id-card__status { font-size: 1rem; }
+  .player-cards-grid__slide .id-card .player-drawer__attrs { flex: 1; padding: 4px 6px; justify-content: space-evenly; }
+  .player-cards-grid__slide .id-card .player-drawer__attr { padding: 16px 0; }
+  .player-cards-grid__slide .id-card .player-drawer__attr-label { font-size: 0.95rem; }
+  .player-cards-grid__slide .id-card .player-drawer__attr-val { font-size: 1.35rem; }
+  .player-cards-grid__slide .id-card .card-cat-icon { width: 24px; height: 24px; }
   .player-cards-carousel__indicator {
     display: block;
     flex-shrink: 0;
@@ -2524,6 +2532,7 @@ h1, h2, h3, .display {
   color: var(--c-text);
   border-color: var(--c-primary);
 }
+.own-card__collapse-label { display: none; }
 
 /* Round-screen own-card panel (PlayerHand.tsx) — scoped override so the
    shared base .own-card* rules above (also used by OwnAttributesCard.tsx on

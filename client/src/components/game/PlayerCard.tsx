@@ -42,16 +42,16 @@ export function PlayerCard({ player, categories, lang, isHighlighted, isDone, is
       ].filter(Boolean).join(' ')}
     >
       <div className="id-card__header">
-        <span className="id-card__name">{player.name}</span>
-        <span className={`id-card__status id-card__status--${status}`}>[{statusLabel[status]}]</span>
         <button
-          className="id-card__collapse-btn"
+          className="id-card__name-toggle"
           onClick={() => setCollapsed(v => !v)}
           aria-label={collapsed ? t('game.card.expand') : t('game.card.collapse')}
           aria-expanded={!collapsed}
         >
-          {collapsed ? '›' : '‹'}
+          {isHighlighted ? '»' : collapsed ? '›' : '‹'}
         </button>
+        <span className="id-card__name">{player.name}</span>
+        <span className={`id-card__status id-card__status--${status}`}>[{statusLabel[status]}]</span>
       </div>
       {!collapsed && (
         <div className="player-drawer__attrs">

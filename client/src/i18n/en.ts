@@ -89,6 +89,7 @@ export const en: Record<string, string> = {
   'game.hidden': 'Hidden',
   'game.card.collapse': 'Collapse card',
   'game.card.expand': 'Expand card',
+  'game.card.my_cards': 'My cards',
   'game.status.speaking': 'SPEAKING',
   'game.status.done': 'DONE',
   'game.status.wait': 'WAIT',
