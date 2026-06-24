@@ -2157,6 +2157,7 @@ h1, h2, h3, .display {
     font-size: 0.65rem;
     letter-spacing: 0.04em;
   }
+  .game-layout__hand .own-card .own-card__name::before { content: none; }
 }
 
 /* Desktop has no way to re-expand the own card once collapsed (no other UI for it),
