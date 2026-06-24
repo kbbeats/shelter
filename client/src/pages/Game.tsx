@@ -30,6 +30,11 @@ export default function Game() {
 
   const [handCollapsed, setHandCollapsed] = useState(false)
 
+  // Mobile-only swipeable single-card carousel for opponent cards (desktop keeps the grid)
+  const [carouselIndex, setCarouselIndex] = useState(0)
+  const [carouselDrag, setCarouselDrag] = useState(0)
+  const carouselTouchStartX = useRef<number | null>(null)
+
   const prevPhaseRef = useRef<string | null>(null)
   const storyShownRef = useRef(false)
   const [showStory, setShowStory] = useState(false)
@@ -68,6 +73,32 @@ export default function Game() {
   const otherPlayers = players.filter(p => p.id !== mySocketId)
   const isHost = players.find(p => p.id === mySocketId)?.isHost ?? false
 
+  // Re-clamp in case the list shrank (e.g. an exile) past the index a player had swiped to
+  const clampedCarouselIndex = Math.min(carouselIndex, Math.max(0, otherPlayers.length - 1))
+
+  const handleCarouselTouchStart = (e: React.TouchEvent) => {
+    carouselTouchStartX.current = e.touches[0].clientX
+  }
+  const handleCarouselTouchMove = (e: React.TouchEvent) => {
+    if (carouselTouchStartX.current === null) return
+    let delta = e.touches[0].clientX - carouselTouchStartX.current
+    // Rubber-band resistance past the first/last card
+    if ((clampedCarouselIndex === 0 && delta > 0) || (clampedCarouselIndex === otherPlayers.length - 1 && delta < 0)) {
+      delta *= 0.3
+    }
+    setCarouselDrag(delta)
+  }
+  const handleCarouselTouchEnd = () => {
+    const SWIPE_THRESHOLD = 50
+    if (carouselDrag <= -SWIPE_THRESHOLD && clampedCarouselIndex < otherPlayers.length - 1) {
+      setCarouselIndex(clampedCarouselIndex + 1)
+    } else if (carouselDrag >= SWIPE_THRESHOLD && clampedCarouselIndex > 0) {
+      setCarouselIndex(clampedCarouselIndex - 1)
+    }
+    carouselTouchStartX.current = null
+    setCarouselDrag(0)
+  }
+
   // Fullscreen overlays take priority
   if (phase === 'CATASTROPHE_REVEAL' || phase === 'BUNKER_REVEAL') return <CatastropheReveal />
   if (phase === 'EXILE_REVEAL') return <ExileReveal />
@@ -98,24 +129,42 @@ export default function Game() {
         {(phase === 'ROUND_ARGUMENT') && <ArgumentPhase />}
         {(phase === 'ROUND_VOTING') && <VotingPanel />}
 
-        {/* Other players' cards */}
-        <div className="player-cards-grid">
-          {otherPlayers.map(player => {
-            const argIdx = argumentOrder.indexOf(player.id)
-            const isDone = argIdx !== -1 && argIdx < currentArgumentIndex
-            const isSpeakingNext = argIdx !== -1 && argIdx === currentArgumentIndex + 1
-            return (
-              <PlayerCard
-                key={player.id}
-                player={player}
-                categories={scenario.cardCategories}
-                lang={lang}
-                isHighlighted={player.id === currentArgumentPlayerId}
-                isDone={isDone}
-                isSpeakingNext={isSpeakingNext}
-              />
-            )
-          })}
+        {/* Other players' cards — desktop: plain grid. Mobile: the same markup becomes a
+            swipeable single-card carousel via CSS only (.player-cards-carousel/__slide
+            are display:contents on desktop, so this has zero effect on the grid there). */}
+        <div
+          className="player-cards-carousel"
+          onTouchStart={handleCarouselTouchStart}
+          onTouchMove={handleCarouselTouchMove}
+          onTouchEnd={handleCarouselTouchEnd}
+        >
+          <div
+            className="player-cards-grid"
+            style={{ '--carousel-index': clampedCarouselIndex, '--carousel-drag': `${carouselDrag}px` } as React.CSSProperties}
+          >
+            {otherPlayers.map(player => {
+              const argIdx = argumentOrder.indexOf(player.id)
+              const isDone = argIdx !== -1 && argIdx < currentArgumentIndex
+              const isSpeakingNext = argIdx !== -1 && argIdx === currentArgumentIndex + 1
+              return (
+                <div className="player-cards-grid__slide" key={player.id}>
+                  <PlayerCard
+                    player={player}
+                    categories={scenario.cardCategories}
+                    lang={lang}
+                    isHighlighted={player.id === currentArgumentPlayerId}
+                    isDone={isDone}
+                    isSpeakingNext={isSpeakingNext}
+                  />
+                </div>
+              )
+            })}
+          </div>
+          {otherPlayers.length > 1 && (
+            <div className="player-cards-carousel__indicator">
+              {clampedCarouselIndex + 1} / {otherPlayers.length}
+            </div>
+          )}
         </div>
       </div>
 

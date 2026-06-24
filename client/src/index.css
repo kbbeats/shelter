@@ -2150,6 +2150,12 @@ h1, h2, h3, .display {
   .game-layout--collapsed .game-layout__hand .own-card .own-card__collapse-btn { left: 8px; right: auto; }
 }
 
+/* Desktop has no way to re-expand the own card once collapsed (no other UI for it),
+   so the toggle itself is hidden there and the card just stays permanently expanded. */
+@media (min-width: 701px) {
+  .game-layout__hand .own-card__collapse-btn { display: none; }
+}
+
 /* ── Argument Phase ───────────────────────────────────────────────────────── */
 
 .argument-phase {
@@ -2236,10 +2242,19 @@ h1, h2, h3, .display {
 }
 .players-list { display: flex; flex-direction: column; gap: 12px; }
 
+/* On desktop these two are invisible wrappers (display:contents removes them from the
+   box tree entirely, so .id-card stays a direct grid item exactly as before) — they only
+   become real layout on mobile, where they turn .player-cards-grid into a swipeable
+   single-card carousel. See the @media (max-width: 700px) block for that behavior. */
+.player-cards-carousel { display: contents; }
+.player-cards-grid__slide { display: contents; }
+.player-cards-carousel__indicator { display: none; }
+
 /* ── ID Card (opponent view) ──────────────────────────────────────────────────
    Bracket-status terminal unit card: name + [SPEAKING]/[EXILED]/[DONE]/[NEXT]/
    [WAIT] status tag, plus the full attribute list inline (reuses
-   .player-drawer__attr* — see below). Not interactive, no click target.
+   .player-drawer__attr* — see below). Each card has its own collapse toggle to
+   hide/show just its own attribute list; the card itself still isn't a click target.
 ── */
 
 .id-card {
@@ -2300,6 +2315,86 @@ h1, h2, h3, .display {
 .id-card__status--next     { color: var(--c-accent); }
 .id-card__status--done     { color: var(--c-text-dim); }
 .id-card__status--wait     { color: var(--c-text-dim); }
+.id-card__collapse-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-surface2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  color: var(--c-text-dim);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.id-card__collapse-btn:hover {
+  color: var(--c-text);
+  border-color: var(--c-primary);
+}
+.id-card__collapse-btn:active {
+  transform: scale(0.85);
+}
+
+/* Mobile: opponent cards become a full-screen, swipeable single-card carousel instead
+   of a scrolling grid. .player-cards-carousel is the gesture surface + viewport
+   (overflow hidden), .player-cards-grid becomes the horizontally-laid-out track (one
+   slide per player, normal flex flow), and .player-cards-grid__slide are the
+   individual 100%-width slides. The track is shifted via transform so the active slide
+   fills the viewport; --carousel-index/--carousel-drag are set inline from Game.tsx's
+   touch handlers and React state. This block must come after .player-cards-grid's own
+   unconditional rule above — an equal-specificity selector declared later in the file
+   wins ties regardless of being inside a media query, so a copy of this placed inside
+   the earlier @media (max-width: 700px) block (next to the own-card rules) would
+   silently lose to .player-cards-grid's own display:grid. */
+@media (max-width: 700px) {
+  .player-cards-carousel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    gap: 10px;
+    touch-action: pan-y;
+  }
+  .player-cards-grid {
+    display: flex;
+    flex: 1;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    width: 100%;
+    gap: 0;
+    transform: translateX(calc((var(--carousel-index, 0) * -100%) + var(--carousel-drag, 0px)));
+    transition: transform 0.3s ease;
+  }
+  .player-cards-grid__slide {
+    display: flex;
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+    padding: 0 4px;
+    box-sizing: border-box;
+  }
+  .player-cards-grid__slide .id-card {
+    flex: 1;
+    padding: 28px 24px;
+  }
+  .player-cards-grid__slide .id-card__name { font-size: 1.5rem; }
+  .player-cards-grid__slide .id-card__status { font-size: 0.9rem; }
+  .player-cards-grid__slide .id-card .player-drawer__attr-label { font-size: 0.8rem; }
+  .player-cards-grid__slide .id-card .player-drawer__attr-val { font-size: 1.1rem; }
+  .player-cards-carousel__indicator {
+    display: block;
+    flex-shrink: 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: var(--c-text-dim);
+  }
+}
 
 /* ── Own Card (my card panel) ─────────────────────────────────────────────── */
 
