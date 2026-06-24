@@ -2133,12 +2133,16 @@ h1, h2, h3, .display {
   }
   .game-layout__main { grid-column: 1; }
   .game-layout--collapsed .game-layout__hand {
-    width: 46px;
-    height: 46px;
+    width: 38px;
+    height: 58px;
     padding: 0;
     overflow: hidden;
     border: 1px solid var(--c-border);
     border-radius: var(--radius);
+    box-shadow:
+      3px 0 0 var(--c-surface2),
+      5px 0 0 var(--c-border),
+      7px 3px 14px rgba(0, 0, 0, 0.35);
   }
   .game-layout__hand .own-card .own-card__collapse-btn {
     top: 8px;
@@ -2146,14 +2150,15 @@ h1, h2, h3, .display {
     right: auto;
     width: auto;
     height: auto;
-    padding: 6px 8px;
+    padding: 4px 7px;
     border-radius: 0;
     background: none;
     border: none;
     box-shadow: none;
     font-family: var(--font-mono);
     font-weight: 700;
-    font-size: 1.75rem;
+    font-size: 1.4rem;
+    z-index: 6;
   }
   .game-layout--collapsed .game-layout__hand .own-card .own-card__collapse-btn { left: 8px; right: auto; }
   .game-layout__hand .own-card .own-card__collapse-btn:active {
@@ -2624,6 +2629,44 @@ h1, h2, h3, .display {
   white-space: normal;
   overflow: visible;
   text-overflow: unset;
+}
+
+/* .own-card__book wraps .own-card__content (PlayerHand.tsx) purely so the page-flip
+   transform below has something to apply to other than .own-card itself — .own-card
+   must stay transform-free, because applying a transform to it would make it a new
+   CSS containing block for its absolutely-positioned sibling .own-card__collapse-btn,
+   silently re-anchoring that button's top/left from .game-layout__hand to .own-card
+   and pulling it back into the corner where it overlaps .own-card__name. On desktop
+   (and every other screen reusing the shared .own-card markup, e.g. OwnAttributesCard
+   on BUNKER_REVEAL) this wrapper is `display: contents` — invisible to the box tree,
+   so .own-card__content stays a direct child exactly as before, same precedent as
+   .player-cards-carousel/.player-cards-grid__slide elsewhere in this file. */
+.own-card__book { display: contents; }
+
+/* Mobile-only: .own-card__book becomes a bordered, contained "book" object (reusing
+   .id-card's border/background/radius values) instead of the edge-to-edge list above,
+   with a page-flip transform between expanded and collapsed (badge) states — spine
+   accent on the left edge, hinge on that same edge. Declared in its own trailing media
+   query (not the earlier mobile block higher up this file) so these overrides win the
+   cascade tie against the unconditional .game-layout__hand .own-card* rules above —
+   an equal-specificity selector declared later in the file wins ties regardless of
+   being inside a currently-true media query, so a copy of this placed inside the
+   earlier @media (max-width: 700px) block would silently lose to the rules above. */
+@media (max-width: 700px) {
+  .game-layout__hand .own-card__book {
+    display: block;
+    border: 1px solid var(--c-border);
+    border-left: 4px solid var(--c-primary);
+    background: var(--c-surface);
+    border-radius: var(--radius);
+    padding: 24px;
+    transform: perspective(900px) rotateY(0deg);
+    transform-origin: left center;
+    transition: transform 0.5s ease;
+  }
+  .game-layout--collapsed .game-layout__hand .own-card__book {
+    transform: perspective(900px) rotateY(85deg);
+  }
 }
 
 /* Scenario-selection "your cards" preview (BUNKER_REVEAL) — wider, non-
@@ -3349,6 +3392,13 @@ h1, h2, h3, .display {
   }
   body::before { display: none; }
   .own-card { transform: none; }
+  /* Own-card mobile page-flip (see the @media (max-width: 700px) block above
+     .own-card__book): the blanket transition-duration kill
+     above already makes the flip itself instant, but it would also flatten the
+     pre-existing plain width/height collapse/expand resize on .game-layout__hand to
+     an instant snap. Re-enable just that one transition's duration so reduced-motion
+     users still get the readable resize, with no 3D flip motion. */
+  .game-layout__hand { transition-duration: 0.3s !important; }
   /* Landing: kill button lift and press transforms */
   .landing .z-btn:hover:not(:disabled),
   .landing .z-btn:active:not(:disabled) {
