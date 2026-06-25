@@ -1063,7 +1063,7 @@ h1, h2, h3, .display {
   --c-border:   rgba(244, 239, 226, 0.14);
 
   height: 100dvh;
-  overflow: hidden;
+  overflow-y: auto;
   background: var(--c-bg);
   color: var(--c-text);
   font-family: 'Space Mono', monospace;
@@ -1097,9 +1097,6 @@ h1, h2, h3, .display {
 /* ── Main layout ─────────────────────────────────────────────────────────── */
 
 .lb-main {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 22px;
@@ -1107,26 +1104,6 @@ h1, h2, h3, .display {
   max-width: 760px;
   margin: 0 auto;
   padding: 32px 28px;
-}
-
-/* The scenario picker is the only part of the Lobby that's allowed to scroll —
-   room code and player list above it, and the Start button below it, must always
-   stay in place/visible without scrolling the page. Scoped to the .lb-ticket
-   instance that actually contains .lb-scenarios (ScenarioPicker.tsx) via :has(),
-   rather than the bare .lb-ticket class — that class is shared with RoomCode.tsx
-   and PlayerList.tsx, which must stay their natural compact size, not stretch to
-   fill the remaining flex space like the picker needs to. */
-.lb-ticket:has(.lb-scenarios) {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.lb-ticket:has(.lb-scenarios) .lb-scenarios {
-  flex: 1;
-  min-width: 0;
-  overflow-y: auto;
 }
 
 /* ── Ticket panels ───────────────────────────────────────────────────────── */
@@ -1185,13 +1162,6 @@ h1, h2, h3, .display {
   flex-direction: column;
   gap: 8px;
   padding: 16px 20px;
-  /* Body/#root no longer allow page-level scroll, and the room's player count can
-     reach 16 — without a cap here, a long roster pushes the scenario picker and
-     Start button below it out of .lb-main's bounded height entirely (verified via
-     a 10-player harness: Start button's bottom exceeded the viewport without this).
-     Scrolls internally instead, same principle as the scenario picker's own scroll. */
-  max-height: 180px;
-  overflow-y: auto;
 }
 
 .lb-row {
