@@ -2133,28 +2133,14 @@ h1, h2, h3, .display {
     border-right: none;
     border-bottom: none;
     overflow-y: auto;
-    transition: width 0.3s ease, height 0.3s ease;
+    overflow-x: hidden;
   }
   .game-layout__main { grid-column: 1; }
-  .game-layout--collapsed .game-layout__hand {
-    width: 38px;
-    height: 58px;
-    padding: 0;
-    overflow: hidden;
-    border: 1px solid var(--c-border);
-    border-radius: var(--radius);
-    /* Delay the box-shrink until the 0.5s page-flip (.own-card__book, see below) is
-       almost done closing — without this, the base rule's un-delayed 0.3s width/height
-       transition finishes first and this rule's own overflow:hidden clips the
-       still-mid-flip book, reading as an abrupt cut instead of a closing motion.
-       Collapsing only — the base (expand) rule above is untouched, since growing the
-       box never clips anything regardless of timing. */
-    transition: width 0.2s ease 0.4s, height 0.2s ease 0.4s;
-    box-shadow:
-      3px 0 0 var(--c-surface2),
-      5px 0 0 var(--c-border),
-      7px 3px 14px rgba(0, 0, 0, 0.35);
-  }
+  /* The container itself no longer resizes when collapsed — .own-card__book (below)
+     slides fully off-screen instead, so all this needs to do is stop intercepting
+     taps meant for the round screen underneath. The handle button re-enables its own
+     pointer-events so it stays tappable regardless of collapsed state. */
+  .game-layout--collapsed .game-layout__hand { pointer-events: none; }
   .game-layout__hand .own-card .own-card__collapse-btn {
     top: 8px;
     left: 8px;
@@ -2170,8 +2156,8 @@ h1, h2, h3, .display {
     font-weight: 700;
     font-size: 1.4rem;
     z-index: 6;
+    pointer-events: auto;
   }
-  .game-layout--collapsed .game-layout__hand .own-card .own-card__collapse-btn { left: 8px; right: auto; }
   .game-layout__hand .own-card .own-card__collapse-btn:active {
     transform: scale(0.85);
   }
@@ -2640,7 +2626,7 @@ h1, h2, h3, .display {
   text-overflow: unset;
 }
 
-/* .own-card__book wraps .own-card__content (PlayerHand.tsx) purely so the page-flip
+/* .own-card__book wraps .own-card__content (PlayerHand.tsx) purely so the slide
    transform below has something to apply to other than .own-card itself — .own-card
    must stay transform-free, because applying a transform to it would make it a new
    CSS containing block for its absolutely-positioned sibling .own-card__collapse-btn,
@@ -2654,13 +2640,16 @@ h1, h2, h3, .display {
 
 /* Mobile-only: .own-card__book becomes a bordered, contained "book" object (reusing
    .id-card's border/background/radius values) instead of the edge-to-edge list above,
-   with a page-flip transform between expanded and collapsed (badge) states — spine
-   accent on the left edge, hinge on that same edge. Declared in its own trailing media
-   query (not the earlier mobile block higher up this file) so these overrides win the
-   cascade tie against the unconditional .game-layout__hand .own-card* rules above —
-   an equal-specificity selector declared later in the file wins ties regardless of
-   being inside a currently-true media query, so a copy of this placed inside the
-   earlier @media (max-width: 700px) block would silently lose to the rules above. */
+   sliding fully off-screen-left when collapsed instead of resizing the container —
+   a single transform transition covers both directions exactly mirrored, instead of
+   the page-flip + delayed box-shrink this replaced (two independently-timed
+   transitions on two different properties read as two separate motions, not one,
+   even when staggered). Declared in its own trailing media query (not the earlier
+   mobile block higher up this file) so these overrides win the cascade tie against
+   the unconditional .game-layout__hand .own-card* rules above — an equal-specificity
+   selector declared later in the file wins ties regardless of being inside a
+   currently-true media query, so a copy of this placed inside the earlier
+   @media (max-width: 700px) block would silently lose to the rules above. */
 @media (max-width: 700px) {
   .game-layout__hand .own-card__book {
     display: block;
@@ -2669,12 +2658,11 @@ h1, h2, h3, .display {
     background: var(--c-surface);
     border-radius: var(--radius);
     padding: 24px;
-    transform: perspective(900px) rotateY(0deg);
-    transform-origin: left center;
-    transition: transform 0.5s ease;
+    transform: translateX(0);
+    transition: transform 0.4s ease;
   }
   .game-layout--collapsed .game-layout__hand .own-card__book {
-    transform: perspective(900px) rotateY(85deg);
+    transform: translateX(calc(-100% - 24px));
   }
 }
 
@@ -3401,17 +3389,6 @@ h1, h2, h3, .display {
   }
   body::before { display: none; }
   .own-card { transform: none; }
-  /* Own-card mobile page-flip (see the @media (max-width: 700px) block above
-     .own-card__book): the blanket transition-duration kill
-     above already makes the flip itself instant, but it would also flatten the
-     pre-existing plain width/height collapse/expand resize on .game-layout__hand to
-     an instant snap. Re-enable just that one transition's duration so reduced-motion
-     users still get the readable resize, with no 3D flip motion. transition-delay is
-     also zeroed here — the collapse direction's 0.4s delay (added to let the flip
-     finish before the box clips it) exists only to wait out an animation that's
-     already instant under reduced motion, so without this it'd just be a pointless
-     0.4s pause before the resize starts. */
-  .game-layout__hand { transition-duration: 0.3s !important; transition-delay: 0s !important; }
   /* Landing: kill button lift and press transforms */
   .landing .z-btn:hover:not(:disabled),
   .landing .z-btn:active:not(:disabled) {
