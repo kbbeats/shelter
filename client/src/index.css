@@ -14,6 +14,10 @@
   --c-text-dim:   #78716C;
   --c-glow:       rgba(255, 126, 95, 0.35);
   --c-border:     #ffe0d6;
+  /* Fixed, scenario-independent — never overridden by any [data-theme] block.
+     Used only by the own-card mobile toggle glyph, which must stay legible against
+     every scenario's near-black surface regardless of that scenario's --c-primary. */
+  --c-toggle-universal: #F2EFE4;
   --font-display: 'Merriweather', serif;
   --font-mono:    'Ubuntu Mono', monospace;
   --font-sans:    'Montserrat', sans-serif;
@@ -2139,6 +2143,13 @@ h1, h2, h3, .display {
     overflow: hidden;
     border: 1px solid var(--c-border);
     border-radius: var(--radius);
+    /* Delay the box-shrink until the 0.5s page-flip (.own-card__book, see below) is
+       almost done closing — without this, the base rule's un-delayed 0.3s width/height
+       transition finishes first and this rule's own overflow:hidden clips the
+       still-mid-flip book, reading as an abrupt cut instead of a closing motion.
+       Collapsing only — the base (expand) rule above is untouched, since growing the
+       box never clips anything regardless of timing. */
+    transition: width 0.2s ease 0.4s, height 0.2s ease 0.4s;
     box-shadow:
       3px 0 0 var(--c-surface2),
       5px 0 0 var(--c-border),
@@ -2567,16 +2578,14 @@ h1, h2, h3, .display {
   border-radius: 50%;
   z-index: 5;
   background: var(--c-surface);
-  color: var(--c-primary);
+  color: var(--c-toggle-universal);
   border: 1px solid var(--c-primary);
   box-shadow: 0 0 6px var(--c-glow);
   font-size: 1.1rem;
-  transition: right 0.25s ease, background-color 0.15s ease, transform 0.1s ease;
+  transition: right 0.25s ease, opacity 0.15s ease, transform 0.1s ease;
 }
 .game-layout__hand .own-card__collapse-btn:hover {
-  background: var(--c-primary);
-  color: var(--c-bg);
-  border-color: var(--c-primary);
+  opacity: 0.75;
 }
 .game-layout__hand .own-card__collapse-btn:active {
   transform: scale(0.85);
@@ -3397,8 +3406,12 @@ h1, h2, h3, .display {
      above already makes the flip itself instant, but it would also flatten the
      pre-existing plain width/height collapse/expand resize on .game-layout__hand to
      an instant snap. Re-enable just that one transition's duration so reduced-motion
-     users still get the readable resize, with no 3D flip motion. */
-  .game-layout__hand { transition-duration: 0.3s !important; }
+     users still get the readable resize, with no 3D flip motion. transition-delay is
+     also zeroed here — the collapse direction's 0.4s delay (added to let the flip
+     finish before the box clips it) exists only to wait out an animation that's
+     already instant under reduced motion, so without this it'd just be a pointless
+     0.4s pause before the resize starts. */
+  .game-layout__hand { transition-duration: 0.3s !important; transition-delay: 0s !important; }
   /* Landing: kill button lift and press transforms */
   .landing .z-btn:hover:not(:disabled),
   .landing .z-btn:active:not(:disabled) {
