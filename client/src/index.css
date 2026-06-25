@@ -2134,13 +2134,20 @@ h1, h2, h3, .display {
     border-bottom: none;
     overflow-y: auto;
     overflow-x: hidden;
+    /* Extra top/left inset (on top of the inherited 20px/18px) so .own-card__book's
+       border + spine accent never shares a corner with the absolutely-positioned
+       handle button below — the button's position is unaffected by this, since an
+       abs-positioned descendant's offsets are measured from the containing block's
+       padding-box edge, not pushed inward by the containing block's own padding. */
+    padding-top: 60px;
+    padding-left: 60px;
   }
   .game-layout__main { grid-column: 1; }
   /* The container itself no longer resizes when collapsed — .own-card__book (below)
      slides fully off-screen instead, so all this needs to do is stop intercepting
      taps meant for the round screen underneath. The handle button re-enables its own
      pointer-events so it stays tappable regardless of collapsed state. */
-  .game-layout--collapsed .game-layout__hand { pointer-events: none; }
+  .game-layout--collapsed .game-layout__hand { pointer-events: none; background: none; }
   .game-layout__hand .own-card .own-card__collapse-btn {
     top: 8px;
     left: 8px;
@@ -2168,6 +2175,15 @@ h1, h2, h3, .display {
    so the toggle itself is hidden there and the card just stays permanently expanded. */
 @media (min-width: 701px) {
   .game-layout__hand .own-card__collapse-btn { display: none; }
+  /* Dead weight today (the button above is always display:none here regardless), but
+     scoped here on purpose: this selector has the same specificity as the mobile
+     toggle override (.game-layout__hand .own-card .own-card__collapse-btn) and was
+     declared later in the file, so left unscoped it won the cascade tie on mobile too
+     — fighting that rule's left:8px/right:auto and stretching the button across
+     most of the screen instead of staying a compact glyph. Scoping it here (where the
+     old circular badge it was written for would have lived, had it ever been
+     unhidden) removes the mobile side-effect without touching its original intent. */
+  .game-layout--collapsed .game-layout__hand .own-card__collapse-btn { right: 5px; }
 }
 
 /* ── Argument Phase ───────────────────────────────────────────────────────── */
@@ -2576,7 +2592,6 @@ h1, h2, h3, .display {
 .game-layout__hand .own-card__collapse-btn:active {
   transform: scale(0.85);
 }
-.game-layout--collapsed .game-layout__hand .own-card__collapse-btn { right: 5px; }
 .game-layout__hand .own-card__content {
   opacity: 1;
   transition: opacity 0.15s ease;
