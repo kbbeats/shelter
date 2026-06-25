@@ -197,8 +197,8 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.5;
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100dvh;
+  overflow: hidden;
   transition: background-color 0.8s ease, color 0.8s ease;
 }
 
@@ -216,7 +216,8 @@ body::before {
 #root {
   position: relative;
   z-index: 1;
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 /* Per-scenario background atmospheres */
@@ -375,7 +376,7 @@ body::before {
 /* ── Layout ───────────────────────────────────────────────────────────────── */
 
 .page {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   padding: 0 16px;
@@ -1023,6 +1024,16 @@ h1, h2, h3, .display {
   .z-foot__sub { display: none; }
 }
 
+/* Body/#root no longer allow page-level scroll (see those rules), so on short
+   viewports .landing's natural content height (header + main + footer) must
+   actually shrink to fit, not just rely on scrolling to reach the overflow. */
+@media (max-height: 700px) {
+  .z-bar { padding: 12px 28px; }
+  .z-main { padding: 22px 28px; gap: 18px; }
+  .z-stamp { margin-top: 14px; }
+  .z-foot { padding: 10px 28px; }
+}
+
 /* ── Landing reduced-motion overrides ────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1051,7 +1062,8 @@ h1, h2, h3, .display {
   --c-glow:     rgba(255, 212, 0, 0.18);
   --c-border:   rgba(244, 239, 226, 0.14);
 
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--c-bg);
   color: var(--c-text);
   font-family: 'Space Mono', monospace;
@@ -1086,6 +1098,8 @@ h1, h2, h3, .display {
 
 .lb-main {
   flex: 1;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 22px;
@@ -1093,6 +1107,26 @@ h1, h2, h3, .display {
   max-width: 760px;
   margin: 0 auto;
   padding: 32px 28px;
+}
+
+/* The scenario picker is the only part of the Lobby that's allowed to scroll —
+   room code and player list above it, and the Start button below it, must always
+   stay in place/visible without scrolling the page. Scoped to the .lb-ticket
+   instance that actually contains .lb-scenarios (ScenarioPicker.tsx) via :has(),
+   rather than the bare .lb-ticket class — that class is shared with RoomCode.tsx
+   and PlayerList.tsx, which must stay their natural compact size, not stretch to
+   fill the remaining flex space like the picker needs to. */
+.lb-ticket:has(.lb-scenarios) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.lb-ticket:has(.lb-scenarios) .lb-scenarios {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
 }
 
 /* ── Ticket panels ───────────────────────────────────────────────────────── */
@@ -1151,6 +1185,13 @@ h1, h2, h3, .display {
   flex-direction: column;
   gap: 8px;
   padding: 16px 20px;
+  /* Body/#root no longer allow page-level scroll, and the room's player count can
+     reach 16 — without a cap here, a long roster pushes the scenario picker and
+     Start button below it out of .lb-main's bounded height entirely (verified via
+     a 10-player harness: Start button's bottom exceeded the viewport without this).
+     Scrolls internally instead, same principle as the scenario picker's own scroll. */
+  max-height: 180px;
+  overflow-y: auto;
 }
 
 .lb-row {
@@ -1554,7 +1595,7 @@ h1, h2, h3, .display {
   text-align: center;
   gap: 24px;
   padding: 40px 24px;
-  min-height: 100vh;
+  min-height: 100dvh;
   --scenario-wheel-size: clamp(280px, min(82vw, 82vh), 820px);
 }
 
@@ -1683,9 +1724,30 @@ h1, h2, h3, .display {
   gap: 24px;
   transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
+/* Body/#root no longer allow page-level scroll. The bunker card's attribute list
+   (5-7 categories, each value can wrap to multiple lines) can be much taller than
+   one viewport — bounding .catastrophe-reveal--bunker/.catastrophe-reveal__layout--
+   bunker/.catastrophe-reveal__bunker-card to flex:1 chains down to a scrollable
+   region (.own-card__attrs, see the .catastrophe-reveal__bunker-card .own-card
+   rules below) instead of letting it overflow. The hero (icon+title) and the
+   Continue button stay their natural size, always visible. */
+.catastrophe-reveal--bunker {
+  height: 100dvh;
+  overflow: hidden;
+}
+.catastrophe-reveal__layout--bunker {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
 .catastrophe-reveal__bunker-card {
   width: 100%;
   max-width: 540px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   opacity: 0;
   animation: bunker-card-in 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.15s forwards;
 }
@@ -2079,7 +2141,7 @@ h1, h2, h3, .display {
 .game-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
-  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
   overflow: hidden;
   transition: grid-template-columns 0.25s ease;
@@ -2703,6 +2765,16 @@ h1, h2, h3, .display {
 .catastrophe-reveal__bunker-card .own-card {
   width: 100%;
   max-width: 540px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.catastrophe-reveal__bunker-card .own-card__attrs {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 .catastrophe-reveal__bunker-card .own-card__attr {
   align-items: flex-start;
@@ -2892,7 +2964,7 @@ h1, h2, h3, .display {
 
 .exile-reveal {
   display: flex; flex-direction: column; align-items: center; text-align: center;
-  padding: 40px 24px; min-height: 100vh; gap: 20px;
+  padding: 40px 24px; min-height: 100dvh; gap: 20px;
 }
 .exile-reveal__title {
   font-family: var(--font-display);
@@ -2917,7 +2989,7 @@ h1, h2, h3, .display {
 
 .bunker-event {
   display: flex; flex-direction: column; align-items: center; text-align: center;
-  padding: 40px 24px; min-height: 100vh; gap: 20px;
+  padding: 40px 24px; min-height: 100dvh; gap: 20px;
 }
 .bunker-event__title {
   font-family: var(--font-display);
@@ -2937,7 +3009,7 @@ h1, h2, h3, .display {
 
 /* ── Results Page ─────────────────────────────────────────────────────────── */
 
-.results { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 28px; text-align: center; min-height: 100vh; }
+.results { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; gap: 28px; text-align: center; min-height: 100dvh; }
 .results__title { font-family: var(--font-display); font-size: clamp(3rem, 10vw, 6rem); color: var(--c-primary); text-shadow: 0 0 40px var(--c-glow); letter-spacing: 0.1em; animation: catastrophe-drop 0.8s ease; }
 .results__survivors { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; max-width: 700px; }
 .survivor-card {
@@ -2947,6 +3019,23 @@ h1, h2, h3, .display {
   text-align: left; animation: fade-in-up 0.5s ease;
 }
 .survivor-card__name { font-family: var(--font-display); font-size: 1.3rem; color: var(--c-text); margin-bottom: 10px; letter-spacing: 0.05em; }
+
+/* Body/#root no longer allow page-level scroll, so .results' content (which scales
+   with survivor count via .results__survivors wrapping) must shrink to fit short
+   viewports instead of relying on scroll to reach what doesn't fit. */
+@media (max-height: 700px) {
+  .results { padding: 16px 16px; gap: 10px; }
+  .results__title { font-size: clamp(1.8rem, 8vw, 6rem); }
+  .results__survivors { gap: 8px; }
+  .survivor-card { padding: 10px; min-width: 130px; }
+  .survivor-card__name { font-size: 0.95rem; margin-bottom: 4px; }
+  .card-slot { min-height: 48px; }
+  .card-slot__category-icon { font-size: 0.95rem; margin-bottom: 2px; }
+  .card-slot__question { font-size: 1.1rem; }
+  .card-slot__label { font-size: 0.62rem; }
+  .card-slot__desc { display: none; }
+  .card-slot__cat-name { font-size: 0.5rem; margin-bottom: 2px; }
+}
 
 /* ── Modal ────────────────────────────────────────────────────────────────── */
 
@@ -3148,7 +3237,7 @@ h1, h2, h3, .display {
 
 /* ── Dealing Screen ───────────────────────────────────────────────────────── */
 
-.dealing-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 16px; }
+.dealing-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100dvh; gap: 16px; }
 .dealing-screen__title { font-family: var(--font-display); font-size: 2rem; color: var(--c-primary); letter-spacing: 0.1em; animation: glow-pulse 1.5s ease infinite; }
 .dot-loader { display: flex; align-items: center; justify-content: center; gap: 6px; }
 .dot-loader span {
