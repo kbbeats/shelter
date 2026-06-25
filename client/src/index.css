@@ -18,6 +18,15 @@
      Used only by the own-card mobile toggle glyph, which must stay legible against
      every scenario's near-black surface regardless of that scenario's --c-primary. */
   --c-toggle-universal: #F2EFE4;
+  /* Fixed, scenario-independent — the backdrop behind the own-card mobile panel,
+     kept deliberately darker than every scenario's --c-surface (including
+     volcanic-winter's lighter #3a2817) so the card itself reads as a distinct
+     floating element instead of blending into its own backdrop. True black, not a
+     near-black like #050505 — nuclear-war's surface (#0e0505) is already close to
+     black, so true black is the value that maximizes the available contrast against
+     it (confirmed via WCAG luminance contrast: #000 scores higher than #050505
+     against every one of the 8 scenario surfaces, including the darkest ones). */
+  --c-backdrop-universal: #000000;
   --font-display: 'Merriweather', serif;
   --font-mono:    'Ubuntu Mono', monospace;
   --font-sans:    'Montserrat', sans-serif;
@@ -2134,6 +2143,12 @@ h1, h2, h3, .display {
     border-bottom: none;
     overflow-y: auto;
     overflow-x: hidden;
+    /* Fixed, scenario-independent backdrop — .own-card__book also fills with
+       var(--c-surface), so without this the backdrop and the card were the exact
+       same color, reading as one flat panel instead of a card with depth. Collapsed
+       state's background:none (below) is untouched — that's a separate, transparent
+       case so the round screen shows through, not this expanded-state contrast fix. */
+    background: var(--c-backdrop-universal);
     /* Extra top/left inset (on top of the inherited 20px/18px) so .own-card__book's
        border + spine accent never shares a corner with the absolutely-positioned
        handle button below — the button's position is unaffected by this, since an
