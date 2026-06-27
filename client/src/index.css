@@ -2415,12 +2415,20 @@ h1, h2, h3, .display {
    (overflow hidden), .player-cards-grid becomes the horizontally-laid-out track (one
    slide per player, normal flex flow), and .player-cards-grid__slide are the
    individual 100%-width slides. The track is shifted via transform so the active slide
-   fills the viewport; --carousel-index/--carousel-drag are set inline from Game.tsx's
-   touch handlers and React state. This block must come after .player-cards-grid's own
-   unconditional rule above — an equal-specificity selector declared later in the file
-   wins ties regardless of being inside a media query, so a copy of this placed inside
-   the earlier @media (max-width: 700px) block (next to the own-card rules) would
-   silently lose to .player-cards-grid's own display:grid. */
+   fills the viewport — Game.tsx computes the transform's translateX value directly in
+   JS and sets it as a plain inline `transform` style (not a CSS custom property fed
+   through calc()): a custom property referenced via var() inside a transitioned
+   calc() does not reliably recompute on some engines when only that property changes
+   on an already-rendered element (confirmed live — the transition fires once, from the
+   registered initial value, then silently stops updating on every later change, even
+   though a freshly-created clone with the identical property value always computes
+   correctly). A plain inline `transform` string sidesteps that fragility entirely; the
+   transition below still drives the animation exactly as before. This block must come
+   after .player-cards-grid's own unconditional rule above — an equal-specificity
+   selector declared later in the file wins ties regardless of being inside a media
+   query, so a copy of this placed inside the earlier @media (max-width: 700px) block
+   (next to the own-card rules) would silently lose to .player-cards-grid's own
+   display:grid. */
 @media (max-width: 700px) {
   .player-cards-carousel {
     display: flex;
@@ -2437,7 +2445,6 @@ h1, h2, h3, .display {
     overflow: hidden;
     width: 100%;
     gap: 0;
-    transform: translateX(calc((var(--carousel-index, 0) * -100%) + var(--carousel-drag, 0px)));
     transition: transform 0.3s ease;
   }
   .player-cards-grid__slide {

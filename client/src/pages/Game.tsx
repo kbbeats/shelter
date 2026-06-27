@@ -147,7 +147,7 @@ export default function Game() {
         >
           <div
             className="player-cards-grid"
-            style={{ '--carousel-index': clampedCarouselIndex, '--carousel-drag': `${carouselDrag}px` } as React.CSSProperties}
+            style={{ transform: `translateX(calc(${clampedCarouselIndex * -100}% + ${carouselDrag}px))` }}
           >
             {otherPlayers.map(player => {
               const argIdx = argumentOrder.indexOf(player.id)
