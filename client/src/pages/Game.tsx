@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../store/gameStore'
 import { CatastropheReveal } from '../components/game/CatastropheReveal'
@@ -37,10 +37,28 @@ export default function Game() {
     () => typeof window !== 'undefined' && window.matchMedia('(max-width: 700px)').matches
   )
 
-  // Mobile-only swipeable single-card carousel for opponent cards (desktop keeps the grid)
+  // Mobile-only swipeable single-card carousel for opponent cards (desktop keeps the grid).
+  // Slide width/track offset are measured in real pixels (via ResizeObserver) rather than
+  // expressed as CSS percentages — percentage flex-basis combined with overflow:hidden and
+  // a transitioned transform on the same ancestor chain is a documented WebKit fragility
+  // class, and this carousel's slides are exactly that shape. Pixels sidestep it entirely.
   const [carouselIndex, setCarouselIndex] = useState(0)
   const [carouselDrag, setCarouselDrag] = useState(0)
   const carouselTouchStartX = useRef<number | null>(null)
+  const carouselRef = useRef<HTMLDivElement>(null)
+  const [carouselWidth, setCarouselWidth] = useState(0)
+
+  useLayoutEffect(() => {
+    const el = carouselRef.current
+    if (!el) return
+    setCarouselWidth(el.offsetWidth)
+    const observer = new ResizeObserver(entries => {
+      const width = entries[0]?.contentRect.width
+      if (width) setCarouselWidth(width)
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   const prevPhaseRef = useRef<string | null>(null)
   const storyShownRef = useRef(false)
@@ -141,20 +159,29 @@ export default function Game() {
             are display:contents on desktop, so this has zero effect on the grid there). */}
         <div
           className="player-cards-carousel"
+          ref={carouselRef}
           onTouchStart={handleCarouselTouchStart}
           onTouchMove={handleCarouselTouchMove}
           onTouchEnd={handleCarouselTouchEnd}
         >
           <div
             className="player-cards-grid"
-            style={{ transform: `translateX(calc(${clampedCarouselIndex * -100}% + ${carouselDrag}px))` }}
+            style={{
+              transform: carouselWidth
+                ? `translateX(${clampedCarouselIndex * -carouselWidth + carouselDrag}px)`
+                : `translateX(calc(${clampedCarouselIndex * -100}% + ${carouselDrag}px))`,
+            }}
           >
             {otherPlayers.map(player => {
               const argIdx = argumentOrder.indexOf(player.id)
               const isDone = argIdx !== -1 && argIdx < currentArgumentIndex
               const isSpeakingNext = argIdx !== -1 && argIdx === currentArgumentIndex + 1
               return (
-                <div className="player-cards-grid__slide" key={player.id}>
+                <div
+                  className="player-cards-grid__slide"
+                  key={player.id}
+                  style={carouselWidth ? { width: carouselWidth, flex: `0 0 ${carouselWidth}px` } : undefined}
+                >
                   <PlayerCard
                     player={player}
                     categories={scenario.cardCategories}
