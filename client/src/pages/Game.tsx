@@ -28,7 +28,14 @@ export default function Game() {
     if (roomState?.phase === 'GAME_ENDED') navigate(`/results/${roomState?.code}`)
   }, [roomState, navigate])
 
-  const [handCollapsed, setHandCollapsed] = useState(false)
+  // Mobile starts with the own-card drawer closed so the round UI (status bar +
+  // opponent cards) is what's visible first; desktop's sidebar always starts (and
+  // stays) expanded, unchanged. One-time mount-time default, not reactive to
+  // live resizing — matches the @media (max-width: 700px) breakpoint used
+  // everywhere else in index.css for this same mobile/desktop split.
+  const [handCollapsed, setHandCollapsed] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 700px)').matches
+  )
 
   // Mobile-only swipeable single-card carousel for opponent cards (desktop keeps the grid)
   const [carouselIndex, setCarouselIndex] = useState(0)
