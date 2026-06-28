@@ -2411,30 +2411,34 @@ h1, h2, h3, .display {
 .id-card__status--done     { color: var(--c-text-dim); }
 .id-card__status--wait     { color: var(--c-text-dim); }
 /* Mobile: opponent cards become a full-screen, swipeable single-card carousel instead
-   of a scrolling grid. .player-cards-carousel is the gesture surface + viewport
-   (overflow hidden), .player-cards-grid becomes the horizontally-laid-out track (one
-   slide per player, normal flex flow), and .player-cards-grid__slide are the
-   individual 100%-width slides. The track is shifted via transform so the active slide
-   fills the viewport — Game.tsx computes the transform's translateX value directly in
-   JS and sets it as a plain inline `transform` style (not a CSS custom property fed
-   through calc()): a custom property referenced via var() inside a transitioned
-   calc() does not reliably recompute on some engines when only that property changes
-   on an already-rendered element (confirmed live — the transition fires once, from the
-   registered initial value, then silently stops updating on every later change, even
-   though a freshly-created clone with the identical property value always computes
-   correctly). A plain inline `transform` string sidesteps that fragility entirely; the
-   transition below still drives the animation exactly as before. This block must come
-   after .player-cards-grid's own unconditional rule above — an equal-specificity
-   selector declared later in the file wins ties regardless of being inside a media
-   query, so a copy of this placed inside the earlier @media (max-width: 700px) block
-   (next to the own-card rules) would silently lose to .player-cards-grid's own
-   display:grid. */
+   of a scrolling grid. .player-cards-carousel is the flex-column wrapper (holds the
+   scrollable track + the indicator below it), .player-cards-grid is the actual native
+   horizontal scroll container (one slide per player, normal flex flow), and
+   .player-cards-grid__slide are the individual 100%-width snap targets.
+
+   This uses native CSS scroll-snap (real browser-driven horizontal scrolling, NO
+   transform) rather than a JS-computed inline `transform: translateX()` on the track.
+   The transform-driven approach was geometrically/structurally correct in every
+   JS-introspectable measurement, but on real iOS Safari off-screen-then-revealed
+   slides never visually painted (a WebKit GPU paint/compositing bug specific to
+   combining a transform animation with overflow:hidden on the same element, invisible
+   to any computed-style probe and unresponsive to forced reflow / compositing-layer
+   hints). Native scroll-snap goes through a completely different, far more
+   battle-tested WebKit rendering pipeline and sidesteps that bug class entirely.
+
+   This block must come after .player-cards-grid's own unconditional rule above — an
+   equal-specificity selector declared later in the file wins ties regardless of being
+   inside a media query, so a copy of this placed inside the earlier
+   @media (max-width: 700px) block (next to the own-card rules) would silently lose to
+   .player-cards-grid's own display:grid. */
 @media (max-width: 700px) {
   .player-cards-carousel {
     display: flex;
     flex-direction: column;
     flex: 1;
     min-height: 0;
+    min-width: 0;
+    width: 100%;
     gap: 10px;
     touch-action: pan-y;
   }
@@ -2442,11 +2446,18 @@ h1, h2, h3, .display {
     display: flex;
     flex: 1;
     flex-wrap: nowrap;
-    overflow: hidden;
     width: 100%;
     gap: 0;
-    transition: transform 0.3s ease;
+    /* Native horizontal scroll-snap — replaces the JS transform track entirely. */
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    /* Hide the scrollbar that horizontal overflow would otherwise show. */
+    scrollbar-width: none;
   }
+  .player-cards-grid::-webkit-scrollbar { display: none; }
   .player-cards-grid__slide {
     display: flex;
     flex: 0 0 100%;
@@ -2454,6 +2465,10 @@ h1, h2, h3, .display {
     min-width: 0;
     padding: 0 4px;
     box-sizing: border-box;
+    /* One snap target per card; stop:always keeps a fast flick to one card per
+       swipe (matching the old touch-driven UX) instead of skipping past several. */
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
   .player-cards-grid__slide .id-card {
     flex: 1;
