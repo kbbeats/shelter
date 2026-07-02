@@ -2974,6 +2974,7 @@ h1, h2, h3, .display {
   text-align: center; opacity: 0; animation: fade-in-up 0.4s ease forwards;
 }
 .exile-card__icon  { font-size: 1.4rem; margin-bottom: 4px; }
+.exile-card__icon .card-cat-icon { width: 24px; height: 24px; margin-right: 0; }
 .exile-card__label { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; color: var(--c-text); }
 .exile-card__cat   { font-size: 0.6rem; color: var(--c-primary); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
 

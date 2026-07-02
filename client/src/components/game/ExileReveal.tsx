@@ -1,6 +1,7 @@
 import { useGameStore } from '../../store/gameStore'
 import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
+import { CARD_ICON_MAP } from '../../assets/card-icons'
 
 export function ExileReveal() {
   const t = useT()
@@ -35,7 +36,9 @@ export function ExileReveal() {
               style={{ animationDelay: `${i * 0.18}s` }}
             >
               <div className="exile-card__cat">{cat.name[lang]}</div>
-              <div className="exile-card__icon">{cat.icon}</div>
+              <div className="exile-card__icon">
+                {CARD_ICON_MAP[cat.id] ? <img src={CARD_ICON_MAP[cat.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : cat.icon}
+              </div>
               <div className="exile-card__label">{card ? card.label[lang] : '?'}</div>
             </div>
           )
