@@ -123,6 +123,11 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
     if (!room) return
     if (room.phase !== 'ROUND_ARGUMENT') return
     if (room.getCurrentArgumentPlayerId() !== socket.id) return
+    if (
+      room.currentRound >= 2 &&
+      !room.hasUsedRoundReveal(socket.id) &&
+      room.hasRevealableCategoriesLeft(socket.id)
+    ) return
 
     const allDone = room.advanceArgument()
 

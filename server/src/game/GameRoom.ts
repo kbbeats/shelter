@@ -514,6 +514,14 @@ export class GameRoom {
     if (player) player.hasRevealedThisRound = true
   }
 
+  hasRevealableCategoriesLeft(socketId: string): boolean {
+    const player = this.players.get(socketId)
+    if (!player || !this.scenario) return false
+    return this.scenario.cardCategories.some(
+      c => c.id !== 'occupation' && c.id !== 'special_action' && !player.revealedCategoryIds.includes(c.id),
+    )
+  }
+
   getPlayerByName(name: string): Player | undefined {
     return [...this.players.values()].find(p => p.name === name)
   }

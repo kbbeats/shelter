@@ -10,8 +10,14 @@ export function ArgumentPhase() {
 
   if (!roomState || roomState.phase !== 'ROUND_ARGUMENT') return null
 
-  const { currentArgumentPlayerId, players, currentRound } = roomState
+  const { currentArgumentPlayerId, players, currentRound, scenario } = roomState
   const isMyTurn = currentArgumentPlayerId === mySocketId
+  const me = players.find(p => p.id === mySocketId)
+
+  const hasRevealableLeft = !!me && !!scenario && scenario.cardCategories.some(
+    c => c.id !== 'occupation' && c.id !== 'special_action' && !me.revealedCategoryIds.includes(c.id),
+  )
+  const mustRevealFirst = currentRound >= 2 && !!me && !me.hasRevealedThisRound && hasRevealableLeft
 
   const getPlayerName = (id: string) =>
     players.find(p => p.id === id)?.name ?? '?'
@@ -26,7 +32,14 @@ export function ArgumentPhase() {
         <>
           <div className="argument-phase__speaker">{t('game.your_turn')}</div>
           <div className="argument-phase__hint">{t('game.reveal_hint')}</div>
-          <Button onClick={argumentDone} full>{t('game.done_arguing')}</Button>
+          <Button
+            onClick={argumentDone}
+            full
+            disabled={mustRevealFirst}
+            title={mustRevealFirst ? 'Reveal an attribute first' : ''}
+          >
+            {t('game.done_arguing')}
+          </Button>
         </>
       ) : (
         <>
