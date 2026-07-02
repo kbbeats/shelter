@@ -104,9 +104,11 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
     if (room.phase !== 'ROUND_ARGUMENT') return
     if (room.getCurrentArgumentPlayerId() !== socket.id) return
     if (room.currentRound === 1) return // round 1 is forced occupation reveal only
+    if (room.hasUsedRoundReveal(socket.id)) return // one voluntary reveal per round
 
     const card = room.revealCard(socket.id, categoryId)
     if (!card) return
+    room.markRoundRevealUsed(socket.id)
 
     io.to(room.code).emit(EVENTS.CARD_REVEALED, {
       playerId: socket.id,

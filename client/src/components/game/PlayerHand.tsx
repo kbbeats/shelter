@@ -99,10 +99,10 @@ export function PlayerHand({ collapsed, onToggleCollapsed }: Props) {
                       {!isRevealed ? (
                         allowFreeChoiceReveal ? (
                           <button
-                            className={`own-card__reveal-btn${isMyTurn ? ' own-card__reveal-btn--active' : ''}`}
-                            onClick={() => isMyTurn && revealCard(cat.id)}
-                            disabled={!isMyTurn}
-                            title={isMyTurn ? '' : 'Not your turn'}
+                            className={`own-card__reveal-btn${isMyTurn && !me.hasRevealedThisRound ? ' own-card__reveal-btn--active' : ''}`}
+                            onClick={() => isMyTurn && !me.hasRevealedThisRound && revealCard(cat.id)}
+                            disabled={!isMyTurn || me.hasRevealedThisRound}
+                            title={!isMyTurn ? 'Not your turn' : me.hasRevealedThisRound ? 'Already revealed this round' : ''}
                           >
                             Reveal
                           </button>

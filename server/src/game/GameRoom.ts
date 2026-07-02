@@ -25,6 +25,7 @@ interface Player {
   isAlive: boolean
   isConnected: boolean
   revealedCategoryIds: string[]
+  hasRevealedThisRound: boolean
   cards: PlayerCards
 }
 
@@ -62,6 +63,7 @@ export class GameRoom {
       isAlive: true,
       isConnected: true,
       revealedCategoryIds: [],
+      hasRevealedThisRound: false,
       cards: {},
     })
   }
@@ -75,6 +77,7 @@ export class GameRoom {
       isAlive: true,
       isConnected: true,
       revealedCategoryIds: [],
+      hasRevealedThisRound: false,
       cards: {},
     }
     this.players.set(socketId, player)
@@ -212,6 +215,9 @@ export class GameRoom {
 
   startRound(): void {
     this.currentRound++
+    for (const player of this.players.values()) {
+      player.hasRevealedThisRound = false
+    }
     const alive = this.getAlivePlayers().filter(p => !this.silencedPlayers.has(p.id))
     this.silencedPlayers.clear()
 
@@ -239,6 +245,8 @@ export class GameRoom {
     const playerId = this.getCurrentArgumentPlayerId()
     if (!playerId) return
     this.revealCard(playerId, 'occupation')
+    const player = this.players.get(playerId)
+    if (player) player.hasRevealedThisRound = true
   }
 
   openVoting(): { summary: VoteSummary; eligibleVoterIds: string[] } {
@@ -317,6 +325,7 @@ export class GameRoom {
     for (const player of this.players.values()) {
       player.isAlive = true
       player.revealedCategoryIds = []
+      player.hasRevealedThisRound = false
       player.cards = {}
     }
     this.touch()
@@ -486,6 +495,7 @@ export class GameRoom {
       isAlive: player.isAlive,
       isConnected: player.isConnected,
       revealedCategoryIds: player.revealedCategoryIds,
+      hasRevealedThisRound: player.hasRevealedThisRound,
       maskedCards,
       specialAbilityCount: player.cards['special_action'] && !this.abilityUsed.has(player.id) ? 1 : 0,
     }
@@ -493,6 +503,15 @@ export class GameRoom {
 
   isHost(socketId: string): boolean {
     return this.players.get(socketId)?.isHost === true
+  }
+
+  hasUsedRoundReveal(socketId: string): boolean {
+    return this.players.get(socketId)?.hasRevealedThisRound === true
+  }
+
+  markRoundRevealUsed(socketId: string): void {
+    const player = this.players.get(socketId)
+    if (player) player.hasRevealedThisRound = true
   }
 
   getPlayerByName(name: string): Player | undefined {

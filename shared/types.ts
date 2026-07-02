@@ -112,6 +112,7 @@ export interface PublicPlayer {
   isAlive: boolean
   isConnected: boolean
   revealedCategoryIds: string[]
+  hasRevealedThisRound: boolean
   maskedCards: Record<string, MaskedCard>
   specialAbilityCount: number
 }
