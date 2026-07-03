@@ -275,6 +275,9 @@ export class GameRoom {
     if (!exiledPlayer) return null
 
     exiledPlayer.isAlive = false
+    if (this.scenario) {
+      exiledPlayer.revealedCategoryIds = this.scenario.cardCategories.map(c => c.id)
+    }
     const finalCards = exiledPlayer.cards
     this.exiledCount++
     this.phase = 'EXILE_REVEAL'
