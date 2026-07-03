@@ -2363,31 +2363,6 @@ h1, h2, h3, .display {
   gap: 12px;
   margin-bottom: 10px;
 }
-.id-card__name-toggle {
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: 1.2rem;
-  font-weight: 700;
-  background: none;
-  border: none;
-  padding: 6px 8px;
-  margin: -6px -8px -6px -6px;
-  color: var(--c-text-dim);
-  line-height: 1;
-  cursor: pointer;
-  transition: color 0.15s ease, transform 0.1s ease;
-}
-.id-card__name-toggle:hover {
-  color: var(--c-text);
-}
-.id-card__name-toggle:active {
-  transform: scale(0.85);
-}
-.id-card--highlighted .id-card__name-toggle {
-  color: var(--c-primary);
-  animation: id-card-blink 1s step-end infinite;
-}
-@keyframes id-card-blink { 50% { opacity: 0.3; } }
 .id-card__name {
   flex: 1;
   min-width: 0;
@@ -2476,7 +2451,6 @@ h1, h2, h3, .display {
   }
   .player-cards-grid__slide .id-card__header { margin-bottom: 18px; }
   .player-cards-grid__slide .id-card__name { font-size: 1.75rem; }
-  .player-cards-grid__slide .id-card__name-toggle { font-size: 1.75rem; padding: 10px 12px; margin: -10px -12px -10px -8px; }
   .player-cards-grid__slide .id-card__status { font-size: 1rem; }
   .player-cards-grid__slide .id-card .player-drawer__attrs { flex: 1; padding: 4px 6px; justify-content: space-evenly; }
   .player-cards-grid__slide .id-card .player-drawer__attr { padding: 16px 0; }
