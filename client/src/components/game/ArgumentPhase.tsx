@@ -7,10 +7,19 @@ export function ArgumentPhase() {
   const roomState = useGameStore(s => s.roomState)
   const mySocketId = useGameStore(s => s.mySocketId)
   const argumentDone = useGameStore(s => s.argumentDone)
+  const lastReveal = useGameStore(s => s.lastReveal)
+  const lang = useGameStore(s => s.language)
 
   if (!roomState || roomState.phase !== 'ROUND_ARGUMENT') return null
 
-  const { currentArgumentPlayerId, players, currentRound, scenario } = roomState
+  const {
+    currentArgumentPlayerId,
+    players,
+    currentRound,
+    scenario,
+    argumentOrder,
+    currentArgumentIndex,
+  } = roomState
   const isMyTurn = currentArgumentPlayerId === mySocketId
   const me = players.find(p => p.id === mySocketId)
 
@@ -22,33 +31,70 @@ export function ArgumentPhase() {
   const getPlayerName = (id: string) =>
     players.find(p => p.id === id)?.name ?? '?'
 
+  // Only trust a reveal captured during THIS round — anything older is stale.
+  const reveal = lastReveal && lastReveal.round === currentRound ? lastReveal : null
+  const revealCategory = reveal
+    ? scenario?.cardCategories.find(c => c.id === reveal.categoryId) ?? null
+    : null
+
+  const nextPlayerId = argumentOrder[currentArgumentIndex + 1] ?? null
+  const nextPlayer = nextPlayerId ? players.find(p => p.id === nextPlayerId) : null
+
+  const showSide = isMyTurn || !!nextPlayer
+
   return (
-    <div className="argument-phase">
+    <section className="argument-phase">
       <div className="argument-phase__round">
-        {t('game.round')} {currentRound}
+        <span className="argument-phase__round-word">{t('game.round')}</span>
+        <span className="argument-phase__round-num">{currentRound}</span>
       </div>
 
-      {isMyTurn ? (
-        <>
-          <div className="argument-phase__speaker">{t('game.your_turn')}</div>
-          <div className="argument-phase__hint">{t('game.reveal_hint')}</div>
-          <Button
-            onClick={argumentDone}
-            full
-            disabled={mustRevealFirst}
-            title={mustRevealFirst ? 'Reveal an attribute first' : ''}
-          >
-            {t('game.done_arguing')}
-          </Button>
-        </>
-      ) : (
-        <>
-          <div className="argument-phase__speaker">
-            {getPlayerName(currentArgumentPlayerId ?? '')} {t('game.their_turn')}
+      <div className="argument-phase__mid">
+        <div className="argument-phase__turn">
+          {isMyTurn ? (
+            <>
+              <span className="argument-phase__turn-flag">{t('game.your_turn')}</span>{' '}
+              {t('game.your_turn.tail')}
+            </>
+          ) : (
+            <>
+              {getPlayerName(currentArgumentPlayerId ?? '')}{' '}
+              <span className="argument-phase__turn-flag">{t('game.their_turn')}</span>
+            </>
+          )}
+        </div>
+        {revealCategory && (
+          <div className="argument-phase__reveal">
+            <span className="pill pill--accent">{t('game.last_reveal')}</span>
+            <span className="argument-phase__reveal-text">
+              <strong>{revealCategory.name[lang]}</strong> {t('game.shown_by')}{' '}
+              <strong>{getPlayerName(reveal!.playerId)}</strong>
+            </span>
           </div>
-          <div className="argument-phase__hint">⏳</div>
-        </>
+        )}
+      </div>
+
+      {showSide && (
+        <div className="argument-phase__side">
+          {isMyTurn ? (
+            <Button
+              className="argument-phase__btn"
+              onClick={argumentDone}
+              disabled={mustRevealFirst}
+              title={mustRevealFirst ? t('game.reveal_hint') : ''}
+            >
+              {t('game.done_arguing')}
+            </Button>
+          ) : (
+            <div className="argument-phase__next">
+              <span className="argument-phase__next-word">{t('game.up_next')}</span>
+              <span className="argument-phase__next-name">
+                {nextPlayer!.id === mySocketId ? t('game.up_next.you') : nextPlayer!.name}
+              </span>
+            </div>
+          )}
+        </div>
       )}
-    </div>
+    </section>
   )
 }

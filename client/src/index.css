@@ -2233,46 +2233,114 @@ h1, h2, h3, .display {
   .game-layout--collapsed .game-layout__hand .own-card__collapse-btn { right: 5px; }
 }
 
-/* ── Argument Phase ───────────────────────────────────────────────────────── */
+/* ── Argument Phase — ringside scoreboard ─────────────────────────────────────
+   Structure ported from design-concepts/navbar-redesign/option-4-scoreboard.html
+   (round block / turn statement + last-reveal note / side panel), reskinned with
+   the round screen's own per-scenario tokens instead of the mockup's fixed
+   light palette. */
 
 .argument-phase {
-  padding: 18px 28px;
-  border-bottom: 1px solid var(--c-border);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: stretch;
   background: var(--c-surface);
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  border: 1px solid var(--c-border);
 }
-.argument-phase .btn--full { width: auto; flex-shrink: 0; }
 .argument-phase__round {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 22px;
+  border-right: 1px solid var(--c-border);
+}
+.argument-phase__round-word {
   font-family: var(--font-mono);
-  font-size: 1rem;
-  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--c-text-dim);
-  margin-bottom: 0;
-  flex-shrink: 0;
 }
-.argument-phase__speaker {
+.argument-phase__round-num {
   font-family: var(--font-mono);
-  font-size: 1.15rem;
-  color: var(--c-text);
-  margin-bottom: 0;
-  letter-spacing: 0;
-  flex: 1;
-  min-width: 0;
-}
-.argument-phase__speaker::before {
-  content: '[ARGUING] ';
+  font-size: 3rem;
+  line-height: 0.95;
   color: var(--c-primary);
 }
-.argument-phase__hint {
+.argument-phase__mid {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  min-width: 0;
+}
+.argument-phase__turn {
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 1.5rem;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--c-text);
+  text-wrap: balance;
+}
+.argument-phase__turn-flag { color: var(--c-primary); }
+.argument-phase__reveal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
   color: var(--c-text-dim);
-  margin-bottom: 0;
-  flex-shrink: 0;
+}
+.argument-phase__reveal-text strong { color: var(--c-text); font-weight: 600; }
+.argument-phase__side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 14px 22px;
+  border-left: 1px solid var(--c-border);
+}
+.argument-phase__next {
+  font-family: var(--font-mono);
+  text-align: center;
+}
+.argument-phase__next-word {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-text-dim);
+}
+.argument-phase__next-name {
+  display: block;
+  font-size: 1.4rem;
+  line-height: 1.1;
+  color: var(--c-text);
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 700px) {
+  .argument-phase { grid-template-columns: 1fr; }
+  .argument-phase__round {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-right: none;
+    border-bottom: 1px solid var(--c-border);
+  }
+  .argument-phase__round-num { font-size: 2rem; }
+  .argument-phase__side {
+    border-left: none;
+    border-top: 1px solid var(--c-border);
+  }
+  .argument-phase__btn { width: 100%; }
+  .argument-phase__next-name { max-width: none; }
 }
 
 /* ── Voting Panel ─────────────────────────────────────────────────────────── */

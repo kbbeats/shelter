@@ -34,6 +34,7 @@ interface GameStore {
   language: 'en' | 'ru'
   pendingReveal: string | null
   lastExile: { exiledPlayerId: string; finalCards: PlayerCards } | null
+  lastReveal: { playerId: string; categoryId: string; round: number } | null
   scenarioList: ScenarioPublic[]
   error: string | null
   abilityAnnouncement: AbilityAnnouncement | null
@@ -89,7 +90,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     // up-front) so a later reconnect can auto-rejoin.
     if (state.code) rememberSession(undefined, state.code)
     set(state.phase === 'CATASTROPHE_REVEAL'
-      ? { roomState: state, storyClosed: false }
+      ? { roomState: state, storyClosed: false, lastReveal: null }
       : { roomState: state })
   })
 
@@ -115,6 +116,15 @@ export const useGameStore = create<GameStore>((set, get) => {
     EVENTS.VOTE_RESULT,
     (data: { exiledPlayerId: string; finalCards: PlayerCards }) => {
       set({ lastExile: data })
+    }
+  )
+
+  socket.on(
+    EVENTS.CARD_REVEALED,
+    ({ playerId, categoryId }: { playerId: string; categoryId: string }) => {
+      // Tag the reveal with the round it happened in so the status bar can ignore
+      // it once a new round starts (the payload itself carries no round info).
+      set({ lastReveal: { playerId, categoryId, round: get().roomState?.currentRound ?? 0 } })
     }
   )
 
@@ -147,6 +157,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     language: 'en',
     pendingReveal: null,
     lastExile: null,
+    lastReveal: null,
     scenarioList: [],
     error: null,
     abilityAnnouncement: null,
@@ -170,7 +181,7 @@ export const useGameStore = create<GameStore>((set, get) => {
     leaveRoom: () => {
       forgetSession()
       socket.emit(EVENTS.ROOM_LEAVE)
-      set({ roomState: null, myCards: null, lastExile: null, inspectedCards: {} })
+      set({ roomState: null, myCards: null, lastExile: null, lastReveal: null, inspectedCards: {} })
     },
 
     startGame: () => {
