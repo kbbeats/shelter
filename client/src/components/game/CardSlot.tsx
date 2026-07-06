@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { Card, CardCategory } from '@shelter/shared'
 import { useT } from '../../i18n'
+import { CARD_ICON_MAP } from '../../assets/card-icons'
 
 interface Props {
   category: CardCategory
@@ -31,7 +32,7 @@ export function CardSlot({ category, card, isRevealed, isClickable, isNew, onCli
       <div className={`card-slot__inner${flipped ? ' card-slot__inner--flipped' : ''}`}>
         {/* Front = face-down */}
         <div className={`card-slot__face${isClickable ? ' card-slot__face--clickable' : ''}`}>
-          <div className="card-slot__category-icon">{category.icon}</div>
+          <div className="card-slot__category-icon">{CARD_ICON_MAP[category.id] ? <img src={CARD_ICON_MAP[category.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : category.icon}</div>
           <div className="card-slot__cat-name">{category.name[lang]}</div>
           <div className="card-slot__question">{t('card.face_down')}</div>
         </div>
@@ -41,7 +42,7 @@ export function CardSlot({ category, card, isRevealed, isClickable, isNew, onCli
           <div className="card-slot__cat-name">{category.name[lang]}</div>
           {card && (
             <>
-              <div className="card-slot__category-icon">{category.icon}</div>
+              <div className="card-slot__category-icon">{CARD_ICON_MAP[category.id] ? <img src={CARD_ICON_MAP[category.id]} alt="" aria-hidden="true" className="card-cat-icon" /> : category.icon}</div>
               <div className="card-slot__label">{card.label[lang]}</div>
               <div className="card-slot__desc">{card.description[lang]}</div>
             </>

@@ -2848,6 +2848,7 @@ h1, h2, h3, .display {
 }
 .card-slot__face--clickable   { cursor: pointer; }
 .card-slot__category-icon     { font-size: 1.2rem; margin-bottom: 4px; }
+.card-slot__category-icon .card-cat-icon { width: 20px; height: 20px; margin-right: 0; }
 .card-slot__question          { font-size: 1.4rem; color: var(--c-text-dim); }
 .card-slot__label             { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; color: var(--c-text); line-height: 1.2; }
 .card-slot__desc              { font-size: 0.6rem; color: var(--c-text-dim); margin-top: 4px; line-height: 1.3; }
@@ -3066,6 +3067,7 @@ h1, h2, h3, .display {
   .survivor-card__name { font-size: 0.95rem; margin-bottom: 4px; }
   .card-slot { min-height: 48px; }
   .card-slot__category-icon { font-size: 0.95rem; margin-bottom: 2px; }
+  .card-slot__category-icon .card-cat-icon { width: 16px; height: 16px; margin-right: 0; }
   .card-slot__question { font-size: 1.1rem; }
   .card-slot__label { font-size: 0.62rem; }
   .card-slot__desc { display: none; }
