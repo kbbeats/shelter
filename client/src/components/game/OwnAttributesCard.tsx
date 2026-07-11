@@ -1,7 +1,9 @@
 import { useGameStore } from '../../store/gameStore'
 import { CARD_ICON_MAP } from '../../assets/card-icons'
+import { useT } from '../../i18n'
 
 export function OwnAttributesCard({ lang }: { lang: 'en' | 'ru' }) {
+  const t = useT()
   const roomState = useGameStore(s => s.roomState)
   const myCards = useGameStore(s => s.myCards)
   const mySocketId = useGameStore(s => s.mySocketId)
@@ -15,7 +17,7 @@ export function OwnAttributesCard({ lang }: { lang: 'en' | 'ru' }) {
     <div className="own-card">
       <div className="own-card__header">
         <span className="own-card__name">{me.name}</span>
-        <span className="section-label" style={{ marginBottom: 0 }}>Your cards</span>
+        <span className="section-label" style={{ marginBottom: 0 }}>{t('game.own_cards')}</span>
       </div>
       <div className="own-card__attrs">
         {roomState.scenario.cardCategories.map(cat => {
