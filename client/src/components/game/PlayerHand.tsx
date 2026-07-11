@@ -59,7 +59,7 @@ export function PlayerHand({ collapsed, onToggleCollapsed }: Props) {
           <div className="own-card__content">
             <div className="own-card__header">
               <span className="own-card__name">{me.name}</span>
-              <span className="section-label" style={{ marginBottom: 0 }}>Your cards</span>
+              <span className="section-label" style={{ marginBottom: 0 }}>{t('game.own_cards')}</span>
             </div>
             <div className="own-card__attrs">
               {roomState.scenario.cardCategories.map(cat => {
@@ -102,15 +102,15 @@ export function PlayerHand({ collapsed, onToggleCollapsed }: Props) {
                             className={`own-card__reveal-btn${isMyTurn && !me.hasRevealedThisRound ? ' own-card__reveal-btn--active' : ''}`}
                             onClick={() => isMyTurn && !me.hasRevealedThisRound && revealCard(cat.id)}
                             disabled={!isMyTurn || me.hasRevealedThisRound}
-                            title={!isMyTurn ? 'Not your turn' : me.hasRevealedThisRound ? 'Already revealed this round' : ''}
+                            title={!isMyTurn ? t('game.not_your_turn') : me.hasRevealedThisRound ? t('game.already_revealed_round') : ''}
                           >
-                            Reveal
+                            {t('card.reveal.yes')}
                           </button>
                         ) : (
                           <span className="pill pill--neutral">{t('game.hidden')}</span>
                         )
                       ) : (
-                        <span className="pill pill--accent">Public</span>
+                        <span className="pill pill--accent">{t('game.public')}</span>
                       )}
                     </div>
                     <span className="own-card__attr-val">{card ? card.label[lang] : '—'}</span>
