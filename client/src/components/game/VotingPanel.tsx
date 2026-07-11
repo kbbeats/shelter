@@ -1,8 +1,6 @@
 import { useGameStore } from '../../store/gameStore'
-import { Button } from '../ui/Button'
 import { useT } from '../../i18n'
 import { useState } from 'react'
-import { getInitials } from '../../utils/avatar'
 
 export function VotingPanel() {
   const t = useT()
@@ -14,56 +12,92 @@ export function VotingPanel() {
   if (!roomState || roomState.phase !== 'ROUND_VOTING') return null
 
   const { players, voteStatus } = roomState
-  const alivePlayers = players.filter(p => p.isAlive)
   const totalVotes = voteStatus?.totalVotes ?? 0
   const totalVoters = voteStatus?.totalVoters ?? 0
+  const votedPlayerIds = voteStatus?.votedPlayerIds ?? []
+  const hasVoted = votedFor !== null
 
   const handleVote = (targetId: string) => {
-    if (votedFor) return
+    if (hasVoted) return
     setVotedFor(targetId)
     castVote(targetId)
   }
 
+  // Roster = every alive player except the viewer. Flags derive purely from
+  // votedPlayerIds (who has submitted) — never from any vote target.
+  const roster = players.filter(p => p.isAlive && p.id !== mySocketId)
+  const segments = Array.from({ length: totalVoters }, (_, i) => i < totalVotes)
+
   return (
-    <div className="voting-panel">
-      <div className="voting-panel__title">{t('vote.title')}</div>
-      <div className="mono dim" style={{ fontSize: '0.75rem', marginBottom: 12 }}>
-        {totalVotes}/{totalVoters} {t('vote.tally')}
+    <section className="exile-term" role="status" aria-live="polite">
+      <div className="exile-term__bar">
+        <span className="exile-term__dot" aria-hidden="true" />
+        SHELTER-OS :: EXILE_POLL.SYS
       </div>
 
-      {alivePlayers
-        .filter(p => p.id !== mySocketId)
-        .map(player => {
-          const votes = voteStatus?.votes[player.id] ?? 0
-          const pct = totalVoters > 0 ? (votes / totalVoters) * 100 : 0
-          const isVoted = votedFor === player.id
-
-          return (
-            <div key={player.id} className="vote-option">
-              <span className="avatar vote-option__avatar">{getInitials(player.name)}</span>
-              <span className="vote-option__name">{player.name}</span>
-              <div className="vote-bar-wrap">
-                <div className="vote-bar" style={{ width: `${pct}%` }} />
-              </div>
-              <span className="vote-count">{votes}</span>
-              {!votedFor ? (
-                <Button variant="danger" size="sm" onClick={() => handleVote(player.id)}>
-                  {t('vote.cast')}
-                </Button>
-              ) : (
-                <span style={{ fontSize: '0.75rem', color: isVoted ? 'var(--c-primary)' : 'var(--c-text-dim)', marginLeft: 4 }}>
-                  {isVoted ? '✓' : ''}
-                </span>
-              )}
-            </div>
-          )
-        })}
-
-      {votedFor && (
-        <div className="mt-3 mono dim" style={{ fontSize: '0.8rem' }}>
-          {t('vote.you_voted')} {players.find(p => p.id === votedFor)?.name}
+      <div className="exile-term__body">
+        <div className="exile-term__line">
+          &gt; {t('vote.term.pollStatus')}: <strong>{t('vote.term.running')}</strong>
         </div>
-      )}
-    </div>
+        {hasVoted ? (
+          <div className="exile-term__line">
+            &gt; {t('vote.term.yourInput')}: <strong>{t('vote.term.locked')}</strong>
+          </div>
+        ) : (
+          <div className="exile-term__line">
+            &gt; {t('vote.term.resultsLabel')}: <strong>{t('vote.term.withheld')}</strong>
+          </div>
+        )}
+
+        <div className="exile-term__progress">
+          {t('vote.term.submissions')}: <strong>{totalVotes}/{totalVoters}</strong>
+          <div className="exile-term__track" aria-hidden="true">
+            {segments.map((filled, i) => (
+              <div
+                key={i}
+                className={`exile-term__seg${filled ? ' exile-term__seg--filled' : ''}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="exile-term__roster">
+          {roster.map((player, i) => {
+            const received = votedPlayerIds.includes(player.id)
+            return (
+              <div key={player.id} className="exile-row">
+                <span className="exile-row__index">{String(i + 1).padStart(2, '0')}</span>
+                <span className="exile-row__name">{player.name}</span>
+                <span
+                  className={`exile-row__flag${received ? ' exile-row__flag--in' : ''}`}
+                >
+                  {received ? t('vote.term.received') : t('vote.term.pending')}
+                </span>
+                {!hasVoted && (
+                  <button
+                    type="button"
+                    className="exile-row__target"
+                    onClick={() => handleVote(player.id)}
+                  >
+                    {t('vote.term.target')}
+                  </button>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        <div className="exile-term__footer">
+          {hasVoted ? (
+            <>&gt; {t('vote.term.accepted')}</>
+          ) : (
+            <>
+              &gt; {t('vote.term.awaiting')}
+              <span className="exile-term__cursor" aria-hidden="true" />
+            </>
+          )}
+        </div>
+      </div>
+    </section>
   )
 }

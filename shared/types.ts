@@ -123,6 +123,16 @@ export interface VoteSummary {
   totalVoters: number
 }
 
+/**
+ * Anonymity-safe voting status sent to clients. Never includes per-candidate
+ * counts or vote targets — only the aggregate and which voters have submitted.
+ */
+export interface PublicVoteStatus {
+  totalVotes: number
+  totalVoters: number
+  votedPlayerIds: string[]
+}
+
 export type ScenarioMode = 'host' | 'vote' | 'random'
 
 export interface RoomState {
@@ -135,7 +145,7 @@ export interface RoomState {
   currentArgumentIndex: number
   argumentOrder: string[]
   currentArgumentPlayerId: string | null
-  voteStatus: VoteSummary | null
+  voteStatus: PublicVoteStatus | null
   survivors: string[]
   selectedScenarioId: string | null
   lastAbilityAnnouncement: AbilityAnnouncement | null

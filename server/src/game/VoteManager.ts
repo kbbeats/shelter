@@ -1,4 +1,4 @@
-import type { VoteSummary } from '@shelter/shared'
+import type { PublicVoteStatus, VoteSummary } from '@shelter/shared'
 
 export class VoteManager {
   private votes = new Map<string, { targetId: string; weight: number }>()
@@ -31,6 +31,19 @@ export class VoteManager {
       votes: counts,
       totalVotes: this.votes.size,
       totalVoters: this.eligibleVoterIds.size,
+    }
+  }
+
+  /**
+   * Anonymity-safe status for broadcast to clients. Exposes only the aggregate
+   * count and which voters have submitted — never their targets or per-candidate
+   * tallies. `getSummary()` (with the raw breakdown) stays server-internal.
+   */
+  getPublicStatus(): PublicVoteStatus {
+    return {
+      totalVotes: this.votes.size,
+      totalVoters: this.eligibleVoterIds.size,
+      votedPlayerIds: [...this.votes.keys()],
     }
   }
 

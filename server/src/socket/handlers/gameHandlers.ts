@@ -147,9 +147,8 @@ export function registerGameHandlers(io: Server, socket: Socket): void {
         return
       }
 
-      const { summary, eligibleVoterIds } = room.openVoting()
+      const { eligibleVoterIds } = room.openVoting()
       io.to(room.code).emit(EVENTS.VOTE_OPENED, { eligibleVoterIds })
-      io.to(room.code).emit(EVENTS.VOTE_UPDATED, summary)
       io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
     } else {
       if (room.currentRound === 1) room.maybeAutoRevealOccupation()

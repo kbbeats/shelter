@@ -16,7 +16,9 @@ export function registerVoteHandlers(io: Server, socket: Socket): void {
     const summary = room.castVote(socket.id, targetPlayerId)
     if (!summary) return
 
-    io.to(room.code).emit(EVENTS.VOTE_UPDATED, summary)
+    // Push the safe public state to everyone so submission counters/roster flags
+    // update live on each vote — never the per-candidate breakdown in `summary`.
+    io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
 
     if (room.isVoteComplete()) {
       resolveVote(io, room)

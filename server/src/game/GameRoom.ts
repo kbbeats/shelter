@@ -466,7 +466,7 @@ export class GameRoom {
       currentArgumentIndex: this.currentArgumentIndex,
       argumentOrder: this.argumentOrder,
       currentArgumentPlayerId: this.argumentOrder[this.currentArgumentIndex] ?? null,
-      voteStatus: this.voteManager?.getSummary() ?? null,
+      voteStatus: this.voteManager?.getPublicStatus() ?? null,
       survivors: this.survivors,
       selectedScenarioId: this.selectedScenarioId,
       lastAbilityAnnouncement: this.lastAbilityAnnouncement,

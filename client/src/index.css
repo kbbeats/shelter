@@ -2343,38 +2343,119 @@ h1, h2, h3, .display {
   .argument-phase__next-name { max-width: none; }
 }
 
-/* ── Voting Panel ─────────────────────────────────────────────────────────── */
+/* ── Voting Panel · Blind Terminal Poll ───────────────────────────────────────
+   Self-contained "bunker command console" for the ROUND_VOTING phase. Deliberately
+   its own phosphor-green / IBM Plex Mono identity — do NOT wire it to the round
+   screen's --c-* tokens. All colours + font are scoped to .exile-term so nothing
+   leaks into the rest of the app. Shows only an aggregate submission count and
+   per-player RECEIVED/PENDING flags — never a per-candidate tally. */
 
-.voting-panel {
-  padding: 18px 28px;
-  border-bottom: 1px solid var(--c-border);
-  background: var(--c-surface);
+.exile-term {
+  /* Scoped phosphor palette (ported from option-4-terminal.html) */
+  --et-bg: #060907;
+  --et-panel: #0b120d;
+  --et-phos: #57e08a;
+  --et-phos-dim: #2c6b45;
+  --et-phos-faint: #163d27;
+  --et-amber: #e0b957;
+  --et-danger: #e05757;
+
+  max-width: 620px;
+  margin: 18px auto 22px;
+  background: var(--et-panel);
+  border: 1px solid var(--et-phos-faint);
+  border-radius: 4px;
+  box-shadow: 0 0 40px rgba(87, 224, 138, 0.06), 0 20px 44px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--et-phos);
 }
-.voting-panel__title {
-  font-family: var(--font-mono);
-  font-size: 1.3rem;
-  color: var(--c-primary);
-  letter-spacing: 0.04em;
-  margin-bottom: 12px;
-}
-.voting-panel__title::before { content: '[VOTING] '; color: var(--c-text-dim); }
-.vote-option {
+
+.exile-term__bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  background: var(--c-bg);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius);
-  margin-bottom: 8px;
-  transition: all var(--transition);
+  gap: 8px;
+  padding: 8px 14px;
+  background: #081008;
+  border-bottom: 1px solid var(--et-phos-faint);
+  font-size: 0.7rem;
+  color: var(--et-phos-dim);
+  letter-spacing: 0.08em;
 }
-.vote-option:last-child { margin-bottom: 0; }
-.vote-option__avatar { width: 26px; height: 26px; font-size: 0.62rem; margin-right: 10px; }
-.vote-option__name  { font-family: var(--font-mono); font-size: 0.9rem; }
-.vote-bar-wrap      { flex: 1; margin: 0 12px; background: var(--c-surface2); border-radius: var(--radius); height: 6px; overflow: hidden; }
-.vote-bar           { height: 100%; background: var(--c-primary); border-radius: var(--radius); transition: width 0.4s ease; box-shadow: 0 0 8px var(--c-glow); }
-.vote-count         { font-family: var(--font-mono); font-size: 0.85rem; color: var(--c-primary); min-width: 20px; text-align: right; }
+.exile-term__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--et-phos); }
+
+.exile-term__body { padding: 18px 20px 22px; }
+
+.exile-term__line { font-size: 0.82rem; color: var(--et-phos-dim); margin-bottom: 4px; }
+.exile-term__line strong { color: var(--et-phos); }
+
+.exile-term__progress { margin: 14px 0 18px; font-size: 0.8rem; color: var(--et-phos-dim); }
+.exile-term__progress strong { color: var(--et-phos); }
+.exile-term__track { display: flex; gap: 2px; margin-top: 6px; }
+.exile-term__seg {
+  flex: 1;
+  height: 8px;
+  background: var(--et-phos-faint);
+  border-radius: 1px;
+  transition: background 0.25s ease;
+}
+.exile-term__seg--filled { background: var(--et-phos); }
+
+.exile-term__roster { display: flex; flex-direction: column; gap: 0; margin-top: 10px; }
+.exile-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--et-phos-faint);
+}
+.exile-row:first-child { border-top: 1px dashed var(--et-phos-faint); }
+.exile-row__index { color: var(--et-phos-dim); font-size: 0.78rem; width: 20px; }
+.exile-row__name { flex: 1; font-size: 0.95rem; color: #d8f5e2; }
+.exile-row__flag { flex-shrink: 0; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--et-phos-dim); }
+.exile-row__flag--in { color: var(--et-amber); }
+
+.exile-row__target {
+  flex-shrink: 0;
+  font: inherit;
+  cursor: pointer;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--et-bg);
+  background: var(--et-danger);
+  border: none;
+  border-radius: 2px;
+  padding: 8px 12px;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.exile-row__target:hover { filter: brightness(1.15); }
+.exile-row__target:active { transform: scale(0.96); }
+.exile-row__target:focus-visible { outline: 2px solid var(--et-phos); outline-offset: 2px; }
+
+.exile-term__footer {
+  margin-top: 16px;
+  font-size: 0.75rem;
+  color: var(--et-phos-dim);
+  border-top: 1px solid var(--et-phos-faint);
+  padding-top: 12px;
+}
+.exile-term__cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--et-phos);
+  vertical-align: -2px;
+  margin-left: 4px;
+  animation: exile-blink 1s step-end infinite;
+}
+@keyframes exile-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .exile-term__cursor { animation: none; } }
+
+@media (max-width: 640px) {
+  .exile-row { flex-wrap: wrap; }
+  .exile-row__target { width: 100%; order: 3; margin-top: 4px; }
+}
 
 /* ── Player Cards Grid ────────────────────────────────────────────────────── */
 
