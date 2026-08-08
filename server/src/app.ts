@@ -2,10 +2,11 @@ import express from 'express'
 import cors from 'cors'
 import { roomRegistry } from './rooms/RoomRegistry'
 import { getScenarioPublicList } from './data/scenarios/index'
+import { ALLOWED_ORIGINS } from './config/corsOrigins'
 
 export const app = express()
 
-app.use(cors({ origin: true, credentials: true }))
+app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }))
 app.use(express.json())
 
 app.get('/health', (_req, res) => {

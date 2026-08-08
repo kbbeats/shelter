@@ -3,16 +3,12 @@ import { Server } from 'socket.io'
 import { registerRoomHandlers } from './handlers/roomHandlers'
 import { registerGameHandlers } from './handlers/gameHandlers'
 import { registerVoteHandlers } from './handlers/voteHandlers'
+import { ALLOWED_ORIGINS } from '../config/corsOrigins'
 
 export function initSocketServer(httpServer: HttpServer): Server {
   const io = new Server(httpServer, {
     cors: {
-      origin: [
-        process.env.CLIENT_URL || 'http://localhost:5173',
-        'https://shelter-gules.vercel.app',
-        'https://shelterbunkergame.online',
-        'https://www.shelterbunkergame.online',
-      ],
+      origin: ALLOWED_ORIGINS,
       credentials: true,
     },
     pingTimeout: 60000,
