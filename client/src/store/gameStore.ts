@@ -11,11 +11,16 @@ import { getSocket } from '../socket/socket'
 // leaks into the opponent carousel).
 const ROOM_CODE_KEY = 'shelter_room_code'
 const PLAYER_NAME_KEY = 'shelter_player_name'
+// Proof of identity for reconnects, issued once by the server via the private
+// PLAYER_SESSION event — required so a reconnect can't be forged with just the
+// (publicly visible) room code + display name. Never sent anywhere but here.
+const PLAYER_TOKEN_KEY = 'shelter_player_token'
 
-function rememberSession(name?: string, code?: string): void {
+function rememberSession(name?: string, code?: string, token?: string): void {
   try {
     if (name != null) sessionStorage.setItem(PLAYER_NAME_KEY, name)
     if (code != null) sessionStorage.setItem(ROOM_CODE_KEY, code)
+    if (token != null) sessionStorage.setItem(PLAYER_TOKEN_KEY, token)
   } catch { /* sessionStorage unavailable — auto-rejoin simply won't fire */ }
 }
 
@@ -23,6 +28,7 @@ function forgetSession(): void {
   try {
     sessionStorage.removeItem(ROOM_CODE_KEY)
     sessionStorage.removeItem(PLAYER_NAME_KEY)
+    sessionStorage.removeItem(PLAYER_TOKEN_KEY)
   } catch { /* ignore */ }
 }
 
@@ -77,7 +83,8 @@ export const useGameStore = create<GameStore>((set, get) => {
       try {
         const code = sessionStorage.getItem(ROOM_CODE_KEY)
         const name = sessionStorage.getItem(PLAYER_NAME_KEY)
-        if (code && name) socket.emit(EVENTS.ROOM_JOIN, { code, playerName: name })
+        const reconnectToken = sessionStorage.getItem(PLAYER_TOKEN_KEY)
+        if (code && name) socket.emit(EVENTS.ROOM_JOIN, { code, playerName: name, reconnectToken })
       } catch { /* ignore */ }
     }
   })
@@ -92,6 +99,10 @@ export const useGameStore = create<GameStore>((set, get) => {
     set(state.phase === 'CATASTROPHE_REVEAL'
       ? { roomState: state, storyClosed: false, lastReveal: null }
       : { roomState: state })
+  })
+
+  socket.on(EVENTS.PLAYER_SESSION, ({ reconnectToken }: { reconnectToken: string }) => {
+    rememberSession(undefined, undefined, reconnectToken)
   })
 
   socket.on(EVENTS.STORY_CLOSED, () => {
@@ -175,7 +186,11 @@ export const useGameStore = create<GameStore>((set, get) => {
 
     joinRoom: (code, playerName) => {
       rememberSession(playerName, code)
-      socket.emit(EVENTS.ROOM_JOIN, { code, playerName })
+      let reconnectToken: string | null = null
+      try {
+        reconnectToken = sessionStorage.getItem(PLAYER_TOKEN_KEY)
+      } catch { /* ignore */ }
+      socket.emit(EVENTS.ROOM_JOIN, { code, playerName, reconnectToken })
     },
 
     leaveRoom: () => {

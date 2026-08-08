@@ -13,6 +13,7 @@ import type {
   AbilityAnnouncement,
   AbilityInterrupt,
 } from '@shelter/shared'
+import { randomUUID } from 'crypto'
 import { CardDealer } from './CardDealer'
 import { VoteManager } from './VoteManager'
 import { generateBunker } from './bunkerGenerator'
@@ -27,6 +28,9 @@ interface Player {
   revealedCategoryIds: string[]
   hasRevealedThisRound: boolean
   cards: PlayerCards
+  // Proof of identity for reconnects — issued once via a private socket.emit, never
+  // exposed through PublicPlayer/getPublicState. Must never be broadcast room-wide.
+  reconnectToken: string
 }
 
 export class GameRoom {
@@ -65,6 +69,7 @@ export class GameRoom {
       revealedCategoryIds: [],
       hasRevealedThisRound: false,
       cards: {},
+      reconnectToken: randomUUID(),
     })
   }
 
@@ -79,6 +84,7 @@ export class GameRoom {
       revealedCategoryIds: [],
       hasRevealedThisRound: false,
       cards: {},
+      reconnectToken: randomUUID(),
     }
     this.players.set(socketId, player)
     return player

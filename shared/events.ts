@@ -17,6 +17,8 @@ export const EVENTS = {
   HOST_CLOSE_STORY: 'host:close_story',
 
   // Server → Client
+  // Private, single-recipient only — the reconnect token must never be broadcast room-wide.
+  PLAYER_SESSION: 'player:session',
   ROOM_STATE: 'room:state',
   ROOM_PLAYER_JOINED: 'room:playerJoined',
   ROOM_PLAYER_LEFT: 'room:playerLeft',

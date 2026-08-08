@@ -13,53 +13,63 @@ export function registerRoomHandlers(io: Server, socket: Socket): void {
     const room = roomRegistry.create(socket.id, playerName.trim())
     socket.join(room.code)
     socket.emit(EVENTS.ROOM_STATE, room.getPublicState(socket.id))
+    const hostToken = room.players.get(socket.id)?.reconnectToken
+    if (hostToken) socket.emit(EVENTS.PLAYER_SESSION, { reconnectToken: hostToken })
   })
 
-  socket.on(EVENTS.ROOM_JOIN, ({ code, playerName }: { code: string; playerName: string }) => {
-    if (!playerName?.trim() || !code?.trim()) {
-      socket.emit(EVENTS.ROOM_ERROR, { message: 'Name and room code are required' })
-      return
-    }
-
-    const room = roomRegistry.get(code.trim())
-    if (!room) {
-      socket.emit(EVENTS.ROOM_ERROR, { message: 'Room not found' })
-      return
-    }
-
-    if (room.phase !== 'LOBBY') {
-      // Check if this is a reconnect
-      const existingPlayer = room.getPlayerByName(playerName.trim())
-      if (existingPlayer) {
-        const player = room.reconnectPlayer(socket.id, existingPlayer.id)
-        if (player) {
-          socket.join(room.code)
-          socket.emit(EVENTS.ROOM_STATE, room.getPublicState(socket.id))
-          // Re-send private cards if game is in progress
-          if (player.cards && Object.keys(player.cards).length > 0) {
-            socket.emit(EVENTS.GAME_DEALT_CARDS, { cards: player.cards })
-          }
-          io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
-          return
-        }
+  socket.on(
+    EVENTS.ROOM_JOIN,
+    ({ code, playerName, reconnectToken }: { code: string; playerName: string; reconnectToken?: string }) => {
+      if (!playerName?.trim() || !code?.trim()) {
+        socket.emit(EVENTS.ROOM_ERROR, { message: 'Name and room code are required' })
+        return
       }
-      socket.emit(EVENTS.ROOM_ERROR, { message: 'Game already in progress' })
-      return
-    }
 
-    if (room.players.size >= 16) {
-      socket.emit(EVENTS.ROOM_ERROR, { message: 'Room is full (max 16 players)' })
-      return
-    }
+      const room = roomRegistry.get(code.trim())
+      if (!room) {
+        socket.emit(EVENTS.ROOM_ERROR, { message: 'Room not found' })
+        return
+      }
 
-    room.addPlayer(socket.id, playerName.trim())
-    socket.join(room.code)
-    socket.emit(EVENTS.ROOM_STATE, room.getPublicState(socket.id))
-    socket.to(room.code).emit(EVENTS.ROOM_PLAYER_JOINED, {
-      player: room.getPublicState(socket.id).players.find(p => p.id === socket.id),
-    })
-    io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
-  })
+      if (room.phase !== 'LOBBY') {
+        // Check if this is a reconnect — require the caller to prove ownership with the
+        // private token issued at create/join time. A name match alone is not proof of
+        // identity: it's visible to every player in the room, so trusting it would let
+        // anyone hijack another player's session and receive their private cards.
+        const existingPlayer = room.getPlayerByName(playerName.trim())
+        if (existingPlayer && reconnectToken && reconnectToken === existingPlayer.reconnectToken) {
+          const player = room.reconnectPlayer(socket.id, existingPlayer.id)
+          if (player) {
+            socket.join(room.code)
+            socket.emit(EVENTS.ROOM_STATE, room.getPublicState(socket.id))
+            // Re-send private cards if game is in progress
+            if (player.cards && Object.keys(player.cards).length > 0) {
+              socket.emit(EVENTS.GAME_DEALT_CARDS, { cards: player.cards })
+            }
+            io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+            return
+          }
+        }
+        socket.emit(EVENTS.ROOM_ERROR, { message: 'Game already in progress' })
+        return
+      }
+
+      if (room.players.size >= 16) {
+        socket.emit(EVENTS.ROOM_ERROR, { message: 'Room is full (max 16 players)' })
+        return
+      }
+
+      room.addPlayer(socket.id, playerName.trim())
+      socket.join(room.code)
+      socket.emit(EVENTS.ROOM_STATE, room.getPublicState(socket.id))
+      const newToken = room.players.get(socket.id)?.reconnectToken
+      if (newToken) socket.emit(EVENTS.PLAYER_SESSION, { reconnectToken: newToken })
+      socket.to(room.code).emit(EVENTS.ROOM_PLAYER_JOINED, {
+        player: room.getPublicState(socket.id).players.find(p => p.id === socket.id),
+      })
+      io.to(room.code).emit(EVENTS.ROOM_STATE, room.getPublicState())
+    },
+  )
 
   socket.on(EVENTS.ROOM_LEAVE, () => {
     handleDisconnect(io, socket)
