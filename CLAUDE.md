@@ -24,8 +24,9 @@ npx vercel --prod --yes
 - Always deploy client from repo root — `client/.vercel/project.json` points to a broken separate project, ignore it
 
 ## Live URLs
-- Client: https://shelter-gules.vercel.app
-- Server: https://shelter-server-z35p.onrender.com (health: `/health`)
+- Client (primary): https://shelterbunkergame.online (custom domain, apex canonical, `www` redirects to apex)
+- Client (fallback, still works): https://shelter-gules.vercel.app
+- Server (unchanged, no custom domain): https://shelter-server-z35p.onrender.com (health: `/health`)
 - Render free tier sleeps after 15 min — keep-alive cron already set up at cron-job.org
 
 ## Tech Stack
